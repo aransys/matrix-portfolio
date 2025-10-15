@@ -1,5 +1,4 @@
 ---
-// Theme Switcher Component - Matrix Trilogy Themes
 ---
 
 <div class="theme-switcher">
@@ -20,100 +19,90 @@
 <style>
   .theme-switcher {
     position: fixed;
-    bottom: 2rem;
-    right: 2rem;
+    bottom: 1.5rem;
+    right: 1.5rem;
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.5rem;
     z-index: 999;
-    background: var(--darker-bg);
-    padding: 1rem;
-    border: 1px solid var(--primary-color);
-    border-radius: 8px;
-    box-shadow: var(--glow);
-    transition: all 0.5s ease;
+    transition: all 0.3s ease;
+  }
+  
+  .theme-switcher:not(:hover) .theme-pill:not(.active) {
+    opacity: 0;
+    transform: scale(0);
+    pointer-events: none;
   }
   
   .theme-pill {
+    position: relative;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1rem;
-    background: transparent;
-    border: 2px solid var(--gray-bg);
-    color: var(--light-text);
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: var(--darker-bg);
+    border: 2px solid transparent;
     cursor: pointer;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.875rem;
     transition: all 0.3s ease;
-    border-radius: 4px;
-    min-width: 140px;
+    border-radius: 50%;
+    box-shadow: var(--glow);
   }
   
   .theme-pill:hover {
     border-color: var(--primary-color);
-    box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
-    transform: translateX(-5px);
+    transform: scale(1.15);
   }
   
   .theme-pill.active {
     border-color: var(--primary-color);
-    background: rgba(0, 212, 255, 0.1);
-    box-shadow: var(--glow);
+    background: rgba(0, 212, 255, 0.2);
   }
   
   .pill-icon {
-    font-size: 1.2rem;
+    font-size: 1.4rem;
   }
   
   .pill-label {
-    font-weight: 500;
+    display: none;
   }
   
-  /* Theme-specific active states */
   [data-theme="matrix"] .theme-pill[data-theme="matrix"].active {
-    background: rgba(0, 255, 65, 0.1);
+    background: rgba(0, 255, 65, 0.2);
+    box-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
   }
   
   [data-theme="reloaded"] .theme-pill[data-theme="reloaded"].active {
-    background: rgba(0, 212, 255, 0.1);
+    background: rgba(0, 212, 255, 0.2);
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
   }
   
   [data-theme="revolutions"] .theme-pill[data-theme="revolutions"].active {
-    background: rgba(255, 140, 0, 0.1);
+    background: rgba(255, 140, 0, 0.2);
+    box-shadow: 0 0 20px rgba(255, 140, 0, 0.5);
   }
   
   @media (max-width: 768px) {
     .theme-switcher {
       bottom: 1rem;
       right: 1rem;
-      padding: 0.75rem;
-      gap: 0.5rem;
     }
     
     .theme-pill {
-      padding: 0.5rem 0.75rem;
-      font-size: 0.75rem;
-      min-width: 120px;
-    }
-    
-    .pill-label {
-      display: none;
+      width: 42px;
+      height: 42px;
     }
     
     .pill-icon {
-      font-size: 1.5rem;
+      font-size: 1.2rem;
     }
   }
 </style>
 
 <script>
-  // Theme Switcher Logic
   function initThemeSwitcher() {
     const pills = document.querySelectorAll('.theme-pill');
     const body = document.body;
-    
-    // Set default theme to reloaded on load
     const savedTheme = localStorage.getItem('matrix-theme') || 'reloaded';
     setTheme(savedTheme);
     
@@ -130,7 +119,6 @@
     function setTheme(theme: string) {
       body.setAttribute('data-theme', theme);
       
-      // Update active state
       pills.forEach(p => {
         if (p.getAttribute('data-theme') === theme) {
           p.classList.add('active');
@@ -141,7 +129,6 @@
     }
   }
   
-  // Initialize on load
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initThemeSwitcher);
   } else {

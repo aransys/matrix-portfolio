@@ -9,7 +9,6 @@ import ThemeSwitcher from '../components/ThemeSwitcher.astro';
 ---
 
 <Layout title="Aurimas Ransys - Full Stack Developer">
-  <!-- Matrix Rain Background -->
   <div class="matrix-bg" id="matrix-bg"></div>
   
   <Navigation />
@@ -20,7 +19,6 @@ import ThemeSwitcher from '../components/ThemeSwitcher.astro';
   <ThemeSwitcher />
   
   <script>
-    // Matrix rain effect
     function createMatrixRain() {
       const container = document.getElementById('matrix-bg');
       if (!container) return;
@@ -28,7 +26,7 @@ import ThemeSwitcher from '../components/ThemeSwitcher.astro';
       const columns = Math.floor(window.innerWidth / 20);
       const characters = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
       
-      container.innerHTML = ''; // Clear existing columns
+      container.innerHTML = '';
       
       for (let i = 0; i < columns; i++) {
         const column = document.createElement('div');
@@ -47,7 +45,6 @@ import ThemeSwitcher from '../components/ThemeSwitcher.astro';
       }
     }
     
-    // Typing effect
     function typeWriter(element: HTMLElement | null, text: string, speed = 100) {
       if (!element) return;
       let i = 0;
@@ -65,7 +62,6 @@ import ThemeSwitcher from '../components/ThemeSwitcher.astro';
       type();
     }
     
-    // Scroll animations
     function handleScrollAnimations() {
       const elements = document.querySelectorAll('.fade-in');
       
@@ -79,7 +75,6 @@ import ThemeSwitcher from '../components/ThemeSwitcher.astro';
       });
     }
     
-    // Smooth scrolling for navigation
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
       anchor.addEventListener('click', function (e) {
         e.preventDefault();
@@ -96,12 +91,10 @@ import ThemeSwitcher from '../components/ThemeSwitcher.astro';
       });
     });
     
-    // Initialize effects
     window.addEventListener('load', () => {
       createMatrixRain();
       handleScrollAnimations();
       
-      // Add typing effect to subtitle
       const subtitle = document.querySelector('.hero-subtitle');
       if (subtitle) {
         typeWriter(subtitle as HTMLElement, 'Full Stack Developer |');

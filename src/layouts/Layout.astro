@@ -30,7 +30,6 @@ const { title } = Astro.props;
   }
   
   :root {
-    /* Default Theme: Matrix Reloaded (Blue) */
     --primary-color: #00d4ff;
     --secondary-color: #0096ff;
     --dark-bg: #0a0e1a;
@@ -38,11 +37,8 @@ const { title } = Astro.props;
     --gray-bg: #1a2332;
     --light-text: #e6f2ff;
     --glow: 0 0 20px rgba(0, 212, 255, 0.3);
-    
-    /* Theme-specific colors will be swapped via JavaScript */
   }
   
-  /* Matrix (Green) Theme */
   [data-theme="matrix"] {
     --primary-color: #00ff41;
     --secondary-color: #39ff14;
@@ -53,7 +49,6 @@ const { title } = Astro.props;
     --glow: 0 0 20px rgba(0, 255, 65, 0.3);
   }
   
-  /* Reloaded (Blue) Theme - Default */
   [data-theme="reloaded"] {
     --primary-color: #00d4ff;
     --secondary-color: #0096ff;
@@ -64,7 +59,6 @@ const { title } = Astro.props;
     --glow: 0 0 20px rgba(0, 212, 255, 0.3);
   }
   
-  /* Revolutions (Orange) Theme */
   [data-theme="revolutions"] {
     --primary-color: #ff8c00;
     --secondary-color: #ffa500;
@@ -84,7 +78,6 @@ const { title } = Astro.props;
     transition: background 0.5s ease, color 0.5s ease;
   }
   
-  /* Matrix rain background */
   .matrix-bg {
     position: fixed;
     top: 0;
@@ -111,7 +104,6 @@ const { title } = Astro.props;
     }
   }
   
-  /* Scroll effects */
   .fade-in {
     opacity: 0;
     transform: translateY(20px);
@@ -123,7 +115,6 @@ const { title } = Astro.props;
     transform: translateY(0);
   }
 
-  /* Accessibility: Respect user's motion preferences */
   @media (prefers-reduced-motion: reduce) {
     .matrix-column,
     .fade-in,

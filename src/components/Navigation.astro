@@ -10,6 +10,19 @@
       <li><a href="#skills">skills.exe</a></li>
       <li><a href="#contact">contact --help</a></li>
     </ul>
+    <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+      <span class="line"></span>
+      <span class="line"></span>
+      <span class="line"></span>
+    </button>
+  </div>
+  <div class="mobile-menu" id="mobile-menu">
+    <ul class="mobile-nav-links">
+      <li><a href="#home">home</a></li>
+      <li><a href="#projects">projects.list()</a></li>
+      <li><a href="#skills">skills.exe</a></li>
+      <li><a href="#contact">contact --help</a></li>
+    </ul>
   </div>
 </nav>
 
@@ -84,6 +97,99 @@
     opacity: 1;
   }
   
+  .hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    z-index: 1001;
+  }
+  
+  .hamburger .line {
+    width: 25px;
+    height: 2px;
+    background: var(--primary-color);
+    transition: all 0.3s ease;
+    box-shadow: var(--glow);
+  }
+  
+  .hamburger.active .line:nth-child(1) {
+    transform: rotate(45deg) translate(7px, 7px);
+  }
+  
+  .hamburger.active .line:nth-child(2) {
+    opacity: 0;
+  }
+  
+  .hamburger.active .line:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -7px);
+  }
+  
+  .mobile-menu {
+    display: none;
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 70%;
+    max-width: 300px;
+    height: 100vh;
+    background: var(--darker-bg);
+    border-left: 2px solid var(--primary-color);
+    box-shadow: -5px 0 30px rgba(0, 0, 0, 0.5);
+    transition: right 0.3s ease;
+    z-index: 1000;
+    padding-top: 5rem;
+  }
+  
+  .mobile-menu.active {
+    right: 0;
+  }
+  
+  .mobile-nav-links {
+    list-style: none;
+    padding: 2rem;
+  }
+  
+  .mobile-nav-links li {
+    margin-bottom: 2rem;
+  }
+  
+  .mobile-nav-links a {
+    color: var(--light-text);
+    text-decoration: none;
+    font-size: 1rem;
+    display: block;
+    padding: 0.5rem;
+    border-left: 3px solid transparent;
+    transition: all 0.3s ease;
+    position: relative;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .mobile-nav-links a::before {
+    content: '> ';
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .mobile-nav-links a:hover::before,
+  .mobile-nav-links a:active::before {
+    opacity: 1;
+  }
+  
+  .mobile-nav-links a:hover,
+  .mobile-nav-links a:active {
+    color: var(--primary-color);
+    border-left-color: var(--primary-color);
+    padding-left: 1rem;
+    background: rgba(0, 212, 255, 0.05);
+  }
+  
   @media (max-width: 1024px) and (min-width: 769px) {
     .nav-container {
       padding: 0 1rem;
@@ -107,6 +213,64 @@
     .nav-links {
       display: none;
     }
+    
+    .hamburger {
+      display: flex;
+    }
+    
+    .mobile-menu {
+      display: block;
+    }
+  }
+  
+  @media (max-width: 400px) {
+    .mobile-menu {
+      width: 80%;
+      max-width: 280px;
+    }
+    
+    .mobile-nav-links {
+      padding: 1.5rem;
+    }
+    
+    .mobile-nav-links a {
+      font-size: 0.9rem;
+    }
   }
 </style>
+
+<script>
+  function initMobileMenu() {
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const mobileLinks = document.querySelectorAll('.mobile-nav-links a');
+    
+    if (!hamburger || !mobileMenu) return;
+    
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('active');
+      mobileMenu.classList.toggle('active');
+    });
+    
+    mobileLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        hamburger.classList.remove('active');
+        mobileMenu.classList.remove('active');
+      });
+    });
+    
+    document.addEventListener('click', (e) => {
+      if (!hamburger.contains(e.target as Node) && !mobileMenu.contains(e.target as Node)) {
+        hamburger.classList.remove('active');
+        mobileMenu.classList.remove('active');
+      }
+    });
+  }
+  
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMobileMenu);
+  } else {
+    initMobileMenu();
+  }
+</script>
 

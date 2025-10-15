@@ -13,14 +13,25 @@ const contactInfo = {
   <h2 class="section-title">Contact</h2>
   <div class="terminal-output">
     <div class="command-line">$ cat contact.json</div>
-    <div class="output-line">&#123;</div>
-    <div class="output-line">&nbsp;&nbsp;"email": "{contactInfo.email}",</div>
-    <div class="output-line">&nbsp;&nbsp;"github": "{contactInfo.github}",</div>
-    <div class="output-line">&nbsp;&nbsp;"linkedin": "{contactInfo.linkedin}",</div>
-    <div class="output-line">&nbsp;&nbsp;"instagram": "{contactInfo.instagram}",</div>
-    <div class="output-line">&nbsp;&nbsp;"location": "{contactInfo.location}",</div>
-    <div class="output-line">&nbsp;&nbsp;"status": "{contactInfo.status}"</div>
-    <div class="output-line">&#125;</div>
+    <div class="output-line desktop-view">&#123;</div>
+    <div class="output-line desktop-view">&nbsp;&nbsp;"email": "<a href={`mailto:${contactInfo.email}`} class="contact-link">{contactInfo.email}</a>",</div>
+    <div class="output-line desktop-view">&nbsp;&nbsp;"github": "<a href={`https://${contactInfo.github}`} target="_blank" rel="noopener noreferrer" class="contact-link">{contactInfo.github}</a>",</div>
+    <div class="output-line desktop-view">&nbsp;&nbsp;"linkedin": "<a href={contactInfo.linkedin} target="_blank" rel="noopener noreferrer" class="contact-link">LinkedIn Profile</a>",</div>
+    <div class="output-line desktop-view">&nbsp;&nbsp;"instagram": "<a href={`https://instagram.com/${contactInfo.instagram.substring(1)}`} target="_blank" rel="noopener noreferrer" class="contact-link">{contactInfo.instagram}</a>",</div>
+    <div class="output-line desktop-view">&nbsp;&nbsp;"location": "{contactInfo.location}",</div>
+    <div class="output-line desktop-view">&nbsp;&nbsp;"status": "{contactInfo.status}"</div>
+    <div class="output-line desktop-view">&#125;</div>
+    
+    <div class="mobile-view">
+      <div class="output-line">&#123;</div>
+      <div class="output-line"><a href={`mailto:${contactInfo.email}`} class="contact-link">{contactInfo.email}</a></div>
+      <div class="output-line"><a href={`https://${contactInfo.github}`} target="_blank" rel="noopener noreferrer" class="contact-link">{contactInfo.github}</a></div>
+      <div class="output-line"><a href={contactInfo.linkedin} target="_blank" rel="noopener noreferrer" class="contact-link">LinkedIn</a></div>
+      <div class="output-line"><a href={`https://instagram.com/${contactInfo.instagram.substring(1)}`} target="_blank" rel="noopener noreferrer" class="contact-link">{contactInfo.instagram}</a></div>
+      <div class="output-line">{contactInfo.location}</div>
+      <div class="output-line">{contactInfo.status}</div>
+      <div class="output-line">&#125;</div>
+    </div>
   </div>
   <p>Ready to build something amazing together? Let's connect and make it happen.</p>
 </section>
@@ -78,6 +89,63 @@ const contactInfo = {
   .output-line {
     margin-bottom: 0.5rem;
     opacity: 0.9;
+  }
+  
+  .contact-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border-bottom: 1px solid transparent;
+  }
+  
+  .contact-link:hover {
+    border-bottom-color: var(--primary-color);
+    text-shadow: var(--glow);
+  }
+  
+  .mobile-view {
+    display: none;
+  }
+  
+  .desktop-view {
+    display: block;
+  }
+  
+  @media (max-width: 768px) {
+    .contact {
+      margin: 2rem;
+      padding: 3rem 2rem;
+    }
+    
+    .section-title {
+      font-size: 2rem;
+      margin-bottom: 2.5rem;
+    }
+    
+    .terminal-output {
+      padding: 2rem;
+      margin: 2rem 0;
+    }
+    
+    .desktop-view {
+      display: none;
+    }
+    
+    .mobile-view {
+      display: block;
+    }
+    
+    .output-line {
+      margin-bottom: 0.75rem;
+      line-height: 1.6;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .contact {
+      margin: 1.5rem;
+      padding: 2.5rem 1.5rem;
+    }
   }
 </style>
 

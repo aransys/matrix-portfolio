@@ -1,0 +1,79 @@
+---
+// Navigation component - Matrix themed
+---
+
+<nav>
+  <div class="nav-container">
+    <div class="logo">neo.dev</div>
+    <ul class="nav-links">
+      <li><a href="#home">home</a></li>
+      <li><a href="#projects">projects.list()</a></li>
+      <li><a href="#skills">skills.exe</a></li>
+      <li><a href="#contact">contact --help</a></li>
+    </ul>
+  </div>
+</nav>
+
+<style>
+  nav {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background: rgba(13, 17, 23, 0.95);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--matrix-green);
+  }
+  
+  .nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2rem;
+  }
+  
+  .logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--matrix-green);
+    text-shadow: var(--glow);
+  }
+  
+  .nav-links {
+    display: flex;
+    list-style: none;
+    gap: 2rem;
+  }
+  
+  .nav-links a {
+    color: var(--matrix-light);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+  
+  .nav-links a:hover {
+    color: var(--matrix-green);
+    text-shadow: var(--glow);
+  }
+  
+  .nav-links a::before {
+    content: '> ';
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .nav-links a:hover::before {
+    opacity: 1;
+  }
+  
+  @media (max-width: 768px) {
+    .nav-links {
+      display: none;
+    }
+  }
+</style>
+

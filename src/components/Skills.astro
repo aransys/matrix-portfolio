@@ -1,0 +1,118 @@
+---
+// Skills component organized by categories
+const skillCategories = [
+  {
+    title: "Frontend.dll",
+    skills: ["React / Next.js", "Vue.js / Nuxt.js", "TypeScript", "Tailwind CSS", "Three.js / WebGL"]
+  },
+  {
+    title: "Backend.exe",
+    skills: ["Node.js / Express", "Python / FastAPI", "PostgreSQL / MongoDB", "Redis / GraphQL", "Docker / Kubernetes"]
+  },
+  {
+    title: "Tools.sys",
+    skills: ["Git / GitHub Actions", "AWS / Vercel", "Figma / Adobe XD", "Jest / Cypress", "Webpack / Vite"]
+  },
+  {
+    title: "Blockchain.chain",
+    skills: ["Solidity / Smart Contracts", "Web3.js / Ethers.js", "Hardhat / Truffle", "IPFS / MetaMask", "DeFi Protocols"]
+  }
+];
+---
+
+<section id="skills">
+  <h2 class="section-title fade-in">Skills</h2>
+  <div class="skills-grid">
+    {skillCategories.map((category) => (
+      <div class="skill-category fade-in">
+        <h3>{category.title}</h3>
+        <ul class="skill-list">
+          {category.skills.map((skill) => (
+            <li>{skill}</li>
+          ))}
+        </ul>
+      </div>
+    ))}
+  </div>
+</section>
+
+<style>
+  section {
+    padding: 5rem 0;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+  
+  .section-title {
+    font-size: 2.5rem;
+    margin-bottom: 3rem;
+    text-align: center;
+    position: relative;
+  }
+  
+  .section-title::before {
+    content: '// ';
+    color: var(--matrix-green);
+  }
+  
+  .section-title::after {
+    content: '';
+    display: block;
+    width: 100px;
+    height: 2px;
+    background: var(--matrix-green);
+    margin: 1rem auto;
+    box-shadow: var(--glow);
+  }
+  
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+  }
+  
+  .skill-category {
+    background: var(--matrix-dark);
+    padding: 2rem;
+    border: 1px solid var(--matrix-gray);
+    transition: all 0.3s ease;
+  }
+  
+  .skill-category:hover {
+    border-color: var(--matrix-green);
+    box-shadow: var(--glow);
+  }
+  
+  .skill-category h3 {
+    color: var(--matrix-green);
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+  }
+  
+  .skill-list {
+    list-style: none;
+  }
+  
+  .skill-list li {
+    padding: 0.5rem 0;
+    position: relative;
+    padding-left: 1.5rem;
+  }
+  
+  .skill-list li::before {
+    content: '▶';
+    position: absolute;
+    left: 0;
+    color: var(--matrix-green);
+  }
+  
+  @media (max-width: 768px) {
+    .skills-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+

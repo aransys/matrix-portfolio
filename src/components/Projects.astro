@@ -1,0 +1,202 @@
+---
+// Projects component with sample data
+const projects = [
+  {
+    title: "matrix-chat.app",
+    description: "Real-time chat application with end-to-end encryption and Matrix Protocol integration. Features include file sharing, group channels, and custom emoji reactions.",
+    technologies: ["React", "Node.js", "Socket.io", "MongoDB"],
+    liveUrl: "#",
+    sourceUrl: "#"
+  },
+  {
+    title: "neural-net.dashboard",
+    description: "AI-powered analytics dashboard that visualizes complex data patterns. Built with machine learning algorithms for predictive analysis and real-time insights.",
+    technologies: ["Python", "TensorFlow", "Vue.js", "FastAPI"],
+    liveUrl: "#",
+    sourceUrl: "#"
+  },
+  {
+    title: "blockchain.wallet",
+    description: "Secure cryptocurrency wallet with multi-chain support. Features include transaction history, portfolio tracking, and decentralized exchange integration.",
+    technologies: ["Solidity", "Web3.js", "Next.js", "Rust"],
+    liveUrl: "#",
+    sourceUrl: "#"
+  }
+];
+---
+
+<section id="projects">
+  <h2 class="section-title fade-in">Projects</h2>
+  <div class="projects-grid">
+    {projects.map((project) => (
+      <div class="project-card fade-in">
+        <div class="project-header">
+          <div class="window-controls">
+            <div class="control close"></div>
+            <div class="control minimize"></div>
+            <div class="control maximize"></div>
+          </div>
+          <div class="project-title">{project.title}</div>
+        </div>
+        <div class="project-content">
+          <p class="project-description">{project.description}</p>
+          <div class="tech-stack">
+            {project.technologies.map((tech) => (
+              <span class="tech-tag">{tech}</span>
+            ))}
+          </div>
+          <div class="project-links">
+            <a href={project.liveUrl} class="project-link">
+              <span>🔗</span> Live Demo
+            </a>
+            <a href={project.sourceUrl} class="project-link">
+              <span>📁</span> Source Code
+            </a>
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+</section>
+
+<style>
+  section {
+    padding: 5rem 0;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+  
+  .section-title {
+    font-size: 2.5rem;
+    margin-bottom: 3rem;
+    text-align: center;
+    position: relative;
+  }
+  
+  .section-title::before {
+    content: '// ';
+    color: var(--matrix-green);
+  }
+  
+  .section-title::after {
+    content: '';
+    display: block;
+    width: 100px;
+    height: 2px;
+    background: var(--matrix-green);
+    margin: 1rem auto;
+    box-shadow: var(--glow);
+  }
+  
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+  }
+  
+  .project-card {
+    background: var(--matrix-dark);
+    border: 1px solid var(--matrix-gray);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .project-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--matrix-green), var(--terminal-green));
+  }
+  
+  .project-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--matrix-green);
+    box-shadow: 0 10px 30px rgba(0, 255, 65, 0.2);
+  }
+  
+  .project-header {
+    background: var(--matrix-black);
+    padding: 1rem;
+    border-bottom: 1px solid var(--matrix-gray);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .window-controls {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .control {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+  
+  .control.close { background: #ff5f56; }
+  .control.minimize { background: #ffbd2e; }
+  .control.maximize { background: #27ca3f; }
+  
+  .project-title {
+    font-size: 1rem;
+    color: var(--matrix-green);
+    margin-left: 1rem;
+  }
+  
+  .project-content {
+    padding: 1.5rem;
+  }
+  
+  .project-description {
+    margin-bottom: 1rem;
+    opacity: 0.9;
+  }
+  
+  .tech-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .tech-tag {
+    padding: 0.25rem 0.75rem;
+    background: rgba(0, 255, 65, 0.1);
+    border: 1px solid var(--matrix-green);
+    font-size: 0.875rem;
+    color: var(--matrix-green);
+  }
+  
+  .project-links {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .project-link {
+    color: var(--matrix-green);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+  }
+  
+  .project-link:hover {
+    text-shadow: var(--glow);
+  }
+  
+  @media (max-width: 768px) {
+    .projects-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+

@@ -1,0 +1,99 @@
+---
+export interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Matrix-themed developer portfolio" />
+    <title>{title}</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
+
+<style is:global>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  :root {
+    --matrix-green: #00ff41;
+    --matrix-dark-green: #008f22;
+    --matrix-black: #0d1117;
+    --matrix-dark: #1a1a1a;
+    --matrix-gray: #333;
+    --matrix-light: #e6e6e6;
+    --terminal-green: #39ff14;
+    --glow: 0 0 20px rgba(0, 255, 65, 0.3);
+  }
+  
+  body {
+    font-family: 'JetBrains Mono', monospace;
+    background: linear-gradient(135deg, var(--matrix-black) 0%, #0a0a0a 100%);
+    color: var(--matrix-light);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+  
+  /* Matrix rain background */
+  .matrix-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+    opacity: 0.1;
+  }
+  
+  .matrix-column {
+    position: absolute;
+    top: -100px;
+    font-size: 12px;
+    color: var(--matrix-green);
+    animation: matrix-fall linear infinite;
+  }
+  
+  @keyframes matrix-fall {
+    to {
+      transform: translateY(100vh);
+    }
+  }
+  
+  /* Scroll effects */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.6s ease;
+  }
+  
+  .fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Accessibility: Respect user's motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    .matrix-column,
+    .fade-in,
+    .typing-effect {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+</style>
+

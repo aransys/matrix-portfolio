@@ -1,16 +1,134 @@
 ---
-
+import Layout from '../layouts/Layout.astro';
+import Navigation from '../components/Navigation.astro';
+import Hero from '../components/Hero.astro';
+import Projects from '../components/Projects.astro';
+import Skills from '../components/Skills.astro';
+import Contact from '../components/Contact.astro';
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout title="Neo Anderson - Full Stack Developer">
+  <!-- Matrix Rain Background -->
+  <div class="matrix-bg" id="matrix-bg"></div>
+  
+  <Navigation />
+  <Hero />
+  <Projects />
+  <Skills />
+  <Contact />
+  
+  <script>
+    // Matrix rain effect
+    function createMatrixRain() {
+      const container = document.getElementById('matrix-bg');
+      if (!container) return;
+      
+      const columns = Math.floor(window.innerWidth / 20);
+      const characters = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+      
+      container.innerHTML = ''; // Clear existing columns
+      
+      for (let i = 0; i < columns; i++) {
+        const column = document.createElement('div');
+        column.className = 'matrix-column';
+        column.style.left = i * 20 + 'px';
+        column.style.animationDuration = Math.random() * 3 + 2 + 's';
+        column.style.animationDelay = Math.random() * 2 + 's';
+        
+        let text = '';
+        for (let j = 0; j < 20; j++) {
+          text += characters.charAt(Math.floor(Math.random() * characters.length)) + '<br>';
+        }
+        column.innerHTML = text;
+        
+        container.appendChild(column);
+      }
+    }
+    
+    // Typing effect
+    function typeWriter(element: HTMLElement | null, text: string, speed = 100) {
+      if (!element) return;
+      let i = 0;
+      element.innerHTML = '';
+      
+      function type() {
+        if (i < text.length) {
+          if (element) {
+            element.innerHTML += text.charAt(i);
+          }
+          i++;
+          setTimeout(type, speed);
+        }
+      }
+      type();
+    }
+    
+    // Scroll animations
+    function handleScrollAnimations() {
+      const elements = document.querySelectorAll('.fade-in');
+      
+      elements.forEach(element => {
+        const elementTop = element.getBoundingClientRect().top;
+        const elementVisible = 150;
+        
+        if (elementTop < window.innerHeight - elementVisible) {
+          element.classList.add('visible');
+        }
+      });
+    }
+    
+    // Smooth scrolling for navigation
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const href = this.getAttribute('href');
+        if (href) {
+          const target = document.querySelector(href);
+          if (target) {
+            target.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
+          }
+        }
+      });
+    });
+    
+    // Initialize effects
+    window.addEventListener('load', () => {
+      createMatrixRain();
+      handleScrollAnimations();
+      
+      // Add typing effect to subtitle
+      const subtitle = document.querySelector('.hero-subtitle');
+      if (subtitle) {
+        typeWriter(subtitle as HTMLElement, 'Full Stack Developer |');
+      }
+    });
+    
+    window.addEventListener('scroll', handleScrollAnimations);
+    window.addEventListener('resize', () => {
+      createMatrixRain();
+    });
+    
+    // Easter egg: Konami code
+    let konamiCode: string[] = [];
+    const sequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'KeyB', 'KeyA'];
+    
+    document.addEventListener('keydown', (e) => {
+      konamiCode.push(e.code);
+      if (konamiCode.length > sequence.length) {
+        konamiCode.shift();
+      }
+      
+      if (konamiCode.join(',') === sequence.join(',')) {
+        document.body.style.filter = 'hue-rotate(180deg)';
+        setTimeout(() => {
+          alert('Welcome to the real world, Neo.');
+          document.body.style.filter = 'none';
+        }, 1000);
+        konamiCode = [];
+      }
+    });
+  </script>
+</Layout>

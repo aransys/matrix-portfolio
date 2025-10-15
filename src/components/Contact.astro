@@ -1,0 +1,79 @@
+---
+// Contact component with terminal-style output
+const contactInfo = {
+  email: "neo@matrix.dev",
+  github: "github.com/neoanderson",
+  linkedin: "linkedin.com/in/neoanderson",
+  twitter: "@neo_codes",
+  location: "The Matrix",
+  status: "Available for new opportunities"
+};
+---
+
+<section id="contact" class="contact">
+  <h2 class="section-title">Contact</h2>
+  <div class="terminal-output">
+    <div class="command-line">$ cat contact.json</div>
+    <div class="output-line">&#123;</div>
+    <div class="output-line">&nbsp;&nbsp;"email": "{contactInfo.email}",</div>
+    <div class="output-line">&nbsp;&nbsp;"github": "{contactInfo.github}",</div>
+    <div class="output-line">&nbsp;&nbsp;"linkedin": "{contactInfo.linkedin}",</div>
+    <div class="output-line">&nbsp;&nbsp;"twitter": "{contactInfo.twitter}",</div>
+    <div class="output-line">&nbsp;&nbsp;"location": "{contactInfo.location}",</div>
+    <div class="output-line">&nbsp;&nbsp;"status": "{contactInfo.status}"</div>
+    <div class="output-line">&#125;</div>
+  </div>
+  <p>Ready to build something amazing together? Let's connect and make it happen.</p>
+</section>
+
+<style>
+  .contact {
+    background: var(--matrix-dark);
+    margin: 2rem;
+    padding: 3rem;
+    border: 1px solid var(--matrix-green);
+    text-align: center;
+  }
+  
+  .section-title {
+    font-size: 2.5rem;
+    margin-bottom: 3rem;
+    text-align: center;
+    position: relative;
+  }
+  
+  .section-title::before {
+    content: '// ';
+    color: var(--matrix-green);
+  }
+  
+  .section-title::after {
+    content: '';
+    display: block;
+    width: 100px;
+    height: 2px;
+    background: var(--matrix-green);
+    margin: 1rem auto;
+    box-shadow: var(--glow);
+  }
+  
+  .terminal-output {
+    background: var(--matrix-black);
+    padding: 2rem;
+    margin: 2rem 0;
+    font-family: 'JetBrains Mono', monospace;
+    text-align: left;
+    border-left: 3px solid var(--matrix-green);
+  }
+  
+  .command-line {
+    color: var(--matrix-green);
+    margin-bottom: 0.5rem;
+  }
+  
+  .output-line {
+    margin-bottom: 0.5rem;
+    opacity: 0.9;
+  }
+</style>
+

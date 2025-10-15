@@ -28,7 +28,7 @@
     transition: all 0.3s ease;
   }
   
-  .theme-switcher:not(:hover) .theme-pill:not(.active) {
+  .theme-switcher:not(:hover):not(.expanded) .theme-pill:not(.active) {
     opacity: 0;
     transform: scale(0);
     pointer-events: none;
@@ -82,7 +82,7 @@
     box-shadow: 0 0 20px rgba(255, 140, 0, 0.5);
   }
   
-  @media (max-width: 768px) {
+  @media (max-width: 1024px) {
     .theme-switcher {
       bottom: 1rem;
       right: 1rem;
@@ -96,24 +96,50 @@
     .pill-icon {
       font-size: 1.2rem;
     }
+    
+    .theme-switcher.expanded .theme-pill:not(.active) {
+      opacity: 1;
+      transform: scale(1);
+      pointer-events: auto;
+    }
   }
 </style>
 
 <script>
   function initThemeSwitcher() {
+    const switcher = document.querySelector('.theme-switcher');
     const pills = document.querySelectorAll('.theme-pill');
     const body = document.body;
     const savedTheme = localStorage.getItem('matrix-theme') || 'reloaded';
+    let isExpanded = false;
+    
     setTheme(savedTheme);
     
     pills.forEach(pill => {
-      pill.addEventListener('click', () => {
+      pill.addEventListener('click', (e) => {
         const theme = pill.getAttribute('data-theme');
-        if (theme) {
+        const isActive = pill.classList.contains('active');
+        
+        if (isActive && window.innerWidth <= 1024) {
+          e.stopPropagation();
+          isExpanded = !isExpanded;
+          switcher?.classList.toggle('expanded', isExpanded);
+        } else if (theme) {
           setTheme(theme);
           localStorage.setItem('matrix-theme', theme);
+          if (window.innerWidth <= 1024) {
+            isExpanded = false;
+            switcher?.classList.remove('expanded');
+          }
         }
       });
+    });
+    
+    document.addEventListener('click', (e) => {
+      if (window.innerWidth <= 1024 && !switcher?.contains(e.target as Node)) {
+        isExpanded = false;
+        switcher?.classList.remove('expanded');
+      }
     });
     
     function setTheme(theme: string) {

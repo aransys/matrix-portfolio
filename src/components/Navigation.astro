@@ -3,7 +3,7 @@
 
 <nav>
   <div class="nav-container">
-    <div class="logo">ransys.dev</div>
+    <a href="#home" class="logo">ransys.dev</a>
     <ul class="nav-links">
       <li><a href="#home">home</a></li>
       <li><a href="#projects">projects.list()</a></li>
@@ -40,7 +40,20 @@
     font-weight: 700;
     color: var(--primary-color);
     text-shadow: var(--glow);
+    text-decoration: none;
+    cursor: pointer;
     transition: color 0.5s ease;
+    position: relative;
+  }
+  
+  .logo::before {
+    content: '> ';
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .logo:hover::before {
+    opacity: 1;
   }
   
   .nav-links {

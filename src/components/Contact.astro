@@ -10,8 +10,9 @@ const contactInfo = {
 ---
 
 <section id="contact" class="contact">
-  <h2 class="section-title">Contact</h2>
-  <div class="terminal-output">
+  <div class="contact-box">
+    <h2 class="section-title">Contact</h2>
+    <div class="terminal-output">
     <div class="command-line">$ cat contact.json</div>
     <div class="output-line desktop-view">&#123;</div>
     <div class="output-line desktop-view">&nbsp;&nbsp;"email": "<a href={`mailto:${contactInfo.email}`} class="contact-link">{contactInfo.email}</a>",</div>
@@ -32,14 +33,22 @@ const contactInfo = {
       <div class="output-line">{contactInfo.status}</div>
       <div class="output-line">&#125;</div>
     </div>
+    </div>
+    <p>Ready to build something amazing together? Let's connect and make it happen.</p>
   </div>
-  <p>Ready to build something amazing together? Let's connect and make it happen.</p>
 </section>
 
 <style>
   .contact {
+    padding: 5rem 0;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+  
+  .contact-box {
     background: var(--gray-bg);
-    margin: 2rem;
     padding: 3rem;
     border: 1px solid var(--primary-color);
     text-align: center;
@@ -73,7 +82,8 @@ const contactInfo = {
   .terminal-output {
     background: var(--darker-bg);
     padding: 2rem;
-    margin: 2rem 0;
+    margin: 2rem auto;
+    max-width: 800px;
     font-family: 'JetBrains Mono', monospace;
     text-align: left;
     border-left: 3px solid var(--primary-color);
@@ -113,8 +123,12 @@ const contactInfo = {
   
   @media (max-width: 768px) {
     .contact {
-      margin: 2rem;
       padding: 3rem 2rem;
+    }
+    
+    .contact-box {
+      margin: 0;
+      padding: 2rem 1.5rem;
     }
     
     .section-title {
@@ -138,13 +152,6 @@ const contactInfo = {
     .output-line {
       margin-bottom: 0.75rem;
       line-height: 1.6;
-    }
-  }
-  
-  @media (max-width: 480px) {
-    .contact {
-      margin: 1.5rem;
-      padding: 2.5rem 1.5rem;
     }
   }
 </style>

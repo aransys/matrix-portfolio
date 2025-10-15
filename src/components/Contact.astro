@@ -28,11 +28,12 @@ const contactInfo = {
 
 <style>
   .contact {
-    background: var(--matrix-dark);
+    background: var(--gray-bg);
     margin: 2rem;
     padding: 3rem;
-    border: 1px solid var(--matrix-green);
+    border: 1px solid var(--primary-color);
     text-align: center;
+    transition: all 0.5s ease;
   }
   
   .section-title {
@@ -44,7 +45,8 @@ const contactInfo = {
   
   .section-title::before {
     content: '// ';
-    color: var(--matrix-green);
+    color: var(--primary-color);
+    transition: color 0.5s ease;
   }
   
   .section-title::after {
@@ -52,23 +54,26 @@ const contactInfo = {
     display: block;
     width: 100px;
     height: 2px;
-    background: var(--matrix-green);
+    background: var(--primary-color);
     margin: 1rem auto;
     box-shadow: var(--glow);
+    transition: background 0.5s ease, box-shadow 0.5s ease;
   }
   
   .terminal-output {
-    background: var(--matrix-black);
+    background: var(--darker-bg);
     padding: 2rem;
     margin: 2rem 0;
     font-family: 'JetBrains Mono', monospace;
     text-align: left;
-    border-left: 3px solid var(--matrix-green);
+    border-left: 3px solid var(--primary-color);
+    transition: all 0.5s ease;
   }
   
   .command-line {
-    color: var(--matrix-green);
+    color: var(--primary-color);
     margin-bottom: 0.5rem;
+    transition: color 0.5s ease;
   }
   
   .output-line {

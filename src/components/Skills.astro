@@ -54,7 +54,8 @@ const skillCategories = [
   
   .section-title::before {
     content: '// ';
-    color: var(--matrix-green);
+    color: var(--primary-color);
+    transition: color 0.5s ease;
   }
   
   .section-title::after {
@@ -62,9 +63,10 @@ const skillCategories = [
     display: block;
     width: 100px;
     height: 2px;
-    background: var(--matrix-green);
+    background: var(--primary-color);
     margin: 1rem auto;
     box-shadow: var(--glow);
+    transition: background 0.5s ease, box-shadow 0.5s ease;
   }
   
   .skills-grid {
@@ -75,21 +77,22 @@ const skillCategories = [
   }
   
   .skill-category {
-    background: var(--matrix-dark);
+    background: var(--gray-bg);
     padding: 2rem;
-    border: 1px solid var(--matrix-gray);
+    border: 1px solid var(--primary-color);
     transition: all 0.3s ease;
   }
   
   .skill-category:hover {
-    border-color: var(--matrix-green);
+    border-color: var(--primary-color);
     box-shadow: var(--glow);
   }
   
   .skill-category h3 {
-    color: var(--matrix-green);
+    color: var(--primary-color);
     margin-bottom: 1rem;
     font-size: 1.2rem;
+    transition: color 0.5s ease;
   }
   
   .skill-list {
@@ -106,7 +109,8 @@ const skillCategories = [
     content: '▶';
     position: absolute;
     left: 0;
-    color: var(--matrix-green);
+    color: var(--primary-color);
+    transition: color 0.5s ease;
   }
   
   @media (max-width: 768px) {

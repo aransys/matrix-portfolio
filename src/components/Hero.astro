@@ -41,18 +41,20 @@ const {
   
   .terminal-prompt {
     font-size: 1.2rem;
-    color: var(--matrix-green);
+    color: var(--primary-color);
     margin-bottom: 1rem;
+    transition: color 0.5s ease;
   }
   
   .hero-title {
     font-size: clamp(2.5rem, 8vw, 5rem);
     font-weight: 700;
     margin-bottom: 1rem;
-    background: linear-gradient(45deg, var(--matrix-green), var(--terminal-green));
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    transition: background 0.5s ease;
   }
   
   .hero-subtitle {
@@ -63,8 +65,9 @@ const {
   
   .typing-effect {
     display: inline-block;
-    border-right: 2px solid var(--matrix-green);
+    border-right: 2px solid var(--primary-color);
     animation: blink 1s infinite;
+    transition: border-color 0.5s ease;
   }
   
   @keyframes blink {
@@ -75,8 +78,8 @@ const {
     display: inline-block;
     padding: 1rem 2rem;
     background: transparent;
-    border: 2px solid var(--matrix-green);
-    color: var(--matrix-green);
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
     text-decoration: none;
     transition: all 0.3s ease;
     position: relative;
@@ -90,8 +93,8 @@ const {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: var(--matrix-green);
-    transition: left 0.3s ease;
+    background: var(--primary-color);
+    transition: left 0.3s ease, background 0.5s ease;
     z-index: -1;
   }
   
@@ -100,7 +103,7 @@ const {
   }
   
   .cta-button:hover {
-    color: var(--matrix-black);
+    color: var(--darker-bg);
     box-shadow: var(--glow);
   }
   

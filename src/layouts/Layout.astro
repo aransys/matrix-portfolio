@@ -15,7 +15,7 @@ const { title } = Astro.props;
     <title>{title}</title>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   </head>
-  <body>
+  <body data-theme="reloaded">
     <slot />
   </body>
 </html>
@@ -30,22 +30,58 @@ const { title } = Astro.props;
   }
   
   :root {
-    --matrix-green: #00ff41;
-    --matrix-dark-green: #008f22;
-    --matrix-black: #0d1117;
-    --matrix-dark: #1a1a1a;
-    --matrix-gray: #333;
-    --matrix-light: #e6e6e6;
-    --terminal-green: #39ff14;
+    /* Default Theme: Matrix Reloaded (Blue) */
+    --primary-color: #00d4ff;
+    --secondary-color: #0096ff;
+    --dark-bg: #0a0e1a;
+    --darker-bg: #050810;
+    --gray-bg: #1a2332;
+    --light-text: #e6f2ff;
+    --glow: 0 0 20px rgba(0, 212, 255, 0.3);
+    
+    /* Theme-specific colors will be swapped via JavaScript */
+  }
+  
+  /* Matrix (Green) Theme */
+  [data-theme="matrix"] {
+    --primary-color: #00ff41;
+    --secondary-color: #39ff14;
+    --dark-bg: #0d1117;
+    --darker-bg: #0a0a0a;
+    --gray-bg: #1a1a1a;
+    --light-text: #e6e6e6;
     --glow: 0 0 20px rgba(0, 255, 65, 0.3);
+  }
+  
+  /* Reloaded (Blue) Theme - Default */
+  [data-theme="reloaded"] {
+    --primary-color: #00d4ff;
+    --secondary-color: #0096ff;
+    --dark-bg: #0a0e1a;
+    --darker-bg: #050810;
+    --gray-bg: #1a2332;
+    --light-text: #e6f2ff;
+    --glow: 0 0 20px rgba(0, 212, 255, 0.3);
+  }
+  
+  /* Revolutions (Orange) Theme */
+  [data-theme="revolutions"] {
+    --primary-color: #ff8c00;
+    --secondary-color: #ffa500;
+    --dark-bg: #1a0f0a;
+    --darker-bg: #0f0805;
+    --gray-bg: #2a1a10;
+    --light-text: #fff5e6;
+    --glow: 0 0 20px rgba(255, 140, 0, 0.3);
   }
   
   body {
     font-family: 'JetBrains Mono', monospace;
-    background: linear-gradient(135deg, var(--matrix-black) 0%, #0a0a0a 100%);
-    color: var(--matrix-light);
+    background: linear-gradient(135deg, var(--dark-bg) 0%, var(--darker-bg) 100%);
+    color: var(--light-text);
     line-height: 1.6;
     overflow-x: hidden;
+    transition: background 0.5s ease, color 0.5s ease;
   }
   
   /* Matrix rain background */
@@ -64,8 +100,9 @@ const { title } = Astro.props;
     position: absolute;
     top: -100px;
     font-size: 12px;
-    color: var(--matrix-green);
+    color: var(--primary-color);
     animation: matrix-fall linear infinite;
+    transition: color 0.5s ease;
   }
   
   @keyframes matrix-fall {

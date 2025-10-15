@@ -19,11 +19,12 @@
     position: fixed;
     top: 0;
     width: 100%;
-    background: rgba(13, 17, 23, 0.95);
+    background: rgba(10, 14, 26, 0.95);
     backdrop-filter: blur(10px);
     z-index: 1000;
     padding: 1rem 0;
-    border-bottom: 1px solid var(--matrix-green);
+    border-bottom: 1px solid var(--primary-color);
+    transition: border-color 0.5s ease, background 0.5s ease;
   }
   
   .nav-container {
@@ -38,8 +39,9 @@
   .logo {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--matrix-green);
+    color: var(--primary-color);
     text-shadow: var(--glow);
+    transition: color 0.5s ease;
   }
   
   .nav-links {
@@ -49,14 +51,14 @@
   }
   
   .nav-links a {
-    color: var(--matrix-light);
+    color: var(--light-text);
     text-decoration: none;
     transition: all 0.3s ease;
     position: relative;
   }
   
   .nav-links a:hover {
-    color: var(--matrix-green);
+    color: var(--primary-color);
     text-shadow: var(--glow);
   }
   

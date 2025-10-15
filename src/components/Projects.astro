@@ -77,7 +77,8 @@ const projects = [
   
   .section-title::before {
     content: '// ';
-    color: var(--matrix-green);
+    color: var(--primary-color);
+    transition: color 0.5s ease;
   }
   
   .section-title::after {
@@ -85,9 +86,10 @@ const projects = [
     display: block;
     width: 100px;
     height: 2px;
-    background: var(--matrix-green);
+    background: var(--primary-color);
     margin: 1rem auto;
     box-shadow: var(--glow);
+    transition: background 0.5s ease, box-shadow 0.5s ease;
   }
   
   .projects-grid {
@@ -98,8 +100,8 @@ const projects = [
   }
   
   .project-card {
-    background: var(--matrix-dark);
-    border: 1px solid var(--matrix-gray);
+    background: var(--gray-bg);
+    border: 1px solid var(--primary-color);
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
@@ -112,22 +114,24 @@ const projects = [
     left: 0;
     right: 0;
     height: 3px;
-    background: linear-gradient(90deg, var(--matrix-green), var(--terminal-green));
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    transition: background 0.5s ease;
   }
   
   .project-card:hover {
     transform: translateY(-5px);
-    border-color: var(--matrix-green);
-    box-shadow: 0 10px 30px rgba(0, 255, 65, 0.2);
+    border-color: var(--primary-color);
+    box-shadow: var(--glow);
   }
   
   .project-header {
-    background: var(--matrix-black);
+    background: var(--darker-bg);
     padding: 1rem;
-    border-bottom: 1px solid var(--matrix-gray);
+    border-bottom: 1px solid var(--primary-color);
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    transition: background 0.5s ease, border-color 0.5s ease;
   }
   
   .window-controls {
@@ -147,8 +151,9 @@ const projects = [
   
   .project-title {
     font-size: 1rem;
-    color: var(--matrix-green);
+    color: var(--primary-color);
     margin-left: 1rem;
+    transition: color 0.5s ease;
   }
   
   .project-content {
@@ -169,10 +174,11 @@ const projects = [
   
   .tech-tag {
     padding: 0.25rem 0.75rem;
-    background: rgba(0, 255, 65, 0.1);
-    border: 1px solid var(--matrix-green);
+    background: rgba(0, 212, 255, 0.1);
+    border: 1px solid var(--primary-color);
     font-size: 0.875rem;
-    color: var(--matrix-green);
+    color: var(--primary-color);
+    transition: all 0.5s ease;
   }
   
   .project-links {
@@ -181,7 +187,7 @@ const projects = [
   }
   
   .project-link {
-    color: var(--matrix-green);
+    color: var(--primary-color);
     text-decoration: none;
     display: flex;
     align-items: center;

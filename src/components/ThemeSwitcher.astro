@@ -154,13 +154,11 @@
     window.addEventListener('scroll', () => {
       const currentScrollY = window.scrollY;
       
-      if (currentScrollY > 100 && currentScrollY > lastScrollY) {
+      if (currentScrollY > 100) {
         switcher?.classList.add('hidden');
-      } else if (currentScrollY <= 100 || currentScrollY < lastScrollY) {
+      } else {
         switcher?.classList.remove('hidden');
       }
-      
-      lastScrollY = currentScrollY;
     });
     
     function setTheme(theme: string) {

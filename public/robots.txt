@@ -3,5 +3,5 @@ User-agent: *
 Allow: /
 
 # Sitemap location
-Sitemap: https://matrix-portfolio-zeta.vercel.app/sitemap.xml
+Sitemap: https://ransys.dev/sitemap.xml
 

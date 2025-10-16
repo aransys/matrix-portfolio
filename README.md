@@ -1,6 +1,6 @@
 # Matrix Portfolio
 
-🌐 **Live Site:** [https://matrix-portfolio-zeta.vercel.app/](https://matrix-portfolio-zeta.vercel.app/)
+🌐 **Live Site:** [https://ransys.dev](https://ransys.dev)
 
 A sleek, Matrix-themed developer portfolio built with Astro, featuring dynamic theme switching inspired by the Matrix trilogy.
 

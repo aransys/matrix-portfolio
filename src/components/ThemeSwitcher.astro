@@ -25,7 +25,15 @@
     flex-direction: column;
     gap: 0.5rem;
     z-index: 999;
-    transition: all 0.3s ease;
+    opacity: 1;
+    transform: translateX(0);
+    transition: all 0.4s ease;
+  }
+  
+  .theme-switcher.hidden {
+    opacity: 0;
+    transform: translateX(-100px);
+    pointer-events: none;
   }
   
   .theme-switcher:not(:hover):not(.expanded) .theme-pill:not(.active) {
@@ -112,6 +120,7 @@
     const body = document.body;
     const savedTheme = localStorage.getItem('matrix-theme') || 'reloaded';
     let isExpanded = false;
+    let lastScrollY = window.scrollY;
     
     setTheme(savedTheme);
     
@@ -140,6 +149,18 @@
         isExpanded = false;
         switcher?.classList.remove('expanded');
       }
+    });
+    
+    window.addEventListener('scroll', () => {
+      const currentScrollY = window.scrollY;
+      
+      if (currentScrollY > 100 && currentScrollY > lastScrollY) {
+        switcher?.classList.add('hidden');
+      } else if (currentScrollY <= 100 || currentScrollY < lastScrollY) {
+        switcher?.classList.remove('hidden');
+      }
+      
+      lastScrollY = currentScrollY;
     });
     
     function setTheme(theme: string) {

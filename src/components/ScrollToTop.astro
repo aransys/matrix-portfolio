@@ -25,6 +25,13 @@
     transform: translateY(20px);
     transition: all 0.3s ease;
     box-shadow: var(--glow);
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+  }
+  
+  .scroll-to-top:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
   }
   
   .scroll-to-top.visible {

@@ -83,6 +83,12 @@ const {
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  .cta-button:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 4px;
   }
   
   .cta-button::before {

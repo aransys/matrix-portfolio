@@ -1,0 +1,7 @@
+# Allow all search engines to crawl the site
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://matrix-portfolio-zeta.vercel.app/sitemap.xml
+

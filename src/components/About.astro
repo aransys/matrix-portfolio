@@ -1,0 +1,155 @@
+---
+---
+
+<section id="about">
+  <h2 class="section-title fade-in">About</h2>
+  <div class="about-content fade-in">
+    <div class="about-grid">
+      <div class="about-card">
+        <h3 class="card-title">🎓 Education</h3>
+        <div class="card-content">
+          <p><strong>Leeds Beckett University</strong></p>
+          <p>BSc Computer Science - Year 1</p>
+          <p class="highlight">Currently Studying</p>
+        </div>
+        <div class="card-content">
+          <p><strong>New City College London</strong></p>
+          <p>Level 5 Web Apps Development</p>
+          <p class="highlight">Completed with Distinction (2024/2025)</p>
+        </div>
+      </div>
+      
+      <div class="about-card">
+        <h3 class="card-title">💡 Interests</h3>
+        <div class="card-content">
+          <p><strong>Tech & Innovation</strong></p>
+          <p>Passionate about technology and building innovative web solutions</p>
+        </div>
+        <div class="card-content">
+          <p><strong>Sci-Fi Enthusiast</strong></p>
+          <p>Love the science fiction genre - from The Matrix to cutting-edge tech concepts</p>
+        </div>
+      </div>
+      
+      <div class="about-card">
+        <h3 class="card-title">🥋 Beyond Code</h3>
+        <div class="card-content">
+          <p><strong>Military Service</strong></p>
+          <p>Served in the Lithuanian Professional Army 🇱🇹</p>
+        </div>
+        <div class="card-content">
+          <p><strong>Martial Arts</strong></p>
+          <p>Trained in MMA, Muay Thai & Kickboxing. Avid UFC and ONE FC fan</p>
+        </div>
+        <div class="card-content">
+          <p><strong>Basketball</strong></p>
+          <p>Supporting Žalgiris Kaunas and Chicago Bulls 🏀</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  section {
+    padding: 5rem 0;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+  
+  .section-title {
+    font-size: 2.5rem;
+    margin-bottom: 3rem;
+    text-align: center;
+    position: relative;
+  }
+  
+  .section-title::before {
+    content: '// ';
+    color: var(--primary-color);
+    transition: color 0.5s ease;
+  }
+  
+  .section-title::after {
+    content: '';
+    display: block;
+    width: 100px;
+    height: 2px;
+    background: var(--primary-color);
+    margin: 1rem auto;
+    box-shadow: var(--glow);
+    transition: background 0.5s ease, box-shadow 0.5s ease;
+  }
+  
+  .about-content {
+    margin-top: 3rem;
+  }
+  
+  .about-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+  }
+  
+  .about-card {
+    background: var(--gray-bg);
+    padding: 2rem;
+    border: 1px solid var(--primary-color);
+    transition: all 0.3s ease;
+  }
+  
+  .about-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--glow);
+  }
+  
+  .card-title {
+    color: var(--primary-color);
+    font-size: 1.3rem;
+    margin-bottom: 1.5rem;
+    transition: color 0.5s ease;
+  }
+  
+  .card-content {
+    margin-bottom: 1.5rem;
+  }
+  
+  .card-content:last-child {
+    margin-bottom: 0;
+  }
+  
+  .card-content p {
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+  }
+  
+  .card-content strong {
+    color: var(--primary-color);
+    display: block;
+    margin-bottom: 0.5rem;
+    transition: color 0.5s ease;
+  }
+  
+  .highlight {
+    color: var(--secondary-color);
+    font-weight: 500;
+    transition: color 0.5s ease;
+  }
+  
+  @media (max-width: 768px) {
+    .about-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .about-card {
+      padding: 1.5rem;
+    }
+    
+    .card-title {
+      font-size: 1.1rem;
+    }
+  }
+</style>
+

@@ -25,6 +25,9 @@ import ScrollToTop from '../components/ScrollToTop.astro';
   <ScrollToTop />
   
   <script>
+    let clickCount = 0;
+    let clickTimer: number;
+    
     function createMatrixRain() {
       const container = document.getElementById('matrix-bg');
       if (!container) return;
@@ -50,6 +53,49 @@ import ScrollToTop from '../components/ScrollToTop.astro';
         container.appendChild(column);
       }
     }
+    
+    function triggerAgentSmith() {
+      const overlay = document.createElement('div');
+      overlay.className = 'agent-smith-overlay';
+      overlay.innerHTML = `
+        <div class="smith-head">
+          <div class="smith-face">
+            <div class="glasses">
+              <div class="lens"></div>
+              <div class="lens"></div>
+            </div>
+            <div class="mouth"></div>
+          </div>
+          <div class="smith-text">Mr. Anderson...</div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+      
+      setTimeout(() => {
+        overlay.classList.add('active');
+      }, 10);
+      
+      setTimeout(() => {
+        overlay.classList.remove('active');
+        setTimeout(() => {
+          document.body.removeChild(overlay);
+        }, 500);
+      }, 3000);
+    }
+    
+    document.getElementById('matrix-bg')?.addEventListener('click', () => {
+      clickCount++;
+      clearTimeout(clickTimer);
+      
+      if (clickCount === 3) {
+        triggerAgentSmith();
+        clickCount = 0;
+      }
+      
+      clickTimer = window.setTimeout(() => {
+        clickCount = 0;
+      }, 800);
+    });
     
     function typeWriter(element: HTMLElement | null, text: string, speed = 100) {
       if (!element) return;

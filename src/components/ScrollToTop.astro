@@ -56,18 +56,16 @@
     transform: translateY(0);
   }
   
-  .scroll-to-top:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 0 30px var(--primary-color);
-    background: var(--primary-color);
-  }
-  
-  .scroll-to-top:hover .arrow {
-    color: var(--darker-bg);
-  }
-  
-  .scroll-to-top:active {
-    transform: translateY(-2px);
+  @media (hover: hover) and (pointer: fine) {
+    .scroll-to-top:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 0 30px var(--primary-color);
+      background: var(--primary-color);
+    }
+    
+    .scroll-to-top:hover .arrow {
+      color: var(--darker-bg);
+    }
   }
   
   .arrow {
@@ -112,13 +110,21 @@
       
       setTimeout(() => {
         button.blur();
-        button.classList.remove('active');
-        button.removeAttribute('data-focus');
       }, 100);
     };
     
     window.addEventListener('scroll', toggleVisibility);
-    button.addEventListener('click', scrollToTop);
+    
+    button.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      scrollToTop();
+    });
+    
+    button.addEventListener('click', (e) => {
+      if (e.pointerType !== 'touch') {
+        scrollToTop();
+      }
+    });
     
     toggleVisibility();
   }

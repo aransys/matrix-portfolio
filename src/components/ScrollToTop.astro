@@ -33,9 +33,16 @@
   }
   
   .scroll-to-top:focus,
-  .scroll-to-top:active {
+  .scroll-to-top:active,
+  .scroll-to-top:focus:not(:focus-visible) {
     outline: none;
-    background: var(--darker-bg);
+    background: var(--darker-bg) !important;
+    border-color: var(--primary-color) !important;
+  }
+  
+  .scroll-to-top:active .arrow,
+  .scroll-to-top:focus .arrow {
+    color: var(--primary-color) !important;
   }
   
   .scroll-to-top:focus-visible {
@@ -102,7 +109,12 @@
         top: 0,
         behavior: 'smooth'
       });
-      button.blur();
+      
+      setTimeout(() => {
+        button.blur();
+        button.classList.remove('active');
+        button.removeAttribute('data-focus');
+      }, 100);
     };
     
     window.addEventListener('scroll', toggleVisibility);

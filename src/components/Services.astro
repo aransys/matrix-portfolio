@@ -1,0 +1,250 @@
+---
+const services = [
+  {
+    icon: "🌐",
+    title: "Website Development",
+    description: "Custom websites built from scratch with modern technologies. Responsive, fast, and optimized for all devices.",
+    features: ["Responsive Design", "SEO Optimized", "Fast Performance", "Cross-browser Compatible"]
+  },
+  {
+    icon: "🎨",
+    title: "Landing Pages",
+    description: "Eye-catching landing pages that convert visitors into customers. Perfect for businesses and product launches.",
+    features: ["Modern Design", "Mobile-First", "Call-to-Actions", "Analytics Ready"]
+  },
+  {
+    icon: "⚙️",
+    title: "Web Applications",
+    description: "Full-stack web applications with Django and Python. User authentication, databases, and payment integration.",
+    features: ["Django Backend", "Database Design", "User Authentication", "Payment Integration"]
+  },
+  {
+    icon: "🔌",
+    title: "API Integration",
+    description: "Connect your website to external services and APIs. Seamless data flow and third-party integrations.",
+    features: ["REST APIs", "Third-party Services", "Data Processing", "Real-time Updates"]
+  },
+  {
+    icon: "🛠️",
+    title: "Bug Fixes & Improvements",
+    description: "Fix issues in existing websites or add new features. Code review and optimization services available.",
+    features: ["Debugging", "Performance Optimization", "Feature Addition", "Code Refactoring"]
+  },
+  {
+    icon: "📱",
+    title: "Responsive Design",
+    description: "Make your existing website look great on all devices. Mobile-first approach with modern CSS techniques.",
+    features: ["Mobile Optimization", "Tablet Support", "Desktop Enhancement", "Accessibility"]
+  }
+];
+---
+
+<section id="services">
+  <h2 class="section-title fade-in">Services</h2>
+  <p class="section-subtitle fade-in">What I can help you build</p>
+  <div class="services-grid">
+    {services.map((service) => (
+      <div class="service-card fade-in">
+        <div class="service-icon">{service.icon}</div>
+        <h3 class="service-title">{service.title}</h3>
+        <p class="service-description">{service.description}</p>
+        <ul class="service-features">
+          {service.features.map((feature) => (
+            <li>{feature}</li>
+          ))}
+        </ul>
+      </div>
+    ))}
+  </div>
+  <div class="cta-container fade-in">
+    <p class="cta-text">Ready to start your project?</p>
+    <a href="#contact" class="cta-button">Get In Touch</a>
+  </div>
+</section>
+
+<style>
+  section {
+    padding: 5rem 0;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+  
+  .section-title {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    position: relative;
+  }
+  
+  .section-title::before {
+    content: '// ';
+    color: var(--primary-color);
+    transition: color 0.5s ease;
+  }
+  
+  .section-title::after {
+    content: '';
+    display: block;
+    width: 100px;
+    height: 2px;
+    background: var(--primary-color);
+    margin: 1rem auto;
+    box-shadow: var(--glow);
+    transition: background 0.5s ease, box-shadow 0.5s ease;
+  }
+  
+  .section-subtitle {
+    text-align: center;
+    font-size: 1.1rem;
+    opacity: 0.8;
+    margin-bottom: 3rem;
+  }
+  
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+    margin-bottom: 4rem;
+  }
+  
+  .service-card {
+    background: var(--gray-bg);
+    padding: 2rem;
+    border: 1px solid var(--primary-color);
+    transition: all 0.3s ease;
+    position: relative;
+  }
+  
+  .service-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    transition: background 0.5s ease;
+  }
+  
+  .service-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--glow);
+  }
+  
+  .service-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+  
+  .service-title {
+    color: var(--primary-color);
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    transition: color 0.5s ease;
+  }
+  
+  .service-description {
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+    opacity: 0.9;
+  }
+  
+  .service-features {
+    list-style: none;
+  }
+  
+  .service-features li {
+    padding: 0.4rem 0;
+    position: relative;
+    padding-left: 1.5rem;
+    font-size: 0.9rem;
+    opacity: 0.8;
+  }
+  
+  .service-features li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--primary-color);
+    font-weight: bold;
+  }
+  
+  .cta-container {
+    text-align: center;
+    margin-top: 4rem;
+  }
+  
+  .cta-text {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+    color: var(--primary-color);
+    transition: color 0.5s ease;
+  }
+  
+  .cta-button {
+    display: inline-block;
+    padding: 1rem 2.5rem;
+    background: transparent;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+    text-decoration: none;
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  .cta-button:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 4px;
+  }
+  
+  .cta-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: var(--primary-color);
+    transition: left 0.3s ease, background 0.5s ease;
+    z-index: -1;
+  }
+  
+  .cta-button:hover::before {
+    left: 0;
+  }
+  
+  .cta-button:hover {
+    color: var(--darker-bg);
+    box-shadow: var(--glow);
+  }
+  
+  @media (max-width: 768px) {
+    .services-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .service-card {
+      padding: 1.5rem;
+    }
+    
+    .service-icon {
+      font-size: 2.5rem;
+    }
+    
+    .service-title {
+      font-size: 1.2rem;
+    }
+    
+    .cta-text {
+      font-size: 1.2rem;
+    }
+  }
+</style>
+

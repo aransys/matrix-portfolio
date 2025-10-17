@@ -26,7 +26,16 @@
     transition: all 0.3s ease;
     box-shadow: var(--glow);
     -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
     outline: none;
+  }
+  
+  .scroll-to-top:focus,
+  .scroll-to-top:active {
+    outline: none;
+    background: var(--darker-bg);
   }
   
   .scroll-to-top:focus-visible {

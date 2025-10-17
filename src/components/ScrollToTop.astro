@@ -32,17 +32,13 @@
     outline: none;
   }
   
-  .scroll-to-top:focus,
-  .scroll-to-top:active,
-  .scroll-to-top:focus:not(:focus-visible) {
-    outline: none;
-    background: var(--darker-bg) !important;
-    border-color: var(--primary-color) !important;
+  .scroll-to-top:active {
+    transform: scale(0.9) !important;
+    box-shadow: 0 0 15px var(--primary-color) !important;
   }
   
-  .scroll-to-top:active .arrow,
-  .scroll-to-top:focus .arrow {
-    color: var(--primary-color) !important;
+  .scroll-to-top:focus:not(:focus-visible) {
+    outline: none;
   }
   
   .scroll-to-top:focus-visible {

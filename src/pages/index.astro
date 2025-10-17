@@ -116,6 +116,39 @@ import ScrollToTop from '../components/ScrollToTop.astro';
       createMatrixRain();
     });
     
+    // Easter egg: Terminal prompt click
+    let terminalClickCount = 0;
+    let terminalClickTimer: number;
+    const matrixQuotes = [
+      "Wake up, Neo...",
+      "Follow the white rabbit",
+      "There is no spoon",
+      "The Matrix has you",
+      "Welcome to the real world",
+      "What is the Matrix?",
+      "Red pill or blue pill?",
+      "Free your mind"
+    ];
+    
+    const terminalPrompt = document.getElementById('terminal-prompt');
+    if (terminalPrompt) {
+      terminalPrompt.addEventListener('click', () => {
+        terminalClickCount++;
+        clearTimeout(terminalClickTimer);
+        
+        if (terminalClickCount === 3) {
+          const randomQuote = matrixQuotes[Math.floor(Math.random() * matrixQuotes.length)];
+          terminalPrompt.textContent = `user@matrix:~$ ${randomQuote}`;
+          terminalPrompt.classList.add('easter-egg');
+          terminalClickCount = 0;
+        }
+        
+        terminalClickTimer = window.setTimeout(() => {
+          terminalClickCount = 0;
+        }, 1000);
+      });
+    }
+    
     // Easter egg: Konami code
     let konamiCode: string[] = [];
     const sequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'KeyB', 'KeyA'];

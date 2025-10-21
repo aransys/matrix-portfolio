@@ -119,6 +119,7 @@ import ScrollToTop from '../components/ScrollToTop.astro';
     // Easter egg: Terminal prompt click
     let terminalClickCount = 0;
     let terminalClickTimer: number;
+    let easterEggResetTimer: number;
     const matrixQuotes = [
       "Wake up, Neo...",
       "Follow the white rabbit",
@@ -132,6 +133,8 @@ import ScrollToTop from '../components/ScrollToTop.astro';
     
     const terminalPrompt = document.getElementById('terminal-prompt');
     if (terminalPrompt) {
+      const originalText = terminalPrompt.textContent;
+      
       terminalPrompt.addEventListener('click', () => {
         terminalClickCount++;
         clearTimeout(terminalClickTimer);
@@ -141,6 +144,13 @@ import ScrollToTop from '../components/ScrollToTop.astro';
           terminalPrompt.textContent = `user@matrix:~$ ${randomQuote}`;
           terminalPrompt.classList.add('easter-egg');
           terminalClickCount = 0;
+          
+          // Auto-reset after 4 seconds (for touch devices)
+          clearTimeout(easterEggResetTimer);
+          easterEggResetTimer = window.setTimeout(() => {
+            terminalPrompt.textContent = originalText;
+            terminalPrompt.classList.remove('easter-egg');
+          }, 4000);
         }
         
         terminalClickTimer = window.setTimeout(() => {
@@ -148,7 +158,10 @@ import ScrollToTop from '../components/ScrollToTop.astro';
         }, 1000);
       });
       
+      // Instant reset on mouseleave (for desktop)
       terminalPrompt.addEventListener('mouseleave', () => {
+        clearTimeout(easterEggResetTimer);
+        terminalPrompt.textContent = originalText;
         terminalPrompt.classList.remove('easter-egg');
       });
     }

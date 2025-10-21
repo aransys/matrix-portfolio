@@ -86,9 +86,9 @@ import ScrollToTop from '../components/ScrollToTop.astro';
     }
     
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function (e) {
+      anchor.addEventListener('click', (e) => {
         e.preventDefault();
-        const href = this.getAttribute('href');
+        const href = anchor.getAttribute('href');
         if (href) {
           const target = document.querySelector(href);
           if (target) {
@@ -146,6 +146,10 @@ import ScrollToTop from '../components/ScrollToTop.astro';
         terminalClickTimer = window.setTimeout(() => {
           terminalClickCount = 0;
         }, 1000);
+      });
+      
+      terminalPrompt.addEventListener('mouseleave', () => {
+        terminalPrompt.classList.remove('easter-egg');
       });
     }
     

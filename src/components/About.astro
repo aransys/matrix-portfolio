@@ -138,6 +138,18 @@
     transition: color 0.5s ease;
   }
   
+  @media (max-width: 1024px) and (min-width: 769px) {
+    .about-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .about-card:last-child:nth-child(3) {
+      grid-column: 1 / -1;
+      width: calc(50% - 1rem);
+      margin: 0 auto;
+    }
+  }
+  
   @media (max-width: 768px) {
     .about-grid {
       grid-template-columns: 1fr;

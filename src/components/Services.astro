@@ -225,6 +225,12 @@ const services = [
     box-shadow: var(--glow);
   }
   
+  @media (max-width: 1024px) and (min-width: 769px) {
+    .services-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
   @media (max-width: 768px) {
     .services-grid {
       grid-template-columns: 1fr;

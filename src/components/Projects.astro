@@ -198,6 +198,18 @@ const projects = [
     text-shadow: var(--glow);
   }
   
+  @media (max-width: 1024px) and (min-width: 769px) {
+    .projects-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .project-card:last-child:nth-child(3) {
+      grid-column: 1 / -1;
+      width: calc(50% - 1rem);
+      margin: 0 auto;
+    }
+  }
+  
   @media (max-width: 768px) {
     .projects-grid {
       grid-template-columns: 1fr;

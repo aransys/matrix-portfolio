@@ -104,6 +104,8 @@ const projects = [
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
   }
   
   .project-card::before {
@@ -157,18 +159,22 @@ const projects = [
   
   .project-content {
     padding: 1.5rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
   }
   
   .project-description {
     margin-bottom: 1rem;
     opacity: 0.9;
+    flex: 1;
   }
   
   .tech-stack {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
   }
   
   .tech-tag {
@@ -203,9 +209,13 @@ const projects = [
       grid-template-columns: repeat(2, 1fr);
     }
     
+    .project-card {
+      height: 480px;
+    }
+    
     .project-card:last-child:nth-child(3) {
       grid-column: 1 / -1;
-      width: calc(50% - 1rem);
+      width: calc((100% - 2rem) / 2);
       margin: 0 auto;
     }
   }

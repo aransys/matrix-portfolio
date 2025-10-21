@@ -98,6 +98,8 @@
     padding: 2rem;
     border: 1px solid var(--primary-color);
     transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
   }
   
   .about-card:hover {
@@ -143,9 +145,13 @@
       grid-template-columns: repeat(2, 1fr);
     }
     
+    .about-card {
+      height: 500px;
+    }
+    
     .about-card:last-child:nth-child(3) {
       grid-column: 1 / -1;
-      width: calc(50% - 1rem);
+      width: calc((100% - 2rem) / 2);
       margin: 0 auto;
     }
   }

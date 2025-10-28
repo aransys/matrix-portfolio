@@ -10,49 +10,101 @@ const contactInfo = {
 ---
 
 <section id="contact" class="contact">
-  <div class="contact-box">
-    <h2 class="section-title">Contact</h2>
-    <div class="terminal-output">
-    <div class="command-line">$ cat contact.json</div>
-    <div class="output-line desktop-view">&#123;</div>
-    <div class="output-line desktop-view">&nbsp;&nbsp;"email": "<a href={`mailto:${contactInfo.email}`} class="contact-link">{contactInfo.email}</a>",</div>
-    <div class="output-line desktop-view">&nbsp;&nbsp;"github": "<a href={`https://${contactInfo.github}`} target="_blank" rel="noopener noreferrer" class="contact-link">{contactInfo.github}</a>",</div>
-    <div class="output-line desktop-view">&nbsp;&nbsp;"linkedin": "<a href={contactInfo.linkedin} target="_blank" rel="noopener noreferrer" class="contact-link">View Profile</a>",</div>
-    <div class="output-line desktop-view">&nbsp;&nbsp;"instagram": "<a href={`https://www.instagram.com/${contactInfo.instagram.substring(1)}`} target="_blank" rel="noopener noreferrer" class="contact-link">{contactInfo.instagram}</a>",</div>
-    <div class="output-line desktop-view">&nbsp;&nbsp;"location": "{contactInfo.location}",</div>
-    <div class="output-line desktop-view">&nbsp;&nbsp;"status": "{contactInfo.status}"</div>
-    <div class="output-line desktop-view">&#125;</div>
+  <h2 class="section-title">Contact</h2>
+  
+  <!-- Neural Network Contact Form -->
+  <div class="neural-container">
+    <div class="neural-header">
+      <div class="neural-title">Neural Network Interface</div>
+      <div class="neural-status">ONLINE</div>
+    </div>
     
-    <div class="mobile-view">
-      <div class="output-line">&#123;</div>
-      <div class="output-line"><a href={`mailto:${contactInfo.email}`} class="contact-link">{contactInfo.email}</a></div>
-      <div class="output-line"><a href={`https://${contactInfo.github}`} target="_blank" rel="noopener noreferrer" class="contact-link">{contactInfo.github}</a></div>
-      <div class="output-line"><a href={contactInfo.linkedin} target="_blank" rel="noopener noreferrer" class="contact-link">LinkedIn</a></div>
-      <div class="output-line"><a href={`https://www.instagram.com/${contactInfo.instagram.substring(1)}`} target="_blank" rel="noopener noreferrer" class="contact-link">{contactInfo.instagram}</a></div>
-      <div class="output-line">{contactInfo.location}</div>
-      <div class="output-line">{contactInfo.status}</div>
-      <div class="output-line">&#125;</div>
+    <div class="neural-body">
+      <!-- Data Stream Visualization -->
+      <div class="data-stream">
+        <div class="stream-line"></div>
+        <div class="stream-line"></div>
+        <div class="stream-line"></div>
+        <div class="stream-line"></div>
+      </div>
+      
+      <!-- Contact Form -->
+      <form class="neural-form" id="contactForm">
+        <div class="input-group">
+          <label for="name">NODE_ID</label>
+          <input type="text" id="name" name="name" placeholder="Enter your identifier" required>
+        </div>
+        
+        <div class="input-group">
+          <label for="email">TRANSMISSION_PROTOCOL</label>
+          <input type="email" id="email" name="email" placeholder="your.signal@domain.com" required>
+        </div>
+        
+        <div class="input-group">
+          <label for="subject">MESSAGE_TYPE</label>
+          <input type="text" id="subject" name="subject" placeholder="Project inquiry, collaboration, etc." required>
+        </div>
+        
+        <div class="input-group">
+          <label for="message">DATA_PAYLOAD</label>
+          <textarea id="message" name="message" placeholder="Transmit your message through the neural network..." rows="4" required></textarea>
+        </div>
+        
+        <div class="submit-container">
+          <a href="#" class="cta-button" id="submitButton">TRANSMIT</a>
+        </div>
+      </form>
+      
+      <!-- Transmission Status -->
+      <div class="transmission-status" id="transmissionStatus">
+        <div class="status-success">
+          <div class="status-line">✓ Transmission successful</div>
+          <div class="status-line">Neural network connection established</div>
+          <div class="status-line">Response expected within 24 hours</div>
+        </div>
+        <div class="status-error">
+          <div class="status-line">✗ Transmission failed</div>
+          <div class="status-line">Please check your connection and retry</div>
+        </div>
+      </div>
     </div>
+  </div>
+  
+  <!-- Contact Info -->
+  <div class="contact-info">
+    <div class="info-terminal">
+      <div class="terminal-line">$ cat contact.json</div>
+      <div class="terminal-line desktop-view">&#123;</div>
+      <div class="terminal-line desktop-view">&nbsp;&nbsp;"email": "<a href={`mailto:${contactInfo.email}`} class="contact-link">{contactInfo.email}</a>",</div>
+      <div class="terminal-line desktop-view">&nbsp;&nbsp;"github": "<a href={`https://${contactInfo.github}`} target="_blank" rel="noopener noreferrer" class="contact-link">{contactInfo.github}</a>",</div>
+      <div class="terminal-line desktop-view">&nbsp;&nbsp;"linkedin": "<a href={contactInfo.linkedin} target="_blank" rel="noopener noreferrer" class="contact-link">View Profile</a>",</div>
+      <div class="terminal-line desktop-view">&nbsp;&nbsp;"instagram": "<a href={`https://www.instagram.com/${contactInfo.instagram.substring(1)}`} target="_blank" rel="noopener noreferrer" class="contact-link">{contactInfo.instagram}</a>",</div>
+      <div class="terminal-line desktop-view">&nbsp;&nbsp;"location": "{contactInfo.location}",</div>
+      <div class="terminal-line desktop-view">&nbsp;&nbsp;"status": "{contactInfo.status}"</div>
+      <div class="terminal-line desktop-view">&#125;</div>
+      
+      <div class="mobile-view">
+        <div class="terminal-line">&#123;</div>
+        <div class="terminal-line"><a href={`mailto:${contactInfo.email}`} class="contact-link">{contactInfo.email}</a></div>
+        <div class="terminal-line"><a href={`https://${contactInfo.github}`} target="_blank" rel="noopener noreferrer" class="contact-link">{contactInfo.github}</a></div>
+        <div class="terminal-line"><a href={contactInfo.linkedin} target="_blank" rel="noopener noreferrer" class="contact-link">LinkedIn</a></div>
+        <div class="terminal-line"><a href={`https://www.instagram.com/${contactInfo.instagram.substring(1)}`} target="_blank" rel="noopener noreferrer" class="contact-link">{contactInfo.instagram}</a></div>
+        <div class="terminal-line">{contactInfo.location}</div>
+        <div class="terminal-line">{contactInfo.status}</div>
+        <div class="terminal-line">&#125;</div>
+      </div>
     </div>
-    <p>Ready to build something amazing together? Let's connect and make it happen.</p>
   </div>
 </section>
 
 <style>
+  /* Section Layout */
   .contact {
     padding: 5rem 0;
     max-width: 1200px;
     margin: 0 auto;
     padding-left: 2rem;
     padding-right: 2rem;
-  }
-  
-  .contact-box {
-    background: var(--gray-bg);
-    padding: 3rem;
-    border: 1px solid var(--primary-color);
-    text-align: center;
-    transition: all 0.5s ease;
   }
   
   .section-title {
@@ -65,7 +117,6 @@ const contactInfo = {
   .section-title::before {
     content: '// ';
     color: var(--primary-color);
-    transition: color 0.5s ease;
   }
   
   .section-title::after {
@@ -76,83 +127,347 @@ const contactInfo = {
     background: var(--primary-color);
     margin: 1rem auto;
     box-shadow: var(--glow);
-    transition: background 0.5s ease, box-shadow 0.5s ease;
   }
-  
-  .terminal-output {
+
+  /* Neural Network Container */
+  .neural-container {
+    background: var(--gray-bg);
+    border: 1px solid var(--primary-color);
+    border-radius: 8px;
+    margin-bottom: 3rem;
+    overflow: hidden;
+    position: relative;
+    transition: all 0.3s ease;
+  }
+
+  .neural-container:hover {
+    box-shadow: var(--glow);
+  }
+
+  /* Neural Header */
+  .neural-header {
     background: var(--darker-bg);
-    padding: 2rem;
-    margin: 2rem auto;
-    max-width: 800px;
-    font-family: 'JetBrains Mono', monospace;
-    text-align: left;
-    border-left: 3px solid var(--primary-color);
-    transition: all 0.5s ease;
+    padding: 1rem 2rem;
+    border-bottom: 1px solid var(--primary-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
-  
-  .command-line {
+
+  .neural-title {
+    font-size: 1.1rem;
     color: var(--primary-color);
-    margin-bottom: 0.5rem;
-    transition: color 0.5s ease;
+    font-weight: 600;
   }
-  
-  .output-line {
-    margin-bottom: 0.5rem;
-    opacity: 0.9;
+
+  .neural-status {
+    color: var(--primary-color);
+    font-size: 0.9rem;
+    font-weight: 600;
+    animation: pulse 2s infinite;
   }
-  
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+
+  /* Neural Body */
+  .neural-body {
+    padding: 2rem;
+    background: var(--darker-bg);
+    position: relative;
+  }
+
+  /* Data Stream Visualization */
+  .data-stream {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    opacity: 0.1;
+  }
+
+  .stream-line {
+    position: absolute;
+    height: 1px;
+    background: var(--primary-color);
+    animation: stream-flow 3s linear infinite;
+  }
+
+  .stream-line:nth-child(1) { top: 20%; left: -100%; width: 200px; animation-delay: 0s; }
+  .stream-line:nth-child(2) { top: 40%; right: -100%; width: 150px; animation-delay: 0.5s; }
+  .stream-line:nth-child(3) { top: 60%; left: -100%; width: 180px; animation-delay: 1s; }
+  .stream-line:nth-child(4) { top: 80%; right: -100%; width: 120px; animation-delay: 1.5s; }
+
+  @keyframes stream-flow {
+    0% { transform: translateX(0); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translateX(100vw); opacity: 0; }
+  }
+
+  /* Neural Form */
+  .neural-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .input-group label {
+    color: var(--primary-color);
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .input-group input,
+  .input-group textarea {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--primary-color);
+    border-radius: 4px;
+    color: var(--light-text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    padding: 0.75rem;
+    transition: all 0.3s ease;
+  }
+
+  .input-group input:focus,
+  .input-group textarea:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.2);
+    background: rgba(0, 0, 0, 0.4);
+  }
+
+  .input-group input::placeholder,
+  .input-group textarea::placeholder {
+    color: rgba(230, 242, 255, 0.5);
+    font-style: italic;
+  }
+
+  .input-group textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+
+  /* Submit Container */
+  .submit-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+  }
+
+  /* CTA Button - Exact copy from Services */
+  .cta-button {
+    display: inline-block;
+    padding: 1rem 2.5rem;
+    background: transparent;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+    text-decoration: none;
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .cta-button:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 4px;
+  }
+
+  .cta-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: var(--primary-color);
+    transition: left 0.3s ease, background 0.5s ease;
+    z-index: -1;
+  }
+
+  .cta-button:hover::before {
+    left: 0;
+  }
+
+  .cta-button:hover {
+    color: var(--darker-bg);
+    box-shadow: var(--glow);
+  }
+
+  /* Transmission Status */
+  .transmission-status {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: var(--dark-bg);
+    border-radius: 8px;
+    display: none;
+  }
+
+  .transmission-status.show {
+    display: block;
+    animation: fadeIn 0.5s ease;
+  }
+
+  .status-success {
+    border-left: 4px solid #27ca3f;
+  }
+
+  .status-error {
+    border-left: 4px solid #ff6b6b;
+  }
+
+  .status-line {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Contact Info */
+  .contact-info {
+    margin-top: 2rem;
+  }
+
+  .info-terminal {
+    background: var(--dark-bg);
+    padding: 1.5rem;
+    border-left: 3px solid var(--primary-color);
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .terminal-line {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+  }
+
   .contact-link {
     color: var(--primary-color);
     text-decoration: none;
     transition: all 0.3s ease;
     border-bottom: 1px solid transparent;
   }
-  
+
   .contact-link:hover {
     border-bottom-color: var(--primary-color);
     text-shadow: var(--glow);
   }
-  
-  .mobile-view {
-    display: none;
-  }
-  
-  .desktop-view {
-    display: block;
-  }
-  
+
+  /* Responsive Design */
+  .mobile-view { display: none; }
+  .desktop-view { display: block; }
+
   @media (max-width: 768px) {
     .contact {
-      padding: 3rem 2rem;
+      padding: 3rem 1rem;
     }
-    
-    .contact-box {
-      margin: 0;
-      padding: 2rem 1.5rem;
-    }
-    
+
     .section-title {
       font-size: 2rem;
-      margin-bottom: 2.5rem;
+      margin-bottom: 2rem;
     }
-    
-    .terminal-output {
-      padding: 2rem;
-      margin: 2rem 0;
+
+    .neural-body {
+      padding: 1.5rem;
     }
-    
-    .desktop-view {
-      display: none;
-    }
-    
-    .mobile-view {
-      display: block;
-    }
-    
-    .output-line {
+
+    .desktop-view { display: none; }
+    .mobile-view { display: block; }
+
+    .terminal-line {
       margin-bottom: 0.75rem;
       line-height: 1.6;
     }
   }
 </style>
 
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('contactForm') as HTMLFormElement;
+    const submitButton = document.getElementById('submitButton') as HTMLAnchorElement;
+    const status = document.getElementById('transmissionStatus') as HTMLElement;
+    
+    if (!form || !submitButton || !status) return;
+    
+    // Form submission
+    submitButton.addEventListener('click', async function(e: Event) {
+      e.preventDefault();
+      
+      // Basic validation
+      const inputs = form.querySelectorAll('input, textarea') as NodeListOf<HTMLInputElement | HTMLTextAreaElement>;
+      let isValid = true;
+      
+      inputs.forEach(input => {
+        if (!input.value.trim()) {
+          isValid = false;
+          input.style.borderColor = '#ff6b6b';
+        } else {
+          input.style.borderColor = 'var(--primary-color)';
+        }
+      });
+      
+      if (!isValid) return;
+      
+      // Show loading state
+      submitButton.style.pointerEvents = 'none';
+      submitButton.textContent = 'TRANSMITTING...';
+      status.classList.remove('show');
+      
+      try {
+        // Simulate transmission
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Show success
+        const successElement = status.querySelector('.status-success') as HTMLElement;
+        const errorElement = status.querySelector('.status-error') as HTMLElement;
+        
+        if (successElement && errorElement) {
+          successElement.style.display = 'block';
+          errorElement.style.display = 'none';
+        }
+        status.classList.add('show');
+        
+        // Reset form
+        form.reset();
+        
+        // Scroll to status
+        status.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+      } catch (error) {
+        // Show error
+        const successElement = status.querySelector('.status-success') as HTMLElement;
+        const errorElement = status.querySelector('.status-error') as HTMLElement;
+        
+        if (successElement && errorElement) {
+          successElement.style.display = 'none';
+          errorElement.style.display = 'block';
+        }
+        status.classList.add('show');
+      } finally {
+        // Reset button
+        submitButton.style.pointerEvents = 'auto';
+        submitButton.textContent = 'TRANSMIT';
+      }
+    });
+  });
+</script>

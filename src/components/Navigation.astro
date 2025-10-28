@@ -279,7 +279,9 @@
     });
     
     document.addEventListener('click', (e) => {
-      if (!hamburger.contains(e.target as Node) && !mobileMenu.contains(e.target as Node)) {
+      const target = e.target;
+      if (!(target instanceof Node)) return;
+      if (!hamburger.contains(target) && !mobileMenu.contains(target)) {
         hamburger.classList.remove('active');
         mobileMenu.classList.remove('active');
       }

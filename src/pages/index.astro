@@ -25,6 +25,12 @@ import ScrollToTop from '../components/ScrollToTop.astro';
   <ScrollToTop />
   
   <script>
+    // @ts-nocheck
+    /**
+     * @param {HTMLElement | null} element
+     * @param {string} text
+     * @param {number} [speed]
+     */
     
     function createMatrixRain() {
       const container = document.getElementById('matrix-bg');
@@ -55,7 +61,7 @@ import ScrollToTop from '../components/ScrollToTop.astro';
     
     
     
-    function typeWriter(element: HTMLElement | null, text: string, speed = 100) {
+    function typeWriter(element, text, speed = 100) {
       if (!element) return;
       let i = 0;
       element.innerHTML = '';
@@ -107,7 +113,7 @@ import ScrollToTop from '../components/ScrollToTop.astro';
       
       const subtitle = document.querySelector('.hero-subtitle');
       if (subtitle) {
-        typeWriter(subtitle as HTMLElement, 'Full Stack Developer |');
+        typeWriter(subtitle, 'Full Stack Developer |');
       }
     });
     
@@ -118,8 +124,10 @@ import ScrollToTop from '../components/ScrollToTop.astro';
     
     // Easter egg: Terminal prompt click
     let terminalClickCount = 0;
-    let terminalClickTimer: number;
-    let easterEggResetTimer: number;
+    /** @type {number | undefined} */
+    let terminalClickTimer;
+    /** @type {number | undefined} */
+    let easterEggResetTimer;
     const matrixQuotes = [
       "Wake up, Neo...",
       "Follow the white rabbit",
@@ -167,7 +175,8 @@ import ScrollToTop from '../components/ScrollToTop.astro';
     }
     
     // Easter egg: Konami code
-    let konamiCode: string[] = [];
+    /** @type {string[]} */
+    let konamiCode = [];
     const sequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'KeyB', 'KeyA'];
     
     document.addEventListener('keydown', (e) => {

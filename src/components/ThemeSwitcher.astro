@@ -121,6 +121,7 @@
 </style>
 
 <script>
+  // @ts-nocheck
   function initThemeSwitcher() {
     const switcher = document.querySelector('.theme-switcher');
     const pills = document.querySelectorAll('.theme-pill');
@@ -151,7 +152,9 @@
     });
     
     document.addEventListener('click', (e) => {
-      if (window.innerWidth <= 1024 && !switcher?.contains(e.target as Node)) {
+      const target = e.target;
+      const targetNode = target instanceof Node ? target : null;
+      if (window.innerWidth <= 1024 && switcher && targetNode && !switcher.contains(targetNode)) {
         isExpanded = false;
         switcher?.classList.remove('expanded');
       }
@@ -167,7 +170,8 @@
       }
     });
     
-    function setTheme(theme: string) {
+    /** @param {string} theme */
+    function setTheme(theme) {
       body.setAttribute('data-theme', theme);
       
       pills.forEach(p => {

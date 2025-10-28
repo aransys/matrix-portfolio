@@ -220,18 +220,27 @@ const projects = [
     justify-content: space-between;
     align-items: center;
     font-size: 0.875rem;
+    min-height: 2.5rem;
+    white-space: nowrap;
+    overflow: hidden;
   }
 
   .terminal-prompt {
     color: var(--primary-color);
     font-family: 'JetBrains Mono', monospace;
     transition: color 0.3s ease;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-right: 1rem;
   }
 
   .terminal-status {
     color: var(--secondary-color);
     font-size: 0.75rem;
     animation: pulse 2s infinite;
+    flex-shrink: 0;
+    white-space: nowrap;
   }
 
   @keyframes pulse {
@@ -423,7 +432,8 @@ const projects = [
     }
     
     .project-card {
-      height: 480px;
+      min-height: 400px;
+      height: auto;
     }
     
     .project-card:last-child:nth-child(3) {

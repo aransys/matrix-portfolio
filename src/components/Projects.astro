@@ -2,6 +2,7 @@
 const projects = [
   {
     title: "worcester-laundry.service",
+    shortTitle: "laundry.service",
     description: "Responsive landing page for a professional laundry service featuring service showcases, dynamic pricing tables, and interactive contact forms. Built with modern CSS animations and accessibility features.",
     technologies: ["HTML5", "CSS3", "JavaScript", "Responsive Design"],
     liveUrl: "https://aransys.github.io/Project-1/#hero",
@@ -11,6 +12,7 @@ const projects = [
   },
   {
     title: "music-explorer.app",
+    shortTitle: "music-explorer.app",
     description: "Interactive music discovery application with real-time search and preview capabilities. Integrates with external APIs to provide seamless music browsing and playback functionality.",
     technologies: ["JavaScript", "HTML5", "CSS3", "REST API"],
     liveUrl: "https://aransys.github.io/Project-2/",
@@ -20,6 +22,7 @@ const projects = [
   },
   {
     title: "quickgigs.platform",
+    shortTitle: "quickgigs.platform",
     description: "Full-stack freelance marketplace with user authentication, profile management, and integrated Stripe payment processing. Features complete CRUD operations, premium memberships, and gig posting system.",
     technologies: ["Django", "Python", "Stripe API", "PostgreSQL"],
     liveUrl: "https://quickgigs-django.onrender.com/",
@@ -41,7 +44,10 @@ const projects = [
             <div class="control minimize"></div>
             <div class="control maximize"></div>
           </div>
-          <div class="project-title">{project.title}</div>
+          <div class="project-title">
+            <span class="title-full">{project.title}</span>
+            <span class="title-short">{project.shortTitle}</span>
+          </div>
         </div>
         <div class="project-content">
           <!-- Terminal Screenshot Preview -->
@@ -187,6 +193,27 @@ const projects = [
     color: var(--primary-color);
     margin-left: 1rem;
     transition: color 0.5s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .title-full {
+    display: block;
+  }
+
+  .title-short {
+    display: none;
+  }
+
+  @media (max-width: 768px) {
+    .title-full {
+      display: none;
+    }
+
+    .title-short {
+      display: block;
+    }
   }
   
   .project-content {

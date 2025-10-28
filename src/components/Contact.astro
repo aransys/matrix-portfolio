@@ -55,16 +55,18 @@ const contactInfo = {
         </div>
       </form>
       
-      <!-- Transmission Status -->
+      <!-- Transmission Status Modal -->
+      <div class="transmission-backdrop" id="transmissionBackdrop"></div>
       <div class="transmission-status" id="transmissionStatus">
         <div class="status-success">
-          <div class="status-line">✓ Transmission successful</div>
-          <div class="status-line">Neural network connection established</div>
-          <div class="status-line">Response expected within 24 hours</div>
+          <div class="status-icon">[√]</div>
+          <div class="status-message">TRANSMISSION COMPLETE</div>
+          <div class="status-subtitle">Data payload received & processed</div>
         </div>
         <div class="status-error">
-          <div class="status-line">✗ Transmission failed</div>
-          <div class="status-line">Please check your connection and retry</div>
+          <div class="status-icon">[✗]</div>
+          <div class="status-message">TRANSMISSION FAILED</div>
+          <div class="status-subtitle">Error: Connection timeout</div>
         </div>
       </div>
     </div>
@@ -311,36 +313,124 @@ const contactInfo = {
     box-shadow: var(--glow);
   }
 
-  /* Transmission Status */
-  .transmission-status {
-    margin-top: 2rem;
-    padding: 1.5rem;
-    background: var(--dark-bg);
-    border-radius: 8px;
+  /* Transmission Status Modal */
+  .transmission-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
     display: none;
+    z-index: 999;
+  }
+
+  .transmission-backdrop.show {
+    display: block;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .transmission-status {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 2rem;
+    background: var(--darker-bg);
+    border: 1px solid var(--primary-color);
+    border-radius: 12px;
+    box-shadow: var(--glow), 0 20px 40px rgba(0, 0, 0, 0.5);
+    display: none;
+    z-index: 1000;
+    min-width: 300px;
+    max-width: 90vw;
+    backdrop-filter: blur(10px);
   }
 
   .transmission-status.show {
     display: block;
-    animation: fadeIn 0.5s ease;
+    animation: fadeInScale 0.4s ease;
+  }
+
+  .transmission-status::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    border-radius: 12px 12px 0 0;
+    animation: pulse-glow 2s infinite;
   }
 
   .status-success {
-    border-left: 4px solid #27ca3f;
+    text-align: center;
+    color: var(--primary-color);
   }
 
   .status-error {
-    border-left: 4px solid #ff6b6b;
+    text-align: center;
+    color: var(--secondary-color);
   }
 
-  .status-line {
+  .status-icon {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.8rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px currentColor;
+    animation: pulse-status 1.5s infinite;
+  }
+
+  .status-message {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 1px;
     margin-bottom: 0.5rem;
-    font-size: 0.9rem;
+    text-transform: uppercase;
+  }
+
+  .status-subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    opacity: 0.7;
+    font-style: italic;
+    letter-spacing: 0.5px;
   }
 
   @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes fadeInScale {
+    from { 
+      opacity: 0; 
+      transform: translate(-50%, -50%) scale(0.8); 
+    }
+    to { 
+      opacity: 1; 
+      transform: translate(-50%, -50%) scale(1); 
+    }
+  }
+
+  @keyframes pulse-status {
+    0%, 100% { 
+      opacity: 1;
+      text-shadow: 0 0 10px currentColor;
+    }
+    50% { 
+      opacity: 0.7;
+      text-shadow: 0 0 20px currentColor;
+    }
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
   }
 
   /* Contact Info */
@@ -406,8 +496,9 @@ const contactInfo = {
     const form = document.getElementById('contactForm') as HTMLFormElement;
     const submitButton = document.getElementById('submitButton') as HTMLButtonElement;
     const status = document.getElementById('transmissionStatus') as HTMLElement;
+    const backdrop = document.getElementById('transmissionBackdrop') as HTMLElement;
     
-    if (!form || !submitButton || !status) return;
+    if (!form || !submitButton || !status || !backdrop) return;
     
     // Initialize EmailJS
     (window as any).emailjs.init('UpRQgNE_wRova4Edf');
@@ -435,6 +526,7 @@ const contactInfo = {
       submitButton.disabled = true;
       submitButton.textContent = 'TRANSMITTING...';
       status.classList.remove('show');
+      backdrop.classList.remove('show');
       
       try {
         // Prepare email template parameters
@@ -453,7 +545,7 @@ const contactInfo = {
         );
         
         if (response.status === 200) {
-          // Show success
+          // Show success modal
           const successElement = status.querySelector('.status-success') as HTMLElement;
           const errorElement = status.querySelector('.status-error') as HTMLElement;
           
@@ -461,20 +553,25 @@ const contactInfo = {
             successElement.style.display = 'block';
             errorElement.style.display = 'none';
           }
+          
+          backdrop.classList.add('show');
           status.classList.add('show');
           
           // Reset form
           form.reset();
           
-          // Scroll to status
-          status.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          // Auto-dismiss after 4 seconds
+          setTimeout(() => {
+            status.classList.remove('show');
+            backdrop.classList.remove('show');
+          }, 4000);
         } else {
           throw new Error('Email sending failed');
         }
         
       } catch (error) {
         console.error('EmailJS Error:', error);
-        // Show error
+        // Show error modal
         const successElement = status.querySelector('.status-success') as HTMLElement;
         const errorElement = status.querySelector('.status-error') as HTMLElement;
         
@@ -482,7 +579,15 @@ const contactInfo = {
           successElement.style.display = 'none';
           errorElement.style.display = 'block';
         }
+        
+        backdrop.classList.add('show');
         status.classList.add('show');
+        
+        // Auto-dismiss error after 5 seconds
+        setTimeout(() => {
+          status.classList.remove('show');
+          backdrop.classList.remove('show');
+        }, 5000);
       } finally {
         // Reset button
         submitButton.disabled = false;

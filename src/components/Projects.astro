@@ -5,21 +5,27 @@ const projects = [
     description: "Responsive landing page for a professional laundry service featuring service showcases, dynamic pricing tables, and interactive contact forms. Built with modern CSS animations and accessibility features.",
     technologies: ["HTML5", "CSS3", "JavaScript", "Responsive Design"],
     liveUrl: "https://aransys.github.io/Project-1/#hero",
-    sourceUrl: "https://github.com/aransys/Project-1"
+    sourceUrl: "https://github.com/aransys/Project-1",
+    screenshot: "/screenshots/worcester-laundry.webp",
+    terminalCommand: "cat worcester-laundry.service.png"
   },
   {
     title: "music-explorer.app",
     description: "Interactive music discovery application with real-time search and preview capabilities. Integrates with external APIs to provide seamless music browsing and playback functionality.",
     technologies: ["JavaScript", "HTML5", "CSS3", "REST API"],
     liveUrl: "https://aransys.github.io/Project-2/",
-    sourceUrl: "https://github.com/aransys/Project-2"
+    sourceUrl: "https://github.com/aransys/Project-2",
+    screenshot: "/screenshots/music-explorer.webp",
+    terminalCommand: "cat music-explorer.app.png"
   },
   {
     title: "quickgigs.platform",
     description: "Full-stack freelance marketplace with user authentication, profile management, and integrated Stripe payment processing. Features complete CRUD operations, premium memberships, and gig posting system.",
     technologies: ["Django", "Python", "Stripe API", "PostgreSQL"],
     liveUrl: "https://quickgigs-django.onrender.com/",
-    sourceUrl: "https://github.com/aransys/quickgigs-django"
+    sourceUrl: "https://github.com/aransys/quickgigs-django",
+    screenshot: "/screenshots/quickgigs.webp",
+    terminalCommand: "cat quickgigs.platform.png"
   }
 ];
 ---
@@ -38,6 +44,32 @@ const projects = [
           <div class="project-title">{project.title}</div>
         </div>
         <div class="project-content">
+          <!-- Terminal Screenshot Preview -->
+          <div class="terminal-screenshot">
+            <div class="terminal-header">
+              <div class="terminal-prompt">user@matrix:~$ {project.terminalCommand}</div>
+              <div class="terminal-status">[LOADING...]</div>
+            </div>
+            <div class="screenshot-container">
+              <img 
+                src={project.screenshot} 
+                alt={`${project.title} screenshot`}
+                class="project-screenshot"
+                loading="lazy"
+                decoding="async"
+              />
+              <div class="screenshot-overlay">
+                <div class="scanlines"></div>
+                <div class="glitch-effect"></div>
+                <div class="matrix-code">
+                  <span>01001000 01100101 01101100 01101100 01101111</span>
+                  <span>01010111 01101111 01110010 01101100 01100100</span>
+                  <span>01001101 01100001 01110100 01110010 01101001 01111000</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
           <p class="project-description">{project.description}</p>
           <div class="tech-stack">
             {project.technologies.map((tech) => (
@@ -162,6 +194,181 @@ const projects = [
     flex: 1;
     display: flex;
     flex-direction: column;
+  }
+
+  /* Terminal Screenshot Styles */
+  .terminal-screenshot {
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--primary-color);
+    background: var(--darker-bg);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+    transition: all 0.3s ease;
+  }
+
+  .terminal-screenshot:hover {
+    box-shadow: var(--glow);
+    border-color: var(--secondary-color);
+  }
+
+  .terminal-header {
+    background: var(--darker-bg);
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--primary-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.875rem;
+  }
+
+  .terminal-prompt {
+    color: var(--primary-color);
+    font-family: 'JetBrains Mono', monospace;
+    transition: color 0.3s ease;
+  }
+
+  .terminal-status {
+    color: var(--secondary-color);
+    font-size: 0.75rem;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  .screenshot-container {
+    position: relative;
+    overflow: hidden;
+    background: var(--dark-bg);
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .project-screenshot {
+    width: 100%;
+    height: auto;
+    max-height: 300px;
+    object-fit: cover;
+    transition: all 0.3s ease;
+    filter: brightness(0.8) contrast(1.1);
+  }
+
+  .terminal-screenshot:hover .project-screenshot {
+    filter: brightness(1) contrast(1.2);
+    transform: scale(1.02);
+  }
+
+  .screenshot-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .terminal-screenshot:hover .screenshot-overlay {
+    opacity: 1;
+  }
+
+  /* Matrix Scanlines Effect */
+  .scanlines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 212, 255, 0.03) 2px,
+      rgba(0, 212, 255, 0.03) 4px
+    );
+    animation: scanlines-move 0.1s linear infinite;
+  }
+
+  @keyframes scanlines-move {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(4px); }
+  }
+
+  /* Glitch Effect */
+  .glitch-effect {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      45deg,
+      transparent 30%,
+      rgba(0, 212, 255, 0.1) 50%,
+      transparent 70%
+    );
+    animation: glitch 0.3s infinite;
+  }
+
+  @keyframes glitch {
+    0%, 100% { 
+      transform: translateX(0);
+      opacity: 0;
+    }
+    10%, 90% { 
+      transform: translateX(-2px);
+      opacity: 0.1;
+    }
+    20%, 80% { 
+      transform: translateX(2px);
+      opacity: 0.1;
+    }
+  }
+
+  /* Matrix Code Rain */
+  .matrix-code {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    padding: 1rem;
+    font-size: 0.75rem;
+    color: var(--primary-color);
+    opacity: 0.3;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .matrix-code span {
+    animation: matrix-fall 3s linear infinite;
+    animation-delay: calc(var(--i) * 0.5s);
+  }
+
+  .matrix-code span:nth-child(1) { --i: 0; }
+  .matrix-code span:nth-child(2) { --i: 1; }
+  .matrix-code span:nth-child(3) { --i: 2; }
+
+  @keyframes matrix-fall {
+    0% { 
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+    10%, 90% { 
+      opacity: 0.3;
+    }
+    100% { 
+      transform: translateY(100%);
+      opacity: 0;
+    }
   }
   
   .project-description {

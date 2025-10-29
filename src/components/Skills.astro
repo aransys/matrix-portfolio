@@ -2,19 +2,43 @@
 const skillCategories = [
   {
     title: "Frontend.dll",
-    skills: ["HTML5 / CSS3", "JavaScript (ES6+)", "Responsive Design", "CSS Animations", "DOM Manipulation"]
+    skills: [
+      { name: "HTML5 / CSS3", level: 95 },
+      { name: "JavaScript (ES6+)", level: 90 },
+      { name: "Responsive Design", level: 88 },
+      { name: "CSS Animations", level: 85 },
+      { name: "DOM Manipulation", level: 92 }
+    ]
   },
   {
     title: "Backend.exe",
-    skills: ["Python / Django", "PostgreSQL", "REST APIs", "User Authentication", "Payment Integration (Stripe)"]
+    skills: [
+      { name: "Python / Django", level: 85 },
+      { name: "PostgreSQL", level: 80 },
+      { name: "REST APIs", level: 88 },
+      { name: "User Authentication", level: 82 },
+      { name: "Payment Integration (Stripe)", level: 75 }
+    ]
   },
   {
     title: "Tools.sys",
-    skills: ["Git / GitHub", "GitHub Pages", "Render", "VS Code", "Browser DevTools"]
+    skills: [
+      { name: "Git / GitHub", level: 90 },
+      { name: "GitHub Pages", level: 95 },
+      { name: "Render", level: 85 },
+      { name: "VS Code", level: 92 },
+      { name: "Browser DevTools", level: 88 }
+    ]
   },
   {
     title: "Practices.dev",
-    skills: ["CRUD Operations", "Form Validation", "API Integration", "Accessibility Standards", "Version Control"]
+    skills: [
+      { name: "CRUD Operations", level: 90 },
+      { name: "Form Validation", level: 85 },
+      { name: "API Integration", level: 88 },
+      { name: "Accessibility Standards", level: 80 },
+      { name: "Version Control", level: 92 }
+    ]
   }
 ];
 ---
@@ -27,7 +51,18 @@ const skillCategories = [
         <h3>{category.title}</h3>
         <ul class="skill-list">
           {category.skills.map((skill) => (
-            <li>{skill}</li>
+            <li class="skill-item">
+              <div class="skill-info">
+                <span class="skill-name">{skill.name}</span>
+                <span class="skill-level">{skill.level}%</span>
+              </div>
+              <div class="progress-container">
+                <div class="progress-bar" data-level={skill.level}>
+                  <div class="progress-fill"></div>
+                  <div class="progress-glow"></div>
+                </div>
+              </div>
+            </li>
           ))}
         </ul>
       </div>
@@ -98,23 +133,102 @@ const skillCategories = [
     list-style: none;
   }
   
-  .skill-list li {
-    padding: 0.5rem 0;
-    position: relative;
-    padding-left: 1.5rem;
+  .skill-item {
+    margin-bottom: 1.5rem;
+    padding: 0;
   }
   
-  .skill-list li::before {
-    content: '▶';
-    position: absolute;
-    left: 0;
+  .skill-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+  
+  .skill-name {
+    font-size: 0.9rem;
+    color: var(--text-color);
+    transition: color 0.3s ease;
+  }
+  
+  .skill-level {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
     color: var(--primary-color);
-    transition: color 0.5s ease;
+    font-weight: 600;
+    transition: color 0.3s ease;
+  }
+  
+  .progress-container {
+    position: relative;
+    height: 8px;
+    background: var(--darker-bg);
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid var(--primary-color);
+    opacity: 0.3;
+  }
+  
+  .progress-bar {
+    position: relative;
+    height: 100%;
+    width: 0%;
+    transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .progress-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    border-radius: 3px;
+  }
+  
+  .progress-glow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    border-radius: 3px;
+    opacity: 0.6;
+    filter: blur(2px);
+    animation: progress-glow 2s infinite;
+  }
+  
+  .skill-item.animate .progress-container {
+    opacity: 1;
+  }
+  
+  .skill-item.animate .progress-bar {
+    width: var(--target-width);
+  }
+  
+  @keyframes progress-glow {
+    0%, 100% { 
+      opacity: 0.6;
+      transform: scaleX(1);
+    }
+    50% { 
+      opacity: 0.8;
+      transform: scaleX(1.02);
+    }
   }
   
   @media (max-width: 1024px) and (min-width: 769px) {
     .skills-grid {
       grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .skill-name {
+      font-size: 0.85rem;
+    }
+    
+    .skill-level {
+      font-size: 0.75rem;
     }
   }
   
@@ -122,6 +236,62 @@ const skillCategories = [
     .skills-grid {
       grid-template-columns: 1fr;
     }
+    
+    .skill-category {
+      padding: 1.5rem;
+    }
+    
+    .skill-name {
+      font-size: 0.8rem;
+    }
+    
+    .skill-level {
+      font-size: 0.7rem;
+    }
+    
+    .progress-container {
+      height: 6px;
+    }
   }
 </style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const skillsSection = document.getElementById('skills');
+    const skillItems = document.querySelectorAll('.skill-item');
+    
+    if (!skillsSection || skillItems.length === 0) return;
+    
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          animateProgressBars();
+          observer.unobserve(entry.target);
+        }
+      });
+    }, {
+      threshold: 0.3,
+      rootMargin: '0px 0px -100px 0px'
+    });
+    
+    observer.observe(skillsSection);
+    
+    function animateProgressBars() {
+      skillItems.forEach((item, index) => {
+        const progressBar = item.querySelector('.progress-bar') as HTMLElement;
+        const level = progressBar?.getAttribute('data-level');
+        
+        if (progressBar && level) {
+          // Set CSS custom property for the target width
+          progressBar.style.setProperty('--target-width', `${level}%`);
+          
+          // Add animate class with staggered delay
+          setTimeout(() => {
+            item.classList.add('animate');
+          }, index * 100);
+        }
+      });
+    }
+  });
+</script>
 

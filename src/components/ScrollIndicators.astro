@@ -1,0 +1,251 @@
+---
+---
+<div class="scroll-indicators">
+  <!-- Top Progress Bar -->
+  <div class="scroll-progress-bar" id="scroll-progress-bar"></div>
+  
+  <!-- Right Side Navigation Dots -->
+  <div class="scroll-dots" id="scroll-dots">
+    <a href="#about" class="scroll-dot" data-section="about" aria-label="About Section">
+      <span class="dot-inner"></span>
+    </a>
+    <a href="#services" class="scroll-dot" data-section="services" aria-label="Services Section">
+      <span class="dot-inner"></span>
+    </a>
+    <a href="#projects" class="scroll-dot" data-section="projects" aria-label="Projects Section">
+      <span class="dot-inner"></span>
+    </a>
+    <a href="#skills" class="scroll-dot" data-section="skills" aria-label="Skills Section">
+      <span class="dot-inner"></span>
+    </a>
+    <a href="#contact" class="scroll-dot" data-section="contact" aria-label="Contact Section">
+      <span class="dot-inner"></span>
+    </a>
+  </div>
+</div>
+
+<style>
+  .scroll-indicators {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 997;
+  }
+
+  /* Top Progress Bar */
+  .scroll-progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    box-shadow: 0 0 10px var(--primary-color);
+    z-index: 998;
+    transition: width 0.1s ease-out;
+    pointer-events: none;
+  }
+
+  .scroll-progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 20px;
+    height: 100%;
+    background: var(--primary-color);
+    box-shadow: 0 0 15px var(--primary-color);
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% {
+      opacity: 1;
+      box-shadow: 0 0 15px var(--primary-color);
+    }
+    50% {
+      opacity: 0.6;
+      box-shadow: 0 0 25px var(--primary-color);
+    }
+  }
+
+  /* Navigation Dots */
+  .scroll-dots {
+    position: fixed;
+    right: 2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    pointer-events: auto;
+    z-index: 998;
+  }
+
+  .scroll-dot {
+    position: relative;
+    width: 12px;
+    height: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    pointer-events: auto;
+  }
+
+  .dot-inner {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--gray-bg);
+    border: 2px solid var(--primary-color);
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .scroll-dot:hover .dot-inner {
+    background: var(--primary-color);
+    box-shadow: 0 0 10px var(--primary-color);
+    transform: scale(1.3);
+  }
+
+  .scroll-dot.active .dot-inner {
+    background: var(--primary-color);
+    box-shadow: 0 0 10px var(--primary-color);
+    transform: scale(1.3);
+    animation: pulse-bubble 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-bubble {
+    0%, 100% {
+      opacity: 1;
+      box-shadow: 0 0 10px var(--primary-color);
+    }
+    50% {
+      opacity: 0.7;
+      box-shadow: 0 0 20px var(--primary-color);
+    }
+  }
+
+  /* Tablet View */
+  @media (max-width: 1024px) and (min-width: 769px) {
+    .scroll-dots {
+      right: 1rem;
+      gap: 1.25rem;
+    }
+
+    .scroll-dot {
+      width: 10px;
+      height: 10px;
+    }
+
+    .dot-inner {
+      width: 6px;
+      height: 6px;
+    }
+  }
+
+  /* Mobile View */
+  @media (max-width: 768px) {
+    .scroll-dots {
+      display: none;
+    }
+
+    .scroll-progress-bar {
+      height: 2px;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const progressBar = document.getElementById('scroll-progress-bar') as HTMLElement;
+    const scrollDots = document.querySelectorAll('.scroll-dot') as NodeListOf<HTMLElement>;
+    // Sections without hero - dots array maps to these sections
+    const sections = ['about', 'services', 'projects', 'skills', 'contact'];
+
+    if (!progressBar) return;
+
+    // Update progress bar
+    const updateProgressBar = () => {
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const scrollableHeight = documentHeight - windowHeight;
+      const progress = (scrollTop / scrollableHeight) * 100;
+      progressBar.style.width = `${Math.min(100, Math.max(0, progress))}%`;
+    };
+
+    // Update active dot
+    const updateActiveDot = () => {
+      const scrollPosition = window.pageYOffset + window.innerHeight / 2;
+      const allSections = ['hero', 'about', 'services', 'projects', 'skills', 'contact'];
+
+      // Check each section and mark corresponding dot as active
+      allSections.forEach((sectionId, allIndex) => {
+        // Skip hero section (index 0) as it has no dot
+        if (sectionId === 'hero') return;
+        
+        // Map to dot index (subtract 1 to skip hero)
+        const dotIndex = allIndex - 1;
+        const section = document.getElementById(sectionId);
+        const dot = scrollDots[dotIndex] as HTMLElement;
+
+        if (section && dot) {
+          const sectionTop = section.offsetTop;
+          const nextSectionIndex = allIndex < allSections.length - 1 ? allIndex + 1 : -1;
+          const nextSection = nextSectionIndex >= 0 ? document.getElementById(allSections[nextSectionIndex]) : null;
+          const nextSectionTop = nextSection ? nextSection.offsetTop : document.documentElement.scrollHeight;
+
+          if (scrollPosition >= sectionTop && scrollPosition < nextSectionTop) {
+            dot.classList.add('active');
+          } else {
+            dot.classList.remove('active');
+          }
+        }
+      });
+    };
+
+    // Smooth scroll handler
+    scrollDots.forEach((dot) => {
+      dot.addEventListener('click', (e) => {
+        e.preventDefault();
+        const href = dot.getAttribute('href');
+        if (href) {
+          const target = document.querySelector(href) as HTMLElement;
+          if (target) {
+            const offsetTop = target.offsetTop - 80;
+            window.scrollTo({
+              top: offsetTop,
+              behavior: 'smooth'
+            });
+          }
+        }
+      });
+    });
+
+    // Throttle scroll event
+    let ticking = false;
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          updateProgressBar();
+          updateActiveDot();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    // Initial update
+    updateProgressBar();
+    updateActiveDot();
+  });
+</script>

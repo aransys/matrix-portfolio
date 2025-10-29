@@ -19,7 +19,13 @@ const {
     <p class="hero-subtitle">{title} <span class="typing-effect">|</span></p>
     <p>{subtitle}</p>
     <br>
-    <a href="#projects" class="cta-button">explore.portfolio()</a>
+    <div class="hero-buttons">
+      <a href="#projects" class="cta-button">explore.portfolio()</a>
+      <a href="/resume/Aurimas-Ransys-Resume.pdf" class="cta-button resume-button" download="Aurimas-Ransys-Resume.pdf">
+        <span class="button-icon">[↓]</span>
+        download.resume()
+      </a>
+    </div>
   </div>
 </section>
 
@@ -127,10 +133,67 @@ const {
     box-shadow: var(--glow);
   }
   
+  .hero-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+  }
+  
+  .resume-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .button-icon {
+    font-size: 1rem;
+    transition: transform 0.3s ease;
+  }
+  
+  .resume-button:hover .button-icon {
+    transform: scale(1.1);
+  }
+  
   @media (max-width: 768px) {
     .hero-title {
       font-size: 2.5rem;
     }
+    
+    .hero-buttons {
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .cta-button {
+      width: 100%;
+      max-width: 280px;
+      text-align: center;
+    }
   }
 </style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const resumeButton = document.querySelector('.resume-button') as HTMLAnchorElement;
+    
+    if (resumeButton) {
+      resumeButton.addEventListener('click', (e) => {
+        // Add a subtle animation feedback
+        const icon = resumeButton.querySelector('.button-icon') as HTMLElement;
+        if (icon) {
+          icon.style.transform = 'scale(1.2) rotate(5deg)';
+          setTimeout(() => {
+            icon.style.transform = 'scale(1) rotate(0deg)';
+          }, 200);
+        }
+        
+        // Optional: Add download tracking or analytics here
+        console.log('Resume download initiated');
+      });
+    }
+  });
+</script>
 

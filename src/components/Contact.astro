@@ -21,7 +21,7 @@ const contactInfo = {
     
     <div class="neural-body">
       <!-- Data Stream Visualization -->
-      <div class="data-stream">
+      <div class="data-stream" aria-hidden="true">
         <div class="stream-line"></div>
         <div class="stream-line"></div>
         <div class="stream-line"></div>
@@ -29,44 +29,53 @@ const contactInfo = {
       </div>
       
       <!-- Contact Form -->
-      <form class="neural-form" id="contactForm">
+      <form class="neural-form" id="contactForm" aria-label="Contact form">
         <div class="input-group">
           <label for="name">NODE_ID</label>
-          <input type="text" id="name" name="name" placeholder="Enter your identifier" required>
+          <input type="text" id="name" name="name" placeholder="Enter your identifier" required aria-describedby="name-desc">
+          <span id="name-desc" class="sr-only">Enter your name or identifier</span>
         </div>
         
         <div class="input-group">
           <label for="email">TRANSMISSION_PROTOCOL</label>
-          <input type="email" id="email" name="email" placeholder="your.signal@domain.com" required>
+          <input type="email" id="email" name="email" placeholder="your.signal@domain.com" required aria-describedby="email-desc">
+          <span id="email-desc" class="sr-only">Enter your email address</span>
         </div>
         
         <div class="input-group">
           <label for="subject">MESSAGE_TYPE</label>
-          <input type="text" id="subject" name="subject" placeholder="Project inquiry, collaboration, etc." required>
+          <input type="text" id="subject" name="subject" placeholder="Project inquiry, collaboration, etc." required aria-describedby="subject-desc">
+          <span id="subject-desc" class="sr-only">Enter the subject of your message</span>
         </div>
         
         <div class="input-group">
           <label for="message">DATA_PAYLOAD</label>
-          <textarea id="message" name="message" placeholder="Transmit your message through the neural network..." rows="4" required></textarea>
+          <textarea id="message" name="message" placeholder="Transmit your message through the neural network..." rows="4" required aria-describedby="message-desc"></textarea>
+          <span id="message-desc" class="sr-only">Enter your message</span>
         </div>
         
         <div class="submit-container">
-          <button type="submit" class="cta-button" id="submitButton">TRANSMIT</button>
+          <button type="submit" class="cta-button" id="submitButton" aria-label="Submit contact form">TRANSMIT</button>
         </div>
       </form>
       
+      <!-- Live region for form status announcements -->
+      <div id="form-status" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+      
       <!-- Transmission Status Modal -->
-      <div class="transmission-backdrop" id="transmissionBackdrop"></div>
-      <div class="transmission-status" id="transmissionStatus">
-        <div class="status-success">
-          <div class="status-icon">[√]</div>
-          <div class="status-message">TRANSMISSION COMPLETE</div>
+      <div class="transmission-backdrop" id="transmissionBackdrop" aria-hidden="true"></div>
+      <div class="transmission-status" id="transmissionStatus" role="alertdialog" aria-modal="true" aria-labelledby="status-title" aria-live="assertive" aria-hidden="true">
+        <div class="status-success" id="status-success">
+          <div class="status-icon" aria-hidden="true">[√]</div>
+          <div class="status-message" id="status-title">TRANSMISSION COMPLETE</div>
           <div class="status-subtitle">Data payload received & processed</div>
+          <button class="sr-only" id="close-modal-btn" aria-label="Close modal">Close</button>
         </div>
-        <div class="status-error">
-          <div class="status-icon">[✗]</div>
+        <div class="status-error" id="status-error">
+          <div class="status-icon" aria-hidden="true">[✗]</div>
           <div class="status-message">TRANSMISSION FAILED</div>
           <div class="status-subtitle">Error: Connection timeout</div>
+          <button class="sr-only" id="close-error-modal-btn" aria-label="Close error modal">Close</button>
         </div>
       </div>
     </div>
@@ -463,11 +472,31 @@ const contactInfo = {
     text-shadow: var(--glow);
   }
 
+  /* Screen reader only content */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
   /* Responsive Design */
   .mobile-view { display: none; }
   .desktop-view { display: block; }
 
-  @media (max-width: 768px) {
+  @media (max-width: 1024px) and (min-width: 641px) {
+    .contact {
+      max-width: 1040px;
+      margin-right: 2rem;
+    }
+  }
+
+  @media (max-width: 640px) {
     .contact {
       padding: 3rem 1rem;
     }
@@ -497,8 +526,35 @@ const contactInfo = {
     const submitButton = document.getElementById('submitButton') as HTMLButtonElement;
     const status = document.getElementById('transmissionStatus') as HTMLElement;
     const backdrop = document.getElementById('transmissionBackdrop') as HTMLElement;
+    const formStatus = document.getElementById('form-status') as HTMLElement;
     
-    if (!form || !submitButton || !status || !backdrop) return;
+    if (!form || !submitButton || !status || !backdrop || !formStatus) return;
+    
+    // Store the element that had focus before modal opened
+    let focusedElementBeforeModal: HTMLElement | null = null;
+    
+    // Focus trap for modal
+    const trapFocus = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+      
+      const focusableElements = status.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      const firstElement = focusableElements[0] as HTMLElement;
+      const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+      
+      if (e.shiftKey) {
+        if (document.activeElement === firstElement) {
+          lastElement?.focus();
+          e.preventDefault();
+        }
+      } else {
+        if (document.activeElement === lastElement) {
+          firstElement?.focus();
+          e.preventDefault();
+        }
+      }
+    };
     
     // Wait for EmailJS to load before initializing
     const initEmailJS = () => {
@@ -510,6 +566,29 @@ const contactInfo = {
     };
     
     initEmailJS();
+    
+    // Function to close modal and restore focus
+    const closeModal = () => {
+      backdrop.classList.remove('show');
+      status.classList.remove('show');
+      backdrop.setAttribute('aria-hidden', 'true');
+      status.setAttribute('aria-hidden', 'true');
+      status.removeEventListener('keydown', trapFocus);
+      
+      // Restore focus to the element that was focused before modal opened
+      if (focusedElementBeforeModal) {
+        focusedElementBeforeModal.focus();
+      }
+    };
+    
+    // Close modal handlers
+    backdrop.addEventListener('click', closeModal);
+    const escapeHandler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && status.classList.contains('show')) {
+        closeModal();
+      }
+    };
+    document.addEventListener('keydown', escapeHandler);
     
     // Form submission
     form.addEventListener('submit', async function(e: Event) {
@@ -523,12 +602,17 @@ const contactInfo = {
         if (!input.value.trim()) {
           isValid = false;
           input.style.borderColor = '#ff6b6b';
+          input.setAttribute('aria-invalid', 'true');
         } else {
           input.style.borderColor = 'var(--primary-color)';
+          input.removeAttribute('aria-invalid');
         }
       });
       
-      if (!isValid) return;
+      if (!isValid) {
+        formStatus.textContent = 'Please fill in all required fields';
+        return;
+      }
       
       // Show loading state
       submitButton.disabled = true;
@@ -567,16 +651,31 @@ const contactInfo = {
             errorElement.style.display = 'none';
           }
           
+          // Store focused element before opening modal
+          focusedElementBeforeModal = document.activeElement as HTMLElement;
+          
+          // Show modal with proper ARIA attributes
+          backdrop.setAttribute('aria-hidden', 'false');
+          status.setAttribute('aria-hidden', 'false');
           backdrop.classList.add('show');
           status.classList.add('show');
           
+          // Focus the close button or status title
+          const statusTitle = document.getElementById('status-title');
+          if (statusTitle) {
+            statusTitle.focus();
+          }
+          
+          // Add focus trap
+          status.addEventListener('keydown', trapFocus);
+          
           // Reset form
           form.reset();
+          formStatus.textContent = 'Message sent successfully';
           
           // Auto-dismiss after 4 seconds
           setTimeout(() => {
-            status.classList.remove('show');
-            backdrop.classList.remove('show');
+            closeModal();
           }, 4000);
         } else {
           throw new Error('Email sending failed');
@@ -593,13 +692,29 @@ const contactInfo = {
           errorElement.style.display = 'block';
         }
         
+        // Store focused element before opening modal
+        focusedElementBeforeModal = document.activeElement as HTMLElement;
+        
+        // Show modal with proper ARIA attributes
+        backdrop.setAttribute('aria-hidden', 'false');
+        status.setAttribute('aria-hidden', 'false');
         backdrop.classList.add('show');
         status.classList.add('show');
         
+        // Focus the error message
+        const errorMessage = errorElement?.querySelector('.status-message');
+        if (errorMessage) {
+          (errorMessage as HTMLElement).focus();
+        }
+        
+        // Add focus trap
+        status.addEventListener('keydown', trapFocus);
+        
+        formStatus.textContent = 'Error sending message. Please try again.';
+        
         // Auto-dismiss error after 5 seconds
         setTimeout(() => {
-          status.classList.remove('show');
-          backdrop.classList.remove('show');
+          closeModal();
         }, 5000);
       } finally {
         // Reset button

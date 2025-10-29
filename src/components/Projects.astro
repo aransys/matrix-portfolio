@@ -64,10 +64,10 @@ const projects = [
                 loading="lazy"
                 decoding="async"
               />
-              <div class="screenshot-overlay">
-                <div class="scanlines"></div>
-                <div class="glitch-effect"></div>
-                <div class="matrix-code">
+              <div class="screenshot-overlay" aria-hidden="true">
+                <div class="scanlines" aria-hidden="true"></div>
+                <div class="glitch-effect" aria-hidden="true"></div>
+                <div class="matrix-code" aria-hidden="true">
                   <span>01001000 01100101 01101100 01101100 01101111</span>
                   <span>01010111 01101111 01110010 01101100 01100100</span>
                   <span>01001101 01100001 01110100 01110010 01101001 01111000</span>
@@ -82,12 +82,12 @@ const projects = [
               <span class="tech-tag">{tech}</span>
             ))}
           </div>
-          <div class="project-links">
-            <a href={project.liveUrl} class="project-link" target="_blank" rel="noopener noreferrer">
-              <span>🔗</span> Live Demo
+            <div class="project-links">
+            <a href={project.liveUrl} class="project-link" target="_blank" rel="noopener noreferrer" aria-label={`View live demo of ${project.title}`}>
+              <span aria-hidden="true">🔗</span> Live Demo
             </a>
-            <a href={project.sourceUrl} class="project-link" target="_blank" rel="noopener noreferrer">
-              <span>📁</span> Source Code
+            <a href={project.sourceUrl} class="project-link" target="_blank" rel="noopener noreferrer" aria-label={`View source code of ${project.title}`}>
+              <span aria-hidden="true">📁</span> Source Code
             </a>
           </div>
         </div>
@@ -206,7 +206,7 @@ const projects = [
     display: none;
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 640px) {
     .title-full {
       display: none;
     }
@@ -453,10 +453,12 @@ const projects = [
     text-shadow: var(--glow);
   }
   
-  @media (max-width: 1024px) and (min-width: 769px) {
+  @media (max-width: 1024px) and (min-width: 641px) {
     section {
-      padding-left: 5rem;
-      padding-right: 5rem;
+      max-width: 1040px;
+      padding-left: 2rem;
+      padding-right: 2rem;
+      margin-right: 2rem;
     }
     
     .projects-grid {
@@ -475,7 +477,7 @@ const projects = [
     }
   }
   
-  @media (max-width: 768px) {
+  @media (max-width: 640px) {
     .projects-grid {
       grid-template-columns: 1fr;
     }

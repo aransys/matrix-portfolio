@@ -1,10 +1,10 @@
 ---
 ---
 
-<nav>
+<nav role="navigation" aria-label="Main navigation">
   <div class="nav-container">
-    <a href="#home" class="logo">ransys.dev</a>
-    <ul class="nav-links">
+    <a href="#home" class="logo" aria-label="Home - ransys.dev">ransys.dev</a>
+    <ul class="nav-links" role="menubar">
       <li><a href="#home">home</a></li>
       <li><a href="#about">about.md</a></li>
       <li><a href="#services">services.json</a></li>
@@ -12,13 +12,13 @@
       <li><a href="#skills">skills.exe</a></li>
       <li><a href="#contact">contact --help</a></li>
     </ul>
-    <button class="hamburger" id="hamburger" aria-label="Toggle menu">
-      <span class="line"></span>
-      <span class="line"></span>
-      <span class="line"></span>
+    <button class="hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false" aria-controls="mobile-menu">
+      <span class="line" aria-hidden="true"></span>
+      <span class="line" aria-hidden="true"></span>
+      <span class="line" aria-hidden="true"></span>
     </button>
   </div>
-  <div class="mobile-menu" id="mobile-menu">
+  <nav class="mobile-menu" id="mobile-menu" aria-label="Mobile navigation" role="navigation">
     <ul class="mobile-nav-links">
       <li><a href="#home">home</a></li>
       <li><a href="#about">about.md</a></li>
@@ -201,7 +201,7 @@
     background: rgba(0, 212, 255, 0.05);
   }
   
-  @media (max-width: 1024px) and (min-width: 769px) {
+  @media (max-width: 1024px) and (min-width: 641px) {
     .nav-container {
       padding: 0 1rem;
     }
@@ -228,7 +228,7 @@
     }
   }
   
-  @media (max-width: 768px) {
+  @media (max-width: 640px) {
     .nav-links {
       display: none;
     }
@@ -260,30 +260,58 @@
 
 <script>
   function initMobileMenu() {
-    const hamburger = document.getElementById('hamburger');
+    const hamburger = document.getElementById('hamburger') as HTMLButtonElement;
     const mobileMenu = document.getElementById('mobile-menu');
     const mobileLinks = document.querySelectorAll('.mobile-nav-links a');
     
     if (!hamburger || !mobileMenu) return;
     
+    let isExpanded = false;
+    
     hamburger.addEventListener('click', () => {
+      isExpanded = !isExpanded;
       hamburger.classList.toggle('active');
       mobileMenu.classList.toggle('active');
+      hamburger.setAttribute('aria-expanded', String(isExpanded));
+      
+      // Focus management for mobile menu
+      if (isExpanded) {
+        const firstLink = mobileLinks[0] as HTMLElement;
+        if (firstLink) {
+          firstLink.focus();
+        }
+      }
     });
     
     mobileLinks.forEach(link => {
       link.addEventListener('click', () => {
+        isExpanded = false;
         hamburger.classList.remove('active');
         mobileMenu.classList.remove('active');
+        hamburger.setAttribute('aria-expanded', 'false');
       });
     });
     
+    // Close menu on outside click
     document.addEventListener('click', (e) => {
       const target = e.target;
       if (!(target instanceof Node)) return;
       if (!hamburger.contains(target) && !mobileMenu.contains(target)) {
+        isExpanded = false;
         hamburger.classList.remove('active');
         mobileMenu.classList.remove('active');
+        hamburger.setAttribute('aria-expanded', 'false');
+      }
+    });
+    
+    // Close menu on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && isExpanded) {
+        isExpanded = false;
+        hamburger.classList.remove('active');
+        mobileMenu.classList.remove('active');
+        hamburger.setAttribute('aria-expanded', 'false');
+        hamburger.focus();
       }
     });
   }

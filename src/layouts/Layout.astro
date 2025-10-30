@@ -294,33 +294,95 @@ const { title } = Astro.props;
     width: min(520px, 92vw);
     background: var(--darker-bg);
     border: 1px solid var(--primary-color);
-    box-shadow: var(--glow);
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.02), var(--glow);
     border-radius: 8px;
     padding: 2rem;
     opacity: 0;
     visibility: hidden;
     transition: all 0.25s ease;
     z-index: 1001;
+    overflow: hidden;
+    outline: none;
   }
   .neo-status.show {
     opacity: 1;
     visibility: visible;
     transform: translate(-50%, -50%);
   }
+  .neo-status::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient( to bottom, rgba(255,255,255,0.03), rgba(0,0,0,0) 30% );
+    pointer-events: none;
+  }
+  .neo-scanlines {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,0.06) 0px,
+      rgba(255,255,255,0.06) 1px,
+      transparent 2px,
+      transparent 4px
+    );
+    opacity: 0.05;
+    animation: neo-scan 6s linear infinite;
+    pointer-events: none;
+  }
+  @keyframes neo-scan {
+    0% { transform: translateY(-10%); }
+    100% { transform: translateY(10%); }
+  }
   .neo-status .status-icon {
     font-weight: 700;
     color: var(--primary-color);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
+    text-shadow: 0 0 10px var(--primary-color);
   }
   .neo-status .status-title {
-    font-size: 1.1rem;
-    letter-spacing: 1px;
-    margin-bottom: 0.25rem;
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+    margin-bottom: 0.5rem;
+    position: relative;
+    color: var(--light-text);
+    text-transform: uppercase;
+  }
+  .neo-status .status-title .glitch {
+    position: relative;
+    display: inline-block;
+  }
+  .neo-status .status-title .glitch::before,
+  .neo-status .status-title .glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    left: 0;
+    top: 0;
+    clip-path: inset(0 0 0 0);
+    opacity: 0.6;
+  }
+  .neo-status .status-title .glitch::before {
+    color: var(--primary-color);
+    transform: translate(1px, 0);
+    animation: neo-glitch 2s infinite ease-in-out alternate;
+  }
+  .neo-status .status-title .glitch::after {
+    color: var(--secondary-color);
+    transform: translate(-1px, 0);
+    animation: neo-glitch 2s infinite ease-in-out alternate-reverse;
+  }
+  @keyframes neo-glitch {
+    0% { clip-path: inset(0 0 90% 0); }
+    20% { clip-path: inset(0 0 10% 0); }
+    40% { clip-path: inset(0 0 60% 0); }
+    60% { clip-path: inset(0 0 30% 0); }
+    80% { clip-path: inset(0 0 80% 0); }
+    100% { clip-path: inset(0 0 0 0); }
   }
   .neo-status .status-subtitle {
     color: var(--light-text);
     opacity: 0.8;
-    margin-bottom: 1rem;
+    margin-bottom: 1.25rem;
   }
   .neo-status .status-actions {
     display: flex;
@@ -339,6 +401,22 @@ const { title } = Astro.props;
   .neo-status .btn:hover {
     background: var(--primary-color);
     color: var(--darker-bg);
+  }
+  .neo-status .btn.red {
+    border-color: #ff4d6d;
+    box-shadow: 0 0 10px rgba(255, 77, 109, 0.35);
+  }
+  .neo-status .btn.red:hover {
+    background: #ff4d6d;
+    color: #1a0a13;
+  }
+  .neo-status .btn.blue {
+    border-color: #3ea0ff;
+    box-shadow: 0 0 10px rgba(62, 160, 255, 0.35);
+  }
+  .neo-status .btn.blue:hover {
+    background: #3ea0ff;
+    color: #0a0e1a;
   }
   
 </style>

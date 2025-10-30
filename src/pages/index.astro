@@ -219,17 +219,22 @@ import ScrollIndicators from '../components/ScrollIndicators.astro';
         status.setAttribute('aria-labelledby', 'neo-status-title');
         status.setAttribute('aria-live', 'assertive');
         status.innerHTML = `
-          <div class="status-icon" aria-hidden="true">[●]</div>
-          <div class="status-title" id="neo-status-title">WELCOME TO THE REAL WORLD</div>
-          <div class="status-subtitle">There is no spoon. Free your mind.</div>
+          <div class="neo-scanlines" aria-hidden="true"></div>
+          <div class="status-icon" aria-hidden="true">[ █ ]</div>
+          <div class="status-title" id="neo-status-title">
+            <span class="glitch" data-text="WELCOME, NEO">WELCOME, NEO</span>
+          </div>
+          <div class="status-subtitle">Take the <strong>red pill</strong> to see how deep the rabbit hole goes…</div>
           <div class="status-actions">
-            <button class="btn" id="neoDismiss">OK</button>
+            <button class="btn red" id="neoRed">RED PILL</button>
+            <button class="btn blue" id="neoBlue">BLUE PILL</button>
           </div>
         `;
         document.body.appendChild(status);
       }
       
-      const dismissBtn = document.getElementById('neoDismiss');
+      const redBtn = document.getElementById('neoRed');
+      const blueBtn = document.getElementById('neoBlue');
       const close = () => {
         backdrop.classList.remove('show');
         status.classList.remove('show');
@@ -248,12 +253,18 @@ import ScrollIndicators from '../components/ScrollIndicators.astro';
       backdrop.setAttribute('aria-hidden', 'false');
       status.setAttribute('aria-hidden', 'false');
       
-      if (dismissBtn) dismissBtn.onclick = close;
+      if (blueBtn) blueBtn.onclick = close;
+      if (redBtn) redBtn.onclick = () => {
+        status.style.boxShadow = '0 0 20px rgba(255,62,165,0.4), var(--glow)';
+        setTimeout(close, 8000);
+      };
       backdrop.addEventListener('click', close);
       document.addEventListener('keydown', escHandler);
       
-      // Auto-dismiss after 5s
-      setTimeout(close, 5000);
+      // Auto-dismiss after 10s fail-safe
+      setTimeout(() => {
+        if (status.classList.contains('show')) close();
+      }, 10000);
     });
   </script>
 </Layout>

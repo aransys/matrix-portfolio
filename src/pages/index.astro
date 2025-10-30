@@ -124,6 +124,15 @@ import ScrollIndicators from '../components/ScrollIndicators.astro';
       createMatrixRain();
     });
     
+    // Replace native alerts with styled modal
+    if (!window.__originalAlert) {
+      // @ts-ignore
+      window.__originalAlert = window.alert;
+      window.alert = (message) => {
+        showAlertModal(String(message ?? ''));
+      };
+    }
+    
     // Easter egg: Terminal prompt click
     let terminalClickCount = 0;
     /** @type {number | undefined} */
@@ -191,18 +200,64 @@ import ScrollIndicators from '../components/ScrollIndicators.astro';
         const body = document.body;
         const previousTheme = body.getAttribute('data-theme') || 'reloaded';
         body.setAttribute('data-theme', 'pink');
-        const originalAlert = window.alert;
-        // Suppress any native alert that might be triggered elsewhere
-        window.alert = () => {};
         showNeoModal(() => {
           body.setAttribute('data-theme', previousTheme);
-          // Restore native alert
-          window.alert = originalAlert;
         });
         konamiCode = [];
       }
     });
     
+    function showAlertModal(message) {
+      const existBackdrop = document.getElementById('neoBackdrop');
+      const existStatus = document.getElementById('neoStatus');
+      const backdrop = existBackdrop || document.createElement('div');
+      const status = existStatus || document.createElement('div');
+      
+      if (!existBackdrop) {
+        backdrop.id = 'neoBackdrop';
+        backdrop.className = 'neo-backdrop';
+        backdrop.setAttribute('aria-hidden', 'true');
+        document.body.appendChild(backdrop);
+      }
+      if (!existStatus) {
+        status.id = 'neoStatus';
+        status.className = 'neo-status';
+        status.setAttribute('role', 'alertdialog');
+        status.setAttribute('aria-modal', 'true');
+        status.setAttribute('aria-labelledby', 'neo-status-title');
+        status.setAttribute('aria-live', 'assertive');
+        document.body.appendChild(status);
+      }
+      status.innerHTML = `
+        <div class="neo-scanlines" aria-hidden="true"></div>
+        <div class="status-icon" aria-hidden="true">[ ! ]</div>
+        <div class="status-title" id="neo-status-title">
+          <span class="glitch" data-text="SYSTEM MESSAGE">SYSTEM MESSAGE</span>
+        </div>
+        <div class="status-subtitle">${message}</div>
+        <div class="status-actions">
+          <button class="btn blue" id="neoBlue">OK</button>
+        </div>
+      `;
+      const blueBtn = document.getElementById('neoBlue');
+      const close = () => {
+        backdrop.classList.remove('show');
+        status.classList.remove('show');
+        backdrop.setAttribute('aria-hidden', 'true');
+        status.setAttribute('aria-hidden', 'true');
+        document.removeEventListener('keydown', escHandler);
+        backdrop.removeEventListener('click', close);
+      };
+      const escHandler = (e) => { if (e.key === 'Escape') close(); };
+      backdrop.classList.add('show');
+      status.classList.add('show');
+      backdrop.setAttribute('aria-hidden', 'false');
+      status.setAttribute('aria-hidden', 'false');
+      if (blueBtn) blueBtn.onclick = close;
+      backdrop.addEventListener('click', close);
+      document.addEventListener('keydown', escHandler);
+    }
+
     function showNeoModal(onClose) {
       const existBackdrop = document.getElementById('neoBackdrop');
       const existStatus = document.getElementById('neoStatus');

@@ -177,6 +177,17 @@ const { title } = Astro.props;
     --glow: 0 0 20px rgba(255, 140, 0, 0.3);
   }
   
+  /* Konami pink theme */
+  [data-theme="pink"] {
+    --primary-color: #ff3ea5;
+    --secondary-color: #ff76c3;
+    --dark-bg: #1a0a13;
+    --darker-bg: #12060d;
+    --gray-bg: #2a1320;
+    --light-text: #ffe6f5;
+    --glow: 0 0 20px rgba(255, 62, 165, 0.35);
+  }
+  
   body {
     font-family: 'JetBrains Mono', monospace;
     background: linear-gradient(135deg, var(--dark-bg) 0%, var(--darker-bg) 100%);

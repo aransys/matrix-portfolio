@@ -188,11 +188,13 @@ import ScrollIndicators from '../components/ScrollIndicators.astro';
       }
       
       if (konamiCode.join(',') === sequence.join(',')) {
-        document.body.style.filter = 'hue-rotate(300deg)';
+        const body = document.body;
+        const previousTheme = body.getAttribute('data-theme') || 'reloaded';
+        body.setAttribute('data-theme', 'pink');
         setTimeout(() => {
           alert('Welcome to the real world, Neo.');
-          document.body.style.filter = 'none';
-        }, 1000);
+          body.setAttribute('data-theme', previousTheme);
+        }, 5000);
         konamiCode = [];
       }
     });

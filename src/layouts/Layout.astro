@@ -272,5 +272,74 @@ const { title } = Astro.props;
     outline: none;
   }
   
+  /* Neo modal (Konami) */
+  .neo-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.25s ease;
+    z-index: 1000;
+  }
+  .neo-backdrop.show {
+    opacity: 1;
+    visibility: visible;
+  }
+  .neo-status {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -45%);
+    width: min(520px, 92vw);
+    background: var(--darker-bg);
+    border: 1px solid var(--primary-color);
+    box-shadow: var(--glow);
+    border-radius: 8px;
+    padding: 2rem;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.25s ease;
+    z-index: 1001;
+  }
+  .neo-status.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, -50%);
+  }
+  .neo-status .status-icon {
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+  }
+  .neo-status .status-title {
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+    margin-bottom: 0.25rem;
+  }
+  .neo-status .status-subtitle {
+    color: var(--light-text);
+    opacity: 0.8;
+    margin-bottom: 1rem;
+  }
+  .neo-status .status-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+  }
+  .neo-status .btn {
+    background: transparent;
+    border: 1px solid var(--primary-color);
+    color: var(--light-text);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+  .neo-status .btn:hover {
+    background: var(--primary-color);
+    color: var(--darker-bg);
+  }
+  
 </style>
 

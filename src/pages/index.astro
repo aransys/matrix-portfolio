@@ -191,12 +191,69 @@ import ScrollIndicators from '../components/ScrollIndicators.astro';
         const body = document.body;
         const previousTheme = body.getAttribute('data-theme') || 'reloaded';
         body.setAttribute('data-theme', 'pink');
-        setTimeout(() => {
-          alert('Welcome to the real world, Neo.');
+        showNeoModal(() => {
           body.setAttribute('data-theme', previousTheme);
-        }, 5000);
+        });
         konamiCode = [];
       }
+    });
+    
+    function showNeoModal(onClose) {
+      const existBackdrop = document.getElementById('neoBackdrop');
+      const existStatus = document.getElementById('neoStatus');
+      const backdrop = existBackdrop || document.createElement('div');
+      const status = existStatus || document.createElement('div');
+      
+      if (!existBackdrop) {
+        backdrop.id = 'neoBackdrop';
+        backdrop.className = 'neo-backdrop';
+        backdrop.setAttribute('aria-hidden', 'true');
+        document.body.appendChild(backdrop);
+      }
+      
+      if (!existStatus) {
+        status.id = 'neoStatus';
+        status.className = 'neo-status';
+        status.setAttribute('role', 'alertdialog');
+        status.setAttribute('aria-modal', 'true');
+        status.setAttribute('aria-labelledby', 'neo-status-title');
+        status.setAttribute('aria-live', 'assertive');
+        status.innerHTML = `
+          <div class="status-icon" aria-hidden="true">[●]</div>
+          <div class="status-title" id="neo-status-title">WELCOME TO THE REAL WORLD</div>
+          <div class="status-subtitle">There is no spoon. Free your mind.</div>
+          <div class="status-actions">
+            <button class="btn" id="neoDismiss">OK</button>
+          </div>
+        `;
+        document.body.appendChild(status);
+      }
+      
+      const dismissBtn = document.getElementById('neoDismiss');
+      const close = () => {
+        backdrop.classList.remove('show');
+        status.classList.remove('show');
+        backdrop.setAttribute('aria-hidden', 'true');
+        status.setAttribute('aria-hidden', 'true');
+        document.removeEventListener('keydown', escHandler);
+        backdrop.removeEventListener('click', close);
+        if (typeof onClose === 'function') onClose();
+      };
+      const escHandler = (e) => {
+        if (e.key === 'Escape') close();
+      };
+      
+      backdrop.classList.add('show');
+      status.classList.add('show');
+      backdrop.setAttribute('aria-hidden', 'false');
+      status.setAttribute('aria-hidden', 'false');
+      
+      if (dismissBtn) dismissBtn.onclick = close;
+      backdrop.addEventListener('click', close);
+      document.addEventListener('keydown', escHandler);
+      
+      // Auto-dismiss after 5s
+      setTimeout(close, 5000);
     });
   </script>
 </Layout>

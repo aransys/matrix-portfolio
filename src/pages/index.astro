@@ -191,8 +191,13 @@ import ScrollIndicators from '../components/ScrollIndicators.astro';
         const body = document.body;
         const previousTheme = body.getAttribute('data-theme') || 'reloaded';
         body.setAttribute('data-theme', 'pink');
+        const originalAlert = window.alert;
+        // Suppress any native alert that might be triggered elsewhere
+        window.alert = () => {};
         showNeoModal(() => {
           body.setAttribute('data-theme', previousTheme);
+          // Restore native alert
+          window.alert = originalAlert;
         });
         konamiCode = [];
       }

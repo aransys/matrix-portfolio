@@ -314,9 +314,23 @@ import ScrollIndicators from '../components/ScrollIndicators.astro';
       status.setAttribute('aria-hidden', 'false');
       
       if (blueBtn) blueBtn.onclick = close;
-      if (redBtn) redBtn.onclick = () => {
-        status.style.boxShadow = '0 0 20px rgba(255,62,165,0.4), var(--glow)';
-        setTimeout(close, 8000);
+      if (redBtn) redBtn.onclick = (e) => {
+        e.stopPropagation();
+        // Emphasize acceptance state
+        const title = status.querySelector('.status-title');
+        const subtitle = status.querySelector('.status-subtitle');
+        if (title) title.innerHTML = '<span class="glitch" data-text="WELCOME TO THE REAL WORLD">WELCOME TO THE REAL WORLD</span>';
+        if (subtitle) subtitle.textContent = 'You chose the red pill. Follow the white rabbit…';
+        status.style.boxShadow = '0 0 24px rgba(255,62,165,0.5), var(--glow)';
+        // Disable blue pill during sequence
+        if (blueBtn) {
+          blueBtn.setAttribute('disabled', 'true');
+          blueBtn.style.opacity = '0.6';
+          blueBtn.style.pointerEvents = 'none';
+        }
+        // Prevent accidental close by backdrop during reveal
+        backdrop.removeEventListener('click', close);
+        setTimeout(close, 5000);
       };
       backdrop.addEventListener('click', close);
       document.addEventListener('keydown', escHandler);

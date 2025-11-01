@@ -162,8 +162,10 @@
     
     window.addEventListener('scroll', () => {
       const currentScrollY = window.scrollY;
+      // Only hide on tablet/mobile (width <= 1024), keep visible on desktop
+      const isMobile = window.innerWidth <= 1024;
       
-      if (currentScrollY > 100) {
+      if (isMobile && currentScrollY > 100) {
         switcher?.classList.add('hidden');
       } else {
         switcher?.classList.remove('hidden');

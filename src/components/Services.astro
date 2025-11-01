@@ -1,51 +1,79 @@
 ---
+// DESIGN OPTION: Change this number (1-10) to switch between card designs
+const DESIGN_VARIANT = 7;
+
 const services = [
   {
-    icon: "🌐",
+    iconName: "globe",
     title: "Website Development",
     description: "Custom websites built from scratch with modern technologies. Responsive, fast, and optimized for all devices.",
     features: ["Responsive Design", "SEO Optimized", "Fast Performance", "Secure & Protected"]
   },
   {
-    icon: "🚀",
+    iconName: "rocket",
     title: "Landing Pages",
     description: "Eye-catching landing pages that convert visitors into customers. Perfect for businesses and product launches.",
     features: ["Modern Design", "Mobile-First", "Call-to-Actions", "Analytics Ready"]
   },
   {
-    icon: "⚙️",
+    iconName: "cog",
     title: "Web Applications",
     description: "Full-stack web applications with Django and Python. User authentication, databases, and payment integration.",
     features: ["Django Backend", "Database Design", "User Authentication", "Payment Integration"]
   },
   {
-    icon: "🔌",
+    iconName: "plug",
     title: "API Integration",
     description: "Connect your website to external services and APIs. Seamless data flow and third-party integrations.",
     features: ["REST APIs", "Third-party Services", "Data Processing", "Real-time Updates"]
   },
   {
-    icon: "🛠️",
+    iconName: "wrench",
     title: "Bug Fixes & Improvements",
     description: "Fix issues in existing websites or add new features. Code review and optimization services available.",
     features: ["Debugging", "Performance Optimization", "Feature Addition", "Code Refactoring"]
   },
   {
-    icon: "📱",
+    iconName: "mobile",
     title: "Responsive Design",
     description: "Make your existing website look great on all devices. Mobile-first approach with modern CSS techniques.",
     features: ["Mobile Optimization", "Tablet Support", "Desktop Enhancement", "Accessibility"]
   }
 ];
+
+function getIconSvg(name: string): string {
+  const id = `icon-${name}`;
+  const icons: Record<string, string> = {
+    globe: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/>
+    </svg>`,
+    rocket: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 19c3-1 5-3 6-6 3-1 5-3 6-6 2 2 3 5 2 8l-4 4c-3 1-6 0-8-2Z"/><path d="M8 16l-3 3M15 9l-3 3"/><circle cx="15" cy="9" r="1.5"/>
+    </svg>`,
+    cog: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5.64 5.64l2.83 2.83M15.53 15.53l2.83 2.83M5.64 18.36l2.83-2.83M15.53 8.47l2.83-2.83"/>
+    </svg>`,
+    plug: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6 9h8l3 3-5 5-3-3V9Z"/><path d="M9 6V3M13 6V3M4 20l3-3"/>
+    </svg>`,
+    wrench: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 7a5 5 0 0 1-6 6l-7 7-3-3 7-7a5 5 0 0 1 6-6l-2 2 3 3 2-2Z"/>
+    </svg>`,
+    mobile: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M10 18.5h4"/>
+    </svg>`
+  };
+  return icons[name] || '';
+}
 ---
 
-<section id="services">
+<section id="services" class={`design-variant-${DESIGN_VARIANT}`}>
   <h2 class="section-title fade-in">Services</h2>
   <p class="section-subtitle fade-in">What I can help you build</p>
   <div class="services-grid">
     {services.map((service) => (
       <div class="service-card fade-in">
-        <div class="service-icon">{service.icon}</div>
+        <div class="service-icon" set:html={getIconSvg(service.iconName)}></div>
         <h3 class="service-title">{service.title}</h3>
         <p class="service-description">{service.description}</p>
         <ul class="service-features">
@@ -109,34 +137,17 @@ const services = [
     margin-top: 3rem;
     margin-bottom: 4rem;
   }
-  
-  .service-card {
-    background: var(--gray-bg);
-    padding: 2rem;
-    border: 1px solid var(--primary-color);
-    transition: all 0.3s ease;
-    position: relative;
-  }
-  
-  .service-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-    transition: background 0.5s ease;
-  }
-  
-  .service-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--glow);
-  }
-  
+
   .service-icon {
-    font-size: 3rem;
+    width: 3rem;
+    height: 3rem;
     margin-bottom: 1rem;
+  }
+  
+  .service-icon svg {
+    width: 100%;
+    height: 100%;
+    display: block;
   }
   
   .service-title {
@@ -171,7 +182,7 @@ const services = [
     color: var(--primary-color);
     font-weight: bold;
   }
-  
+
   .cta-container {
     text-align: center;
     margin-top: 4rem;
@@ -224,7 +235,798 @@ const services = [
     color: var(--darker-bg);
     box-shadow: var(--glow);
   }
-  
+
+  /* ============================================
+     DESIGN VARIANT 1: HOLOGRAPHIC GRID CARDS
+     Epic holographic grid overlay with 3D depth
+  ============================================ */
+  .design-variant-1 .service-card {
+    background: var(--gray-bg);
+    padding: 2rem;
+    border: 1px solid var(--primary-color);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .design-variant-1 .service-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: 
+      repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 255, 156, 0.03) 2px, rgba(0, 255, 156, 0.03) 4px),
+      repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0, 163, 255, 0.03) 2px, rgba(0, 163, 255, 0.03) 4px);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .design-variant-1 .service-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.5s ease;
+  }
+
+  .design-variant-1 .service-card:hover {
+    transform: translateY(-8px) perspective(1000px) rotateX(2deg);
+    box-shadow: 
+      0 20px 40px rgba(0, 255, 156, 0.15),
+      0 0 60px rgba(0, 163, 255, 0.1),
+      inset 0 0 40px rgba(0, 255, 156, 0.05);
+    border-color: var(--secondary-color);
+  }
+
+  .design-variant-1 .service-card:hover::before {
+    opacity: 1;
+  }
+
+  .design-variant-1 .service-card:hover::after {
+    transform: scaleX(1);
+  }
+
+  .design-variant-1 .service-icon {
+    color: var(--primary-color);
+    filter: drop-shadow(0 0 8px var(--primary-color));
+    transition: all 0.4s ease;
+  }
+
+  .design-variant-1 .service-card:hover .service-icon {
+    color: var(--secondary-color);
+    filter: drop-shadow(0 0 16px var(--secondary-color)) drop-shadow(0 0 24px var(--primary-color));
+    transform: scale(1.1) rotateY(5deg);
+  }
+
+  /* ============================================
+     DESIGN VARIANT 2: TERMINAL WINDOW CARDS
+     Terminal/console aesthetic with ASCII borders
+  ============================================ */
+  .design-variant-2 .service-card {
+    background: var(--gray-bg);
+    padding: 0;
+    border: 1px solid var(--primary-color);
+    position: relative;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    transition: all 0.3s ease;
+  }
+
+  .design-variant-2 .service-card::before {
+    content: '┌─────────────────────────────────────┐';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    height: 1.5rem;
+    background: rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    font-size: 0.7rem;
+    padding: 0.3rem 0.5rem;
+    display: flex;
+    align-items: center;
+    text-shadow: 0 0 8px var(--primary-color);
+    box-shadow: 0 2px 8px rgba(0, 255, 156, 0.2);
+  }
+
+  .design-variant-2 .service-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--primary-color);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.5s ease;
+    box-shadow: 0 0 20px var(--primary-color);
+  }
+
+  .design-variant-2 .service-card > * {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  .design-variant-2 .service-card > *:first-child {
+    padding-top: 2.5rem;
+  }
+
+  .design-variant-2 .service-card > *:last-child {
+    padding-bottom: 1.5rem;
+  }
+
+  .design-variant-2 .service-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 
+      0 15px 35px rgba(0, 255, 156, 0.2),
+      inset 0 0 30px rgba(0, 255, 156, 0.05),
+      0 0 80px rgba(0, 163, 255, 0.15);
+    border-color: var(--secondary-color);
+  }
+
+  .design-variant-2 .service-card:hover::after {
+    transform: scaleX(1);
+  }
+
+  .design-variant-2 .service-icon {
+    color: var(--primary-color);
+    filter: drop-shadow(0 0 6px var(--primary-color));
+  }
+
+  .design-variant-2 .service-features li::before {
+    content: '> ';
+    font-family: inherit;
+  }
+
+  /* ============================================
+     DESIGN VARIANT 3: CIRCUIT BOARD CARDS
+     Cyber circuit patterns with animated connections
+  ============================================ */
+  .design-variant-3 .service-card {
+    background: var(--gray-bg);
+    padding: 2rem;
+    border: 2px solid var(--primary-color);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s ease;
+  }
+
+  .design-variant-3 .service-card::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: 
+      linear-gradient(90deg, transparent 0%, var(--primary-color) 50%, transparent 100%),
+      linear-gradient(0deg, transparent 0%, var(--secondary-color) 50%, transparent 100%);
+    background-size: 200% 200%;
+    opacity: 0;
+    animation: circuitFlow 3s linear infinite;
+    pointer-events: none;
+    mask: 
+      radial-gradient(circle at 0% 0%, transparent 8px, black 9px),
+      radial-gradient(circle at 100% 100%, transparent 8px, black 9px),
+      radial-gradient(circle at 100% 0%, transparent 8px, black 9px),
+      radial-gradient(circle at 0% 100%, transparent 8px, black 9px),
+      linear-gradient(90deg, transparent 0%, black 15%, black 85%, transparent 100%),
+      linear-gradient(0deg, transparent 0%, black 15%, black 85%, transparent 100%);
+    mask-composite: intersect;
+    -webkit-mask-composite: source-in;
+  }
+
+  @keyframes circuitFlow {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 200% 200%; }
+  }
+
+  .design-variant-3 .service-card::after {
+    content: '';
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 8px;
+    height: 8px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    box-shadow: 
+      0 0 12px var(--primary-color),
+      -20px -20px 0 0 var(--secondary-color),
+      20px 20px 0 0 var(--primary-color);
+    opacity: 0.6;
+    transition: all 0.3s ease;
+  }
+
+  .design-variant-3 .service-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 
+      0 20px 50px rgba(0, 255, 156, 0.25),
+      0 0 100px rgba(0, 163, 255, 0.2);
+    border-color: var(--secondary-color);
+  }
+
+  .design-variant-3 .service-card:hover::before {
+    opacity: 0.3;
+  }
+
+  .design-variant-3 .service-card:hover::after {
+    opacity: 1;
+    box-shadow: 
+      0 0 20px var(--primary-color),
+      -30px -30px 0 0 var(--secondary-color),
+      30px 30px 0 0 var(--primary-color);
+    transform: scale(1.5);
+  }
+
+  .design-variant-3 .service-icon {
+    color: var(--primary-color);
+    position: relative;
+    z-index: 1;
+  }
+
+  .design-variant-3 .service-card:hover .service-icon {
+    filter: drop-shadow(0 0 12px var(--primary-color));
+    transform: scale(1.05);
+  }
+
+  /* ============================================
+     DESIGN VARIANT 4: GLASS MORPHISM HOLOGRAM
+     Futuristic glass panels with holographic effects
+  ============================================ */
+  .design-variant-4 .service-card {
+    background: rgba(20, 20, 25, 0.4);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 2rem;
+    border: 1px solid rgba(0, 255, 156, 0.3);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .design-variant-4 .service-card::before {
+    content: '';
+    position: absolute;
+    inset: -50%;
+    background: conic-gradient(
+      from 0deg at 50% 50%,
+      transparent 0deg,
+      rgba(0, 255, 156, 0.1) 90deg,
+      transparent 180deg,
+      rgba(0, 163, 255, 0.1) 270deg,
+      transparent 360deg
+    );
+    animation: hologramRotate 8s linear infinite;
+    pointer-events: none;
+  }
+
+  @keyframes hologramRotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .design-variant-4 .service-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      135deg,
+      rgba(0, 255, 156, 0.1) 0%,
+      transparent 50%,
+      rgba(0, 163, 255, 0.1) 100%
+    );
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+  }
+
+  .design-variant-4 .service-card > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .design-variant-4 .service-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    border-color: var(--secondary-color);
+    box-shadow: 
+      0 25px 60px rgba(0, 255, 156, 0.3),
+      0 0 120px rgba(0, 163, 255, 0.2),
+      inset 0 0 60px rgba(0, 255, 156, 0.1);
+    background: rgba(20, 20, 25, 0.6);
+  }
+
+  .design-variant-4 .service-card:hover::after {
+    opacity: 1;
+  }
+
+  .design-variant-4 .service-icon {
+    color: var(--primary-color);
+    filter: drop-shadow(0 0 10px var(--primary-color));
+    transition: all 0.5s ease;
+  }
+
+  .design-variant-4 .service-card:hover .service-icon {
+    color: var(--secondary-color);
+    filter: drop-shadow(0 0 20px var(--secondary-color));
+    transform: translateZ(20px) scale(1.15);
+  }
+
+  /* ============================================
+     DESIGN VARIANT 5: DATA STREAM CARDS
+     Animated binary/data streams with glow effects
+  ============================================ */
+  .design-variant-5 .service-card {
+    background: var(--gray-bg);
+    padding: 2rem;
+    border: 1px solid var(--primary-color);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s ease;
+  }
+
+  .design-variant-5 .service-card::before {
+    content: '01001000 01100101 01101100 01101100 01101111';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 200%;
+    height: 100%;
+    font-family: ui-monospace, monospace;
+    font-size: 0.6rem;
+    color: var(--primary-color);
+    opacity: 0.1;
+    white-space: nowrap;
+    line-height: 2;
+    text-shadow: 0 0 4px var(--primary-color);
+    animation: dataStream 15s linear infinite;
+    pointer-events: none;
+  }
+
+  @keyframes dataStream {
+    0% { left: -100%; }
+    100% { left: 100%; }
+  }
+
+  .design-variant-5 .service-card::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color), var(--primary-color));
+    background-size: 200% 200%;
+    opacity: 0;
+    z-index: -1;
+    filter: blur(8px);
+    animation: borderGlow 3s ease-in-out infinite;
+    transition: opacity 0.4s ease;
+  }
+
+  @keyframes borderGlow {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  .design-variant-5 .service-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 
+      0 20px 50px rgba(0, 255, 156, 0.3),
+      0 0 80px rgba(0, 163, 255, 0.25),
+      inset 0 0 40px rgba(0, 255, 156, 0.1);
+    border-color: var(--secondary-color);
+  }
+
+  .design-variant-5 .service-card:hover::after {
+    opacity: 0.6;
+  }
+
+  .design-variant-5 .service-icon {
+    color: var(--primary-color);
+    filter: drop-shadow(0 0 8px var(--primary-color));
+    position: relative;
+    z-index: 1;
+    transition: all 0.4s ease;
+  }
+
+  .design-variant-5 .service-card:hover .service-icon {
+    filter: drop-shadow(0 0 16px var(--primary-color)) drop-shadow(0 0 24px var(--secondary-color));
+    transform: scale(1.1) rotate(5deg);
+  }
+
+  .design-variant-5 .service-features li {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ============================================
+     DESIGN VARIANT 6: NEON TRON CARDS
+     Tron-style neon grid with glowing edges
+  ============================================ */
+  .design-variant-6 .service-card {
+    background: var(--gray-bg);
+    padding: 2rem;
+    border: none;
+    position: relative;
+    overflow: visible;
+    transition: all 0.4s ease;
+    clip-path: polygon(15px 0%, 100% 0%, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0% 100%, 0% 15px);
+  }
+
+  .design-variant-6 .service-card::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color), var(--primary-color));
+    background-size: 200% 200%;
+    clip-path: polygon(15px 0%, 100% 0%, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0% 100%, 0% 15px);
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    animation: neonPulse 3s ease-in-out infinite;
+  }
+
+  @keyframes neonPulse {
+    0%, 100% { filter: brightness(1); }
+    50% { filter: brightness(1.3); }
+  }
+
+  .design-variant-6 .service-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--primary-color);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 0 15px var(--primary-color);
+  }
+
+  .design-variant-6 .service-card:hover {
+    transform: translateY(-8px);
+  }
+
+  .design-variant-6 .service-card:hover::before {
+    opacity: 1;
+  }
+
+  .design-variant-6 .service-card:hover::after {
+    transform: scaleX(1);
+  }
+
+  .design-variant-6 .service-icon {
+    color: var(--primary-color);
+    filter: drop-shadow(0 0 10px var(--primary-color));
+    transition: all 0.4s ease;
+  }
+
+  .design-variant-6 .service-card:hover .service-icon {
+    filter: drop-shadow(0 0 20px var(--secondary-color));
+    transform: scale(1.15);
+  }
+
+  /* ============================================
+     DESIGN VARIANT 7: MATRIX SCAN CARDS
+     Matrix scanning effect with digital rain
+  ============================================ */
+  .design-variant-7 .service-card {
+    background: var(--gray-bg);
+    padding: 2rem;
+    border: 1px solid var(--primary-color);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s ease;
+  }
+
+  .design-variant-7 .service-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      rgba(0, 255, 156, 0.15),
+      transparent
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    animation: matrixScan 4s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  @keyframes matrixScan {
+    0%, 90%, 100% { opacity: 0; top: -50%; }
+    5% { opacity: 1; }
+    10% { top: 150%; }
+  }
+
+  .design-variant-7 .service-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--primary-color);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.5s ease;
+    box-shadow: 0 0 20px var(--primary-color), 0 0 40px var(--secondary-color);
+  }
+
+  .design-variant-7 .service-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 
+      0 20px 50px rgba(0, 255, 156, 0.3),
+      inset 0 0 60px rgba(0, 255, 156, 0.1);
+    border-color: var(--secondary-color);
+  }
+
+  .design-variant-7 .service-card:hover::after {
+    transform: scaleX(1);
+  }
+
+  .design-variant-7 .service-icon {
+    color: var(--primary-color);
+    filter: drop-shadow(0 0 8px var(--primary-color));
+    transition: all 0.4s ease;
+    position: relative;
+    z-index: 1;
+  }
+
+  .design-variant-7 .service-card:hover .service-icon {
+    filter: drop-shadow(0 0 16px var(--secondary-color)) drop-shadow(0 0 24px var(--primary-color));
+    transform: scale(1.1);
+  }
+
+  /* ============================================
+     DESIGN VARIANT 8: CYBER HEXAGON CARDS
+     Hexagonal cyberpunk aesthetic
+  ============================================ */
+  .design-variant-8 .service-card {
+    background: var(--gray-bg);
+    padding: 2rem;
+    border: 2px solid var(--primary-color);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s ease;
+    clip-path: polygon(20% 0%, 80% 0%, 100% 50%, 80% 100%, 20% 100%, 0% 50%);
+  }
+
+  .design-variant-8 .service-card::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    clip-path: polygon(20% 0%, 80% 0%, 100% 50%, 80% 100%, 20% 100%, 0% 50%);
+    opacity: 0;
+    z-index: -1;
+    transition: opacity 0.4s ease;
+    filter: blur(10px);
+  }
+
+  .design-variant-8 .service-card::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle, rgba(0, 255, 156, 0.2), transparent 70%);
+    border-radius: 50%;
+    transition: width 0.6s ease, height 0.6s ease;
+    pointer-events: none;
+  }
+
+  .design-variant-8 .service-card:hover {
+    transform: translateY(-10px) scale(1.05);
+    box-shadow: 
+      0 25px 60px rgba(0, 255, 156, 0.3),
+      0 0 100px rgba(0, 163, 255, 0.2);
+    border-color: var(--secondary-color);
+  }
+
+  .design-variant-8 .service-card:hover::before {
+    opacity: 0.4;
+  }
+
+  .design-variant-8 .service-card:hover::after {
+    width: 500px;
+    height: 500px;
+  }
+
+  .design-variant-8 .service-icon {
+    color: var(--primary-color);
+    filter: drop-shadow(0 0 10px var(--primary-color));
+    transition: all 0.4s ease;
+    position: relative;
+    z-index: 1;
+  }
+
+  .design-variant-8 .service-card:hover .service-icon {
+    filter: drop-shadow(0 0 20px var(--primary-color)) drop-shadow(0 0 30px var(--secondary-color));
+    transform: scale(1.2) rotate(5deg);
+  }
+
+  /* ============================================
+     DESIGN VARIANT 9: HOLOGRAM SLICE CARDS
+     3D holographic slices with depth
+  ============================================ */
+  .design-variant-9 .service-card {
+    background: var(--gray-bg);
+    padding: 2rem;
+    border: 1px solid var(--primary-color);
+    position: relative;
+    transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    transform-style: preserve-3d;
+  }
+
+  .design-variant-9 .service-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 10px,
+      rgba(0, 255, 156, 0.05) 10px,
+      rgba(0, 255, 156, 0.05) 20px
+    );
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+  }
+
+  .design-variant-9 .service-card::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 20px;
+    height: 20px;
+    border-top: 2px solid var(--primary-color);
+    border-right: 2px solid var(--primary-color);
+    opacity: 0.6;
+    transition: all 0.3s ease;
+  }
+
+  .design-variant-9 .service-card:hover {
+    transform: translateY(-8px) rotateY(2deg) rotateX(-2deg);
+    box-shadow: 
+      0 25px 60px rgba(0, 255, 156, 0.25),
+      0 0 100px rgba(0, 163, 255, 0.2),
+      inset 0 0 50px rgba(0, 255, 156, 0.08);
+    border-color: var(--secondary-color);
+  }
+
+  .design-variant-9 .service-card:hover::before {
+    opacity: 1;
+  }
+
+  .design-variant-9 .service-card:hover::after {
+    opacity: 1;
+    width: 40px;
+    height: 40px;
+    box-shadow: 0 0 20px var(--primary-color);
+  }
+
+  .design-variant-9 .service-icon {
+    color: var(--primary-color);
+    filter: drop-shadow(0 0 8px var(--primary-color));
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    z-index: 1;
+  }
+
+  .design-variant-9 .service-card:hover .service-icon {
+    color: var(--secondary-color);
+    filter: drop-shadow(0 0 20px var(--secondary-color));
+    transform: translateZ(30px) scale(1.15);
+  }
+
+  /* ============================================
+     DESIGN VARIANT 10: ENERGY PULSE CARDS
+     Pulsing energy waves with reactive glow
+  ============================================ */
+  .design-variant-10 .service-card {
+    background: var(--gray-bg);
+    padding: 2rem;
+    border: 1px solid var(--primary-color);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s ease;
+  }
+
+  .design-variant-10 .service-card::before {
+    content: '';
+    position: absolute;
+    inset: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(
+      circle,
+      var(--primary-color) 0%,
+      transparent 50%
+    );
+    opacity: 0;
+    transform: scale(0);
+    transition: transform 0.8s ease, opacity 0.4s ease;
+    pointer-events: none;
+    filter: blur(40px);
+  }
+
+  .design-variant-10 .service-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 2px solid var(--primary-color);
+    opacity: 0;
+    transition: all 0.4s ease;
+    box-shadow: 
+      inset 0 0 30px var(--primary-color),
+      0 0 60px var(--primary-color);
+  }
+
+  .design-variant-10 .service-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 
+      0 30px 70px rgba(0, 255, 156, 0.3),
+      0 0 120px rgba(0, 163, 255, 0.25);
+    border-color: var(--secondary-color);
+  }
+
+  .design-variant-10 .service-card:hover::before {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+
+  .design-variant-10 .service-card:hover::after {
+    opacity: 1;
+    border-color: var(--secondary-color);
+    box-shadow: 
+      inset 0 0 40px var(--secondary-color),
+      0 0 80px var(--secondary-color);
+  }
+
+  .design-variant-10 .service-icon {
+    color: var(--primary-color);
+    filter: drop-shadow(0 0 10px var(--primary-color));
+    transition: all 0.5s ease;
+    position: relative;
+    z-index: 1;
+  }
+
+  .design-variant-10 .service-card:hover .service-icon {
+    filter: drop-shadow(0 0 20px var(--primary-color)) drop-shadow(0 0 40px var(--secondary-color));
+    transform: scale(1.2);
+  }
+
+  .design-variant-10 .service-features li {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Responsive styles */
   @media (max-width: 1024px) and (min-width: 641px) {
     section {
       max-width: 1040px;
@@ -248,7 +1050,8 @@ const services = [
     }
     
     .service-icon {
-      font-size: 2.5rem;
+      width: 2.5rem;
+      height: 2.5rem;
     }
     
     .service-title {
@@ -260,4 +1063,3 @@ const services = [
     }
   }
 </style>
-

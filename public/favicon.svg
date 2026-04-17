@@ -1,41 +1,40 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
   <defs>
-    <linearGradient id="rain" x1="0" y1="0" x2="0" y2="64" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#D8FFEF" stop-opacity="0.95" />
-      <stop offset="0.35" stop-color="#39FF88" stop-opacity="0.9" />
-      <stop offset="1" stop-color="#00D35A" stop-opacity="0.25" />
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0f2113" />
+      <stop offset="1" stop-color="#030805" />
     </linearGradient>
     <filter id="glow" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB">
-      <feGaussianBlur stdDeviation="2.2" result="blur" />
-      <feColorMatrix
-        in="blur"
-        type="matrix"
-        values="0 0 0 0 0   0 0 0 0 1   0 0 0 0 0.35   0 0 0 1 0"
-        result="green"
-      />
+      <feGaussianBlur stdDeviation="1.6" result="b" />
       <feMerge>
-        <feMergeNode in="green" />
+        <feMergeNode in="b" />
         <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
   </defs>
 
-  <rect x="6" y="6" width="52" height="52" rx="12" fill="#050B07" />
-  <rect x="6" y="6" width="52" height="52" rx="12" fill="url(#rain)" opacity="0.08" />
+  <!-- Rounded "terminal window" background -->
+  <rect width="64" height="64" rx="12" fill="url(#bg)" />
+  <rect width="64" height="64" rx="12" fill="none" stroke="#00ff41" stroke-opacity="0.18" stroke-width="1" />
 
-  <g filter="url(#glow)" stroke-linecap="round" stroke="url(#rain)">
-    <path d="M22 16v18" stroke-width="3.2" />
-    <path d="M32 12v30" stroke-width="3.2" />
-    <path d="M42 18v22" stroke-width="3.2" />
-
-    <path d="M22 16v16" stroke="#D8FFEF" stroke-width="3.2" />
-    <path d="M32 12v12" stroke="#FFFFFF" stroke-width="3.2" />
-    <path d="M42 18v10" stroke="#E9FFF6" stroke-width="3.2" />
+  <!-- Subtle scanlines -->
+  <g stroke="#00ff41" stroke-opacity="0.05" stroke-width="1">
+    <line x1="0" y1="14" x2="64" y2="14" />
+    <line x1="0" y1="26" x2="64" y2="26" />
+    <line x1="0" y1="38" x2="64" y2="38" />
+    <line x1="0" y1="50" x2="64" y2="50" />
   </g>
 
-  <g fill="#D8FFEF" opacity="0.9">
-    <rect x="20.5" y="40" width="3" height="3" rx="0.8" />
-    <rect x="30.5" y="46" width="3" height="3" rx="0.8" />
-    <rect x="40.5" y="42" width="3" height="3" rx="0.8" />
+  <!--  >_  prompt, centered -->
+  <g filter="url(#glow)">
+    <polyline
+      points="18,22 32,32 18,42"
+      fill="none"
+      stroke="#00ff41"
+      stroke-width="7"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+    <rect x="38" y="41" width="14" height="7" rx="1.5" fill="#33ff77" />
   </g>
 </svg>

@@ -85,11 +85,11 @@ export function ProjectsSection({ theme }: ProjectsSectionProps) {
                 style={{
                   fontFamily: "'JetBrains Mono', monospace",
                   fontSize: "10px",
-                  color: "#28c940",
-                  background: "rgba(40,201,64,0.1)",
+                  color: t.primary,
+                  background: t.pillBg,
                   padding: "3px 10px",
                   borderRadius: "3px",
-                  border: "1px solid rgba(40,201,64,0.2)",
+                  border: `1px solid ${t.darkDim}`,
                 }}
               >
                 {p.status}
@@ -147,10 +147,10 @@ export function ProjectsSection({ theme }: ProjectsSectionProps) {
                   transition: "opacity 0.15s",
                 }}
                 onMouseEnter={(e) => {
-                  (e.target as HTMLAnchorElement).style.opacity = "0.7";
+                  e.currentTarget.style.opacity = "0.7";
                 }}
                 onMouseLeave={(e) => {
-                  (e.target as HTMLAnchorElement).style.opacity = "1";
+                  e.currentTarget.style.opacity = "1";
                 }}
               >
                 ▸ Live Demo
@@ -167,10 +167,10 @@ export function ProjectsSection({ theme }: ProjectsSectionProps) {
                   transition: "color 0.15s",
                 }}
                 onMouseEnter={(e) => {
-                  (e.target as HTMLAnchorElement).style.color = t.primary;
+                  e.currentTarget.style.color = t.primary;
                 }}
                 onMouseLeave={(e) => {
-                  (e.target as HTMLAnchorElement).style.color = t.dim;
+                  e.currentTarget.style.color = t.dim;
                 }}
               >
                 ◇ Source Code

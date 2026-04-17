@@ -121,7 +121,7 @@ export function ContactSection({ theme }: ContactSectionProps) {
         }}
       >
         <div style={{ marginBottom: "8px" }}>
-          Built with React + TypeScript + Tailwind
+          Built with React + TypeScript + Framer Motion
         </div>
         <div>© {new Date().getFullYear()} Aurimas Ransys — ransys.dev</div>
         <div style={{ marginTop: "4px", fontSize: "11px", color: t.darkDim }}>

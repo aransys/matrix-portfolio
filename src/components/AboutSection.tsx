@@ -94,8 +94,8 @@ export function AboutSection({ theme }: AboutSectionProps) {
             fontSize: "13px",
           }}
         >
-          {OWNER.dossierFields.map((item, i) => (
-            <div key={i}>
+          {OWNER.dossierFields.map((item) => (
+            <div key={item.label}>
               <div
                 style={{
                   color: t.dim,

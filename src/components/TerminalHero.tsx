@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { BOOT_LINES } from "../config/boot-sequence";
 import type { BootLineType } from "../config/boot-sequence";
+import { NAV_LINKS } from "../config/data";
 import type { ThemeKey } from "../config/themes";
 import { THEMES } from "../config/themes";
 
@@ -10,12 +11,17 @@ export interface TerminalHeroProps {
   onBootComplete?: () => void;
 }
 
+interface TypingState {
+  text: string;
+  type: string;
+}
+
 export function TerminalHero({ theme, onBootComplete }: TerminalHeroProps) {
   const [lines, setLines] = useState<Array<{ text: string; type: BootLineType }>>(
     [],
   );
   const [bootDone, setBootDone] = useState(false);
-  const [typing, setTyping] = useState("");
+  const [typing, setTyping] = useState<TypingState | null>(null);
   const cancelRef = useRef(false);
   const bootStartedRef = useRef(false);
   const t = THEMES[theme];
@@ -29,25 +35,19 @@ export function TerminalHero({ theme, onBootComplete }: TerminalHeroProps) {
     cancelRef.current = false;
     setLines([]);
     setBootDone(false);
-    setTyping("");
+    setTyping(null);
 
     for (const line of BOOT_LINES) {
       if (cancelRef.current) break;
 
-      if (line.type === "glitch") {
-        continue;
-      }
-
       if (line.typeSpeed) {
         for (let i = 0; i <= line.text.length; i++) {
           if (cancelRef.current) break;
-          setTyping(
-            JSON.stringify({ text: line.text.slice(0, i), type: line.type }),
-          );
+          setTyping({ text: line.text.slice(0, i), type: line.type });
           await sleep(line.typeSpeed);
         }
         setLines((prev) => [...prev, { text: line.text, type: line.type }]);
-        setTyping("");
+        setTyping(null);
       } else {
         setLines((prev) => [...prev, { text: line.text, type: line.type }]);
       }
@@ -61,13 +61,8 @@ export function TerminalHero({ theme, onBootComplete }: TerminalHeroProps) {
 
   const skipBoot = useCallback(() => {
     cancelRef.current = true;
-    setTyping("");
-    const finalLines = BOOT_LINES.filter((l) => l.type !== "glitch").map(
-      (l) => ({
-        text: l.text,
-        type: l.type,
-      }),
-    );
+    setTyping(null);
+    const finalLines = BOOT_LINES.map((l) => ({ text: l.text, type: l.type }));
     setLines(finalLines);
     setBootDone(true);
     onBootComplete?.();
@@ -84,7 +79,7 @@ export function TerminalHero({ theme, onBootComplete }: TerminalHeroProps) {
       case "ok":
         return t.primary;
       case "warn":
-        return "#ffaa00";
+        return t.warn;
       case "dim":
         return t.dim;
       case "name":
@@ -125,10 +120,6 @@ export function TerminalHero({ theme, onBootComplete }: TerminalHeroProps) {
       fontSize: "13px",
     };
   };
-
-  const typingData = typing
-    ? (JSON.parse(typing) as { text: string; type: string })
-    : null;
 
   return (
     <section
@@ -228,9 +219,9 @@ export function TerminalHero({ theme, onBootComplete }: TerminalHeroProps) {
             </div>
           ))}
 
-          {typingData && (
-            <div style={getLineStyle(typingData.type)}>
-              {typingData.text}
+          {typing && (
+            <div style={getLineStyle(typing.type)}>
+              {typing.text}
               <span
                 style={{
                   display: "inline-block",
@@ -267,6 +258,7 @@ export function TerminalHero({ theme, onBootComplete }: TerminalHeroProps) {
             <button
               type="button"
               onClick={skipBoot}
+              aria-label="Skip boot sequence"
               style={{
                 position: "absolute",
                 bottom: "12px",
@@ -305,17 +297,10 @@ interface NavLinksProps {
 
 function NavLinks({ theme }: NavLinksProps) {
   const t = THEMES[theme];
-  const items = [
-    { label: "> about", href: "#about" },
-    { label: "> skills", href: "#skills" },
-    { label: "> missions", href: "#projects" },
-    { label: "> timeline", href: "#timeline" },
-    { label: "> contact", href: "#contact" },
-  ];
 
   return (
     <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
-      {items.map((item) => (
+      {NAV_LINKS.map((item) => (
         <a
           key={item.href}
           href={item.href}
@@ -333,7 +318,7 @@ function NavLinks({ theme }: NavLinksProps) {
             e.currentTarget.style.color = t.dim;
           }}
         >
-          {item.label}
+          {item.heroLabel}
         </a>
       ))}
     </div>

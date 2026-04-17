@@ -4,6 +4,7 @@ export interface Theme {
   secondary: string;
   dim: string;
   darkDim: string;
+  warn: string;
   bg: string;
   bgCard: string;
   bgCardBorder: string;
@@ -23,6 +24,7 @@ export const THEMES: Record<ThemeKey, Theme> = {
     secondary: "#00cc55",
     dim: "#00aa2a",
     darkDim: "#007a1e",
+    warn: "#ffaa00",
     bg: "#0a0a0a",
     bgCard: "#0d1a0f",
     bgCardBorder: "#0f2a14",
@@ -38,6 +40,7 @@ export const THEMES: Record<ThemeKey, Theme> = {
     secondary: "#3377cc",
     dim: "#2266aa",
     darkDim: "#1a4f80",
+    warn: "#ffdd44",
     bg: "#060a12",
     bgCard: "#0a1225",
     bgCardBorder: "#122040",
@@ -53,6 +56,7 @@ export const THEMES: Record<ThemeKey, Theme> = {
     secondary: "#cc7718",
     dim: "#aa6615",
     darkDim: "#804c10",
+    warn: "#ff5533",
     bg: "#0e0a04",
     bgCard: "#1a1208",
     bgCardBorder: "#2a1e10",

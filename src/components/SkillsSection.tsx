@@ -51,7 +51,7 @@ export function SkillsSection({ theme }: SkillsSectionProps) {
               style={{
                 fontFamily: "'JetBrains Mono', monospace",
                 fontSize: "11px",
-                color: key === "learning" ? "#ffaa00" : t.primary,
+                color: key === "learning" ? t.warn : t.primary,
                 textTransform: "uppercase",
                 letterSpacing: "3px",
                 marginBottom: "16px",

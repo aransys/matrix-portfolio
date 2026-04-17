@@ -1,10 +1,4 @@
-export type BootLineType =
-  | "dim"
-  | "ok"
-  | "warn"
-  | "glitch"
-  | "name"
-  | "role";
+export type BootLineType = "dim" | "ok" | "warn" | "name" | "role";
 
 export interface BootLine {
   text: string;
@@ -25,7 +19,6 @@ export const BOOT_LINES: BootLine[] = [
   { text: "Operator: Tank", type: "dim", delay: 500 },
   { text: '"We got a signal. Main line."', type: "dim", delay: 700 },
   { text: "", type: "dim", delay: 200 },
-  { text: "GLITCH", type: "glitch", delay: 0 },
   { text: "", type: "dim", delay: 150 },
   { text: "AURIMAS RANSYS", type: "name", delay: 0, typeSpeed: 70 },
   { text: "", type: "dim", delay: 80 },

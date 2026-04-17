@@ -5,6 +5,7 @@ import { ContactSection } from "./components/ContactSection";
 import { EasterEggs } from "./components/EasterEggs";
 import { MatrixRain2D } from "./components/MatrixRain2D";
 import { ProjectsSection } from "./components/ProjectsSection";
+import { ScrollProgress } from "./components/ScrollProgress";
 import { SkillsSection } from "./components/SkillsSection";
 import { StickyNav } from "./components/StickyNav";
 import { TerminalHero } from "./components/TerminalHero";
@@ -40,6 +41,7 @@ export default function App() {
         </a>
         <EasterEggs theme={theme} setTheme={setTheme} />
         <MatrixRain2D theme={theme} />
+        <ScrollProgress theme={theme} />
         <ThemeSwitcher theme={theme} setTheme={setTheme} />
         <StickyNav theme={theme} visible={showNav} />
         <TerminalHero theme={theme} />

@@ -2,13 +2,12 @@ import { useState } from "react";
 import { SKILLS } from "../config/data";
 import type { ThemeKey } from "../config/themes";
 import { THEMES } from "../config/themes";
+import { cardStyle, WARN_ACCENT } from "../styles/tokens";
 import { Section } from "./Section";
 
 export interface SkillsSectionProps {
   theme: ThemeKey;
 }
-
-const LEARNING_ACCENT = "#ffaa00";
 
 export function SkillsSection({ theme }: SkillsSectionProps) {
   const t = THEMES[theme];
@@ -29,20 +28,11 @@ export function SkillsSection({ theme }: SkillsSectionProps) {
       {Object.entries(SKILLS).map(([key, group]) => {
         const isLearning = key === "learning";
         return (
-          <div
-            key={key}
-            style={{
-              background: "rgba(0,0,0,0.75)",
-              border: `1px solid ${t.darkDim}`,
-              borderRadius: "8px",
-              padding: "24px",
-              backdropFilter: "blur(8px)",
-            }}
-          >
+          <div key={key} style={cardStyle(t, { padding: 24 })}>
             <h3
               style={{
                 fontSize: "11px",
-                color: isLearning ? LEARNING_ACCENT : t.primary,
+                color: isLearning ? WARN_ACCENT : t.primary,
                 textTransform: "uppercase",
                 letterSpacing: "3px",
                 margin: "0 0 16px",

@@ -5,6 +5,7 @@ import type { BootLineType } from "../config/boot-sequence";
 import { NAV_LINKS } from "../config/data";
 import type { ThemeKey } from "../config/themes";
 import { THEMES } from "../config/themes";
+import { WARN_ACCENT } from "../styles/tokens";
 
 export interface TerminalHeroProps {
   theme: ThemeKey;
@@ -83,15 +84,13 @@ export function TerminalHero({ theme, onBootComplete }: TerminalHeroProps) {
   const getLineColor = (type: string): string => {
     switch (type) {
       case "ok":
-        return t.primary;
-      case "warn":
-        return "#ffaa00";
-      case "dim":
-        return t.dim;
       case "name":
         return t.primary;
+      case "warn":
+        return WARN_ACCENT;
       case "role":
         return t.secondary;
+      case "dim":
       default:
         return t.dim;
     }

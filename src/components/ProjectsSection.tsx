@@ -1,6 +1,7 @@
 import { PROJECTS } from "../config/data";
 import type { ThemeKey } from "../config/themes";
 import { THEMES } from "../config/themes";
+import { cardStyle } from "../styles/tokens";
 import { Section } from "./Section";
 
 export interface ProjectsSectionProps {
@@ -26,11 +27,7 @@ export function ProjectsSection({ theme }: ProjectsSectionProps) {
         <article
           key={project.codename}
           style={{
-            background: "rgba(0,0,0,0.75)",
-            border: `1px solid ${t.darkDim}`,
-            borderRadius: "8px",
-            padding: "28px 32px",
-            backdropFilter: "blur(8px)",
+            ...cardStyle(t, { padding: "28px 32px" }),
             transition: "border-color 0.3s ease",
           }}
           onMouseEnter={(e) => {

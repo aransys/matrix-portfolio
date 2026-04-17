@@ -6,7 +6,9 @@ export interface ThemeSwitcherProps {
   setTheme: (key: ThemeKey) => void;
 }
 
-const THEME_ORDER: ThemeKey[] = ["matrix", "reloaded", "revolutions"];
+/** Render order follows the insertion order of THEMES — chronological film
+ *  trilogy by default. Adding a new theme to themes.ts is enough. */
+const THEME_ORDER = Object.keys(THEMES) as ThemeKey[];
 
 export function ThemeSwitcher({ theme, setTheme }: ThemeSwitcherProps) {
   return (

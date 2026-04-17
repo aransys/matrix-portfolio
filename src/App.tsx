@@ -1,3 +1,4 @@
+import { MotionConfig } from "framer-motion";
 import { useEffect, useState } from "react";
 import { AboutSection } from "./components/AboutSection";
 import { ContactSection } from "./components/ContactSection";
@@ -29,20 +30,25 @@ export default function App() {
   }, [theme]);
 
   return (
-    <div style={{ minHeight: "100vh" }}>
-      <a className="skip-link" href="#about">
-        Skip to content
-      </a>
-      <EasterEggs theme={theme} setTheme={setTheme} />
-      <MatrixRain2D theme={theme} />
-      <ThemeSwitcher theme={theme} setTheme={setTheme} />
-      <StickyNav theme={theme} visible={showNav} />
-      <TerminalHero theme={theme} />
-      <AboutSection theme={theme} />
-      <SkillsSection theme={theme} />
-      <ProjectsSection theme={theme} />
-      <TimelineSection theme={theme} />
-      <ContactSection theme={theme} />
-    </div>
+    // `reducedMotion="user"` makes Framer Motion honour the OS-level
+    // prefers-reduced-motion setting, so every scroll-reveal snaps instead of
+    // sliding for users who opted out of motion.
+    <MotionConfig reducedMotion="user">
+      <div style={{ minHeight: "100vh" }}>
+        <a className="skip-link" href="#about">
+          Skip to content
+        </a>
+        <EasterEggs theme={theme} setTheme={setTheme} />
+        <MatrixRain2D theme={theme} />
+        <ThemeSwitcher theme={theme} setTheme={setTheme} />
+        <StickyNav theme={theme} visible={showNav} />
+        <TerminalHero theme={theme} />
+        <AboutSection theme={theme} />
+        <SkillsSection theme={theme} />
+        <ProjectsSection theme={theme} />
+        <TimelineSection theme={theme} />
+        <ContactSection theme={theme} />
+      </div>
+    </MotionConfig>
   );
 }

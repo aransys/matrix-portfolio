@@ -1,6 +1,7 @@
 import { TIMELINE } from "../config/data";
 import type { ThemeKey } from "../config/themes";
 import { THEMES } from "../config/themes";
+import { cardStyle } from "../styles/tokens";
 import { Section } from "./Section";
 
 export interface TimelineSectionProps {
@@ -61,15 +62,7 @@ export function TimelineSection({ theme }: TimelineSectionProps) {
             >
               {item.icon}
             </div>
-            <div
-              style={{
-                background: "rgba(0,0,0,0.75)",
-                border: `1px solid ${t.darkDim}`,
-                borderRadius: "8px",
-                padding: "20px 24px",
-                backdropFilter: "blur(8px)",
-              }}
-            >
+            <div style={cardStyle(t, { padding: "20px 24px" })}>
               <span
                 style={{
                   fontSize: "11px",

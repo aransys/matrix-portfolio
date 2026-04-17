@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { AboutSection } from "./components/AboutSection";
 import { ContactSection } from "./components/ContactSection";
-import EasterEggs from "./components/EasterEggs";
+import { EasterEggs } from "./components/EasterEggs";
 import { MatrixRain2D } from "./components/MatrixRain2D";
 import { ProjectsSection } from "./components/ProjectsSection";
 import { SkillsSection } from "./components/SkillsSection";
@@ -11,29 +11,28 @@ import { ThemeSwitcher } from "./components/ThemeSwitcher";
 import { TimelineSection } from "./components/TimelineSection";
 import type { ThemeKey } from "./config/themes";
 import { THEMES } from "./config/themes";
-import { useScrollPosition } from "./hooks/useScrollPosition";
+import { useScrolledPastHero } from "./hooks/useScrolledPastHero";
 
 export default function App() {
   const [theme, setTheme] = useState<ThemeKey>("matrix");
-  const showNav = useScrollPosition();
-  const t = THEMES[theme];
+  const showNav = useScrolledPastHero();
 
+  // Sync theme → CSS custom properties. `body` reads these via global.css, so
+  // the background + text colour transition without each component having to
+  // set them individually.
   useEffect(() => {
-    const th = THEMES[theme];
-    document.body.style.background = th.bg;
-    document.documentElement.style.setProperty("--theme-bg", th.bg);
-    document.documentElement.style.setProperty("--theme-primary", th.primary);
-    document.documentElement.style.setProperty("--theme-dark-dim", th.darkDim);
+    const { bg, primary, darkDim } = THEMES[theme];
+    const root = document.documentElement.style;
+    root.setProperty("--theme-bg", bg);
+    root.setProperty("--theme-primary", primary);
+    root.setProperty("--theme-dark-dim", darkDim);
   }, [theme]);
 
   return (
-    <div
-      style={{
-        background: t.bg,
-        minHeight: "100vh",
-        transition: "background 0.5s ease",
-      }}
-    >
+    <div style={{ minHeight: "100vh" }}>
+      <a className="skip-link" href="#about">
+        Skip to content
+      </a>
       <EasterEggs theme={theme} setTheme={setTheme} />
       <MatrixRain2D theme={theme} />
       <ThemeSwitcher theme={theme} setTheme={setTheme} />

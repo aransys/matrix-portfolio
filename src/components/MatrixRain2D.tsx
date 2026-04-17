@@ -24,10 +24,16 @@ export function MatrixRain2D({ theme }: MatrixRain2DProps) {
     const ctx = canvas.getContext("2d", { alpha: false });
     if (!ctx) return;
 
+    // Respect the user's motion preference — render a single static frame
+    // instead of animating, which is also a big win on low-power devices.
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
     const el = canvas;
     const context = ctx;
     const t = THEMES[theme];
-    lastTimeRef.current = Date.now();
+    lastTimeRef.current = performance.now();
 
     const fontSize = 15;
     const columnSpacing = fontSize;
@@ -59,7 +65,7 @@ export function MatrixRain2D({ theme }: MatrixRain2DProps) {
     let frame = 0;
     const draw = () => {
       frame += 1;
-      const now = Date.now();
+      const now = performance.now();
       const deltaTime = Math.min((now - lastTimeRef.current) / 16, 2);
       lastTimeRef.current = now;
 
@@ -120,13 +126,29 @@ export function MatrixRain2D({ theme }: MatrixRain2DProps) {
         }
       }
 
-      animRef.current = requestAnimationFrame(draw);
+      if (!reducedMotion) {
+        animRef.current = requestAnimationFrame(draw);
+      }
+    };
+
+    // Pause when the tab isn't visible — no point burning a CPU core on
+    // off-screen rain.
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        if (animRef.current) cancelAnimationFrame(animRef.current);
+        animRef.current = null;
+      } else if (!reducedMotion && animRef.current === null) {
+        lastTimeRef.current = performance.now();
+        animRef.current = requestAnimationFrame(draw);
+      }
     };
 
     draw();
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
       window.removeEventListener("resize", resize);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
       if (animRef.current) {
         cancelAnimationFrame(animRef.current);
       }

@@ -3,6 +3,7 @@ import { THEMES } from "../config/themes";
 
 export interface SectionHeaderProps {
   theme: ThemeKey;
+  /** Prefix label, e.g. "// 01" */
   tag: string;
   title: string;
 }
@@ -10,10 +11,9 @@ export interface SectionHeaderProps {
 export function SectionHeader({ theme, tag, title }: SectionHeaderProps) {
   const t = THEMES[theme];
   return (
-    <div style={{ marginBottom: "40px" }}>
+    <header style={{ marginBottom: "40px" }}>
       <span
         style={{
-          fontFamily: "'JetBrains Mono', monospace",
           fontSize: "11px",
           color: t.dim,
           textTransform: "uppercase",
@@ -28,13 +28,13 @@ export function SectionHeader({ theme, tag, title }: SectionHeaderProps) {
           fontWeight: 700,
           color: t.primary,
           margin: "8px 0 0",
-          fontFamily: "'JetBrains Mono', monospace",
           letterSpacing: "1px",
         }}
       >
         {title}
       </h2>
       <div
+        aria-hidden
         style={{
           width: "60px",
           height: "2px",
@@ -43,6 +43,6 @@ export function SectionHeader({ theme, tag, title }: SectionHeaderProps) {
           opacity: 0.6,
         }}
       />
-    </div>
+    </header>
   );
 }

@@ -74,3 +74,26 @@ button:focus-visible {
   outline: 2px solid var(--theme-primary);
   outline-offset: 2px;
 }
+
+/* Skip-to-content link: hidden until focused, then parks top-left for
+   keyboard / screen-reader users who'd otherwise have to tab through the
+   hero to reach the main content. */
+.skip-link {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 1000;
+  padding: 8px 14px;
+  background: var(--theme-bg);
+  border: 1px solid var(--theme-primary);
+  color: var(--theme-primary);
+  border-radius: 4px;
+  font-size: 12px;
+  text-decoration: none;
+  transform: translateY(-200%);
+  transition: transform 0.15s ease-out;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}

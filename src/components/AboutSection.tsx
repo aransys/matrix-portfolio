@@ -1,8 +1,8 @@
-import { motion } from "framer-motion";
 import { OWNER } from "../config/data";
 import type { ThemeKey } from "../config/themes";
 import { THEMES } from "../config/themes";
-import { SectionHeader } from "./SectionHeader";
+import { cardStyle } from "../styles/tokens";
+import { Section } from "./Section";
 
 export interface AboutSectionProps {
   theme: ThemeKey;
@@ -10,31 +10,10 @@ export interface AboutSectionProps {
 
 export function AboutSection({ theme }: AboutSectionProps) {
   const t = THEMES[theme];
+
   return (
-    <section
-      id="about"
-      style={{
-        padding: "100px 20px",
-        maxWidth: "900px",
-        margin: "0 auto",
-        position: "relative",
-        zIndex: 1,
-      }}
-    >
-      <SectionHeader theme={theme} tag="// 01" title="About" />
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        viewport={{ once: true, margin: "-100px" }}
-        style={{
-          background: "rgba(0,0,0,0.75)",
-          border: `1px solid ${t.darkDim}`,
-          borderRadius: "8px",
-          padding: "32px",
-          backdropFilter: "blur(8px)",
-        }}
-      >
+    <Section id="about" theme={theme} tag="// 01" title="About">
+      <div style={cardStyle(t)}>
         <div
           style={{
             display: "flex",
@@ -48,7 +27,6 @@ export function AboutSection({ theme }: AboutSectionProps) {
           <div>
             <div
               style={{
-                fontFamily: "'JetBrains Mono', monospace",
                 fontSize: "10px",
                 color: t.dim,
                 textTransform: "uppercase",
@@ -64,7 +42,6 @@ export function AboutSection({ theme }: AboutSectionProps) {
                 fontWeight: 700,
                 color: t.primary,
                 margin: 0,
-                fontFamily: "'JetBrains Mono', monospace",
               }}
             >
               {OWNER.name}
@@ -72,7 +49,6 @@ export function AboutSection({ theme }: AboutSectionProps) {
           </div>
           <span
             style={{
-              fontFamily: "'JetBrains Mono', monospace",
               fontSize: "10px",
               color: t.bg,
               background: t.primary,
@@ -90,12 +66,11 @@ export function AboutSection({ theme }: AboutSectionProps) {
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
             gap: "16px",
-            fontFamily: "'JetBrains Mono', monospace",
             fontSize: "13px",
           }}
         >
-          {OWNER.dossierFields.map((item, i) => (
-            <div key={i}>
+          {OWNER.dossierFields.map((field) => (
+            <div key={field.label}>
               <div
                 style={{
                   color: t.dim,
@@ -105,9 +80,9 @@ export function AboutSection({ theme }: AboutSectionProps) {
                   marginBottom: "4px",
                 }}
               >
-                {item.label}
+                {field.label}
               </div>
-              <div style={{ color: t.secondary }}>{item.value}</div>
+              <div style={{ color: t.secondary }}>{field.value}</div>
             </div>
           ))}
         </div>
@@ -122,7 +97,6 @@ export function AboutSection({ theme }: AboutSectionProps) {
           <p
             style={{
               color: t.dim,
-              fontFamily: "'JetBrains Mono', monospace",
               fontSize: "13px",
               lineHeight: 1.8,
               margin: 0,
@@ -131,7 +105,7 @@ export function AboutSection({ theme }: AboutSectionProps) {
             {OWNER.bio}
           </p>
         </div>
-      </motion.div>
-    </section>
+      </div>
+    </Section>
   );
 }

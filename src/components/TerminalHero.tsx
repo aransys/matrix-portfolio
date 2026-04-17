@@ -73,6 +73,11 @@ export function TerminalHero({ theme, onBootComplete }: TerminalHeroProps) {
     queueMicrotask(() => {
       void runBoot();
     });
+    return () => {
+      // If the component unmounts mid-boot (hot reload, etc.), stop the
+      // async loop so it doesn't setState on an unmounted tree.
+      cancelRef.current = true;
+    };
   }, [runBoot]);
 
   const getLineColor = (type: string): string => {
@@ -97,7 +102,6 @@ export function TerminalHero({ theme, onBootComplete }: TerminalHeroProps) {
       color: getLineColor(type),
       margin: 0,
       whiteSpace: "pre",
-      fontFamily: "'JetBrains Mono', monospace",
     };
 
     if (type === "name") {
@@ -121,8 +125,6 @@ export function TerminalHero({ theme, onBootComplete }: TerminalHeroProps) {
       fontSize: "13px",
     };
   };
-
-  const typingData = typing;
 
   return (
     <section
@@ -186,7 +188,6 @@ export function TerminalHero({ theme, onBootComplete }: TerminalHeroProps) {
             style={{
               color: "#666",
               fontSize: "12px",
-              fontFamily: "'JetBrains Mono', monospace",
               marginLeft: "8px",
             }}
           >
@@ -197,7 +198,6 @@ export function TerminalHero({ theme, onBootComplete }: TerminalHeroProps) {
         <div
           style={{
             padding: "20px 24px 28px",
-            fontFamily: "'JetBrains Mono', monospace",
             fontSize: "13px",
             lineHeight: 1.7,
             minHeight: "340px",
@@ -222,9 +222,9 @@ export function TerminalHero({ theme, onBootComplete }: TerminalHeroProps) {
             </div>
           ))}
 
-          {typingData && (
-            <div style={getLineStyle(typingData.type)}>
-              {typingData.text}
+          {typing && (
+            <div style={getLineStyle(typing.type)}>
+              {typing.text}
               <span
                 style={{
                   display: "inline-block",
@@ -261,6 +261,7 @@ export function TerminalHero({ theme, onBootComplete }: TerminalHeroProps) {
             <button
               type="button"
               onClick={skipBoot}
+              aria-label="Skip boot sequence"
               style={{
                 position: "absolute",
                 bottom: "12px",
@@ -268,7 +269,7 @@ export function TerminalHero({ theme, onBootComplete }: TerminalHeroProps) {
                 background: "transparent",
                 border: `1px solid ${t.dim}`,
                 color: t.dim,
-                fontFamily: "'JetBrains Mono', monospace",
+                fontFamily: "inherit",
                 fontSize: "11px",
                 padding: "4px 14px",
                 borderRadius: "4px",

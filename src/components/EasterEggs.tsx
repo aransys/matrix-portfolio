@@ -1,85 +1,109 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { ThemeKey } from "../config/themes";
-import { useKonamiCode, usePhraseDetector } from "../hooks/useEasterEggs";
+import { THEMES } from "../config/themes";
+import { useKonamiCode, usePhraseDetector } from "../hooks/useKeySequence";
 
-interface EasterEggsProps {
+export interface EasterEggsProps {
   theme: ThemeKey;
   setTheme: (theme: ThemeKey) => void;
 }
 
-export default function EasterEggs({ theme, setTheme }: EasterEggsProps) {
-  const [showSecret, setShowSecret] = useState(false);
-  const [secretMessage, setSecretMessage] = useState("");
+export function EasterEggs({ theme, setTheme }: EasterEggsProps) {
+  const [secretMessage, setSecretMessage] = useState<string | null>(null);
+  const hideTimerRef = useRef<number | null>(null);
+  const spoonIntervalRef = useRef<number | null>(null);
+  const accent = THEMES[theme].primary;
+
+  /** Show a message for `duration` ms, cancelling any previous timer. */
+  const reveal = useCallback((message: string, duration = 3000) => {
+    if (hideTimerRef.current !== null) {
+      window.clearTimeout(hideTimerRef.current);
+    }
+    setSecretMessage(message);
+    hideTimerRef.current = window.setTimeout(() => {
+      setSecretMessage(null);
+      hideTimerRef.current = null;
+    }, duration);
+  }, []);
+
+  // Cleanup on unmount — stop any pending reveal or theme-flicker timer.
+  useEffect(() => {
+    return () => {
+      if (hideTimerRef.current !== null) {
+        window.clearTimeout(hideTimerRef.current);
+      }
+      if (spoonIntervalRef.current !== null) {
+        window.clearInterval(spoonIntervalRef.current);
+      }
+    };
+  }, []);
 
   const handleKonami = useCallback(() => {
-    setSecretMessage("SYSTEM UNLOCK: ADMIN ACCESS GRANTED");
-    setShowSecret(true);
-    setTimeout(() => setShowSecret(false), 3000);
+    reveal("SYSTEM UNLOCK: ADMIN ACCESS GRANTED");
     console.log(
       "%c🟢 KONAMI CODE ACTIVATED",
       "color: #00ff41; font-size: 16px; font-weight: bold",
     );
-  }, []);
+  }, [reveal]);
 
   const handleNoSpoon = useCallback(() => {
-    setSecretMessage("...there is no spoon.");
-    setShowSecret(true);
-    setTimeout(() => setShowSecret(false), 2500);
+    reveal("...there is no spoon.", 2500);
+
+    // If a previous spoon flicker is still running, cancel it first so the
+    // two don't fight over setTheme.
+    if (spoonIntervalRef.current !== null) {
+      window.clearInterval(spoonIntervalRef.current);
+    }
 
     const themes: ThemeKey[] = ["matrix", "reloaded", "revolutions"];
-    let idx = themes.indexOf(theme);
-    let cycles = 0;
     const startTheme = theme;
+    let idx = themes.indexOf(startTheme);
+    let cycles = 0;
 
-    const interval = setInterval(() => {
+    spoonIntervalRef.current = window.setInterval(() => {
       idx = (idx + 1) % themes.length;
       setTheme(themes[idx]);
-      cycles++;
+      cycles += 1;
 
       if (cycles >= 6) {
-        clearInterval(interval);
+        if (spoonIntervalRef.current !== null) {
+          window.clearInterval(spoonIntervalRef.current);
+          spoonIntervalRef.current = null;
+        }
         setTheme(startTheme);
       }
     }, 150);
-  }, [theme, setTheme]);
+  }, [reveal, theme, setTheme]);
 
   const handleWhatIsMatrix = useCallback(() => {
-    setSecretMessage("The Matrix is everywhere. It is all around us.");
-    setShowSecret(true);
-    setTimeout(() => setShowSecret(false), 4000);
+    reveal("The Matrix is everywhere. It is all around us.", 4000);
     console.log(
       "%cThe Matrix is a system, Neo. That system is us.",
       "color: #4499ff; font-size: 14px; font-style: italic",
     );
-  }, []);
+  }, [reveal]);
 
   const handleWhiteRabbit = useCallback(() => {
-    setSecretMessage("Follow the white rabbit...");
-    setShowSecret(true);
-    setTimeout(() => setShowSecret(false), 2000);
-
-    setTimeout(() => {
-      document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" });
+    reveal("Follow the white rabbit...", 2000);
+    window.setTimeout(() => {
+      document
+        .getElementById("projects")
+        ?.scrollIntoView({ behavior: "smooth" });
     }, 500);
-  }, []);
+  }, [reveal]);
 
   const handleRedPill = useCallback(() => {
-    setSecretMessage("You take the red pill—you stay in Wonderland.");
-    setShowSecret(true);
+    reveal("You take the red pill—you stay in Wonderland.");
     setTheme("revolutions");
-    setTimeout(() => setShowSecret(false), 3000);
-  }, [setTheme]);
+  }, [reveal, setTheme]);
 
   const handleBluePill = useCallback(() => {
-    setSecretMessage("You take the blue pill—the story ends.");
-    setShowSecret(true);
+    reveal("You take the blue pill—the story ends.");
     setTheme("reloaded");
-    setTimeout(() => setShowSecret(false), 3000);
-  }, [setTheme]);
+  }, [reveal, setTheme]);
 
   const handleWakeUpNeo = useCallback(() => {
-    setSecretMessage("Wake up, Neo...");
-    setShowSecret(true);
+    reveal("Wake up, Neo...", 2500);
 
     const glitch = document.createElement("div");
     glitch.style.cssText = `
@@ -88,7 +112,7 @@ export default function EasterEggs({ theme, setTheme }: EasterEggsProps) {
       left: 0;
       width: 100%;
       height: 100%;
-      background: #00ff41;
+      background: ${accent};
       z-index: 9999;
       opacity: 0.15;
       pointer-events: none;
@@ -96,20 +120,17 @@ export default function EasterEggs({ theme, setTheme }: EasterEggsProps) {
     `;
     document.body.appendChild(glitch);
 
-    setTimeout(() => {
-      document.body.removeChild(glitch);
+    window.setTimeout(() => {
+      glitch.remove();
     }, 300);
-
-    setTimeout(() => setShowSecret(false), 2500);
-  }, []);
+  }, [reveal, accent]);
 
   const handleShowMe = useCallback(() => {
-    setSecretMessage(
+    reveal(
       'Easter eggs: Konami (↑↑↓↓←→←→BA), "thereisnospoon", whatisthematrix, followthewhiterabbit, redpill, bluepill, wakeupneo',
+      5000,
     );
-    setShowSecret(true);
-    setTimeout(() => setShowSecret(false), 5000);
-  }, []);
+  }, [reveal]);
 
   useKonamiCode(handleKonami);
   usePhraseDetector("thereisnospoon", handleNoSpoon);
@@ -120,15 +141,12 @@ export default function EasterEggs({ theme, setTheme }: EasterEggsProps) {
   usePhraseDetector("wakeupneo", handleWakeUpNeo);
   usePhraseDetector("showme", handleShowMe);
 
-  const borderColor =
-    theme === "matrix" ? "#00ff41" : theme === "reloaded" ? "#4499ff" : "#ff9922";
-  const textColor =
-    theme === "matrix" ? "#00ff41" : theme === "reloaded" ? "#4499ff" : "#ff9922";
-
   return (
     <>
-      {showSecret && (
+      {secretMessage !== null && (
         <div
+          role="status"
+          aria-live="polite"
           style={{
             position: "fixed",
             top: "50%",
@@ -136,12 +154,11 @@ export default function EasterEggs({ theme, setTheme }: EasterEggsProps) {
             transform: "translate(-50%, -50%)",
             zIndex: 10000,
             background: "rgba(0, 0, 0, 0.95)",
-            border: `2px solid ${borderColor}`,
+            border: `2px solid ${accent}`,
             borderRadius: "8px",
             padding: "24px 48px",
-            fontFamily: "'JetBrains Mono', monospace",
             fontSize: "16px",
-            color: textColor,
+            color: accent,
             textAlign: "center",
             backdropFilter: "blur(8px)",
             animation: "fadeInUp 0.3s ease-out",

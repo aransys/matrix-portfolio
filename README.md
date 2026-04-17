@@ -53,12 +53,27 @@ npm run preview
 
 ```txt
 src/
-  components/        UI sections + visuals (hero, rain, sections)
-  config/            content + theme configuration
-  hooks/             small reusable hooks
-  styles/            global styles
-  App.tsx            page layout
-  main.tsx           app entry
+  components/
+    Section.tsx          shared section layout + scroll-reveal wrapper
+    SectionHeader.tsx    section tag + title + accent rule
+    TerminalHero.tsx     boot-sequence hero
+    MatrixRain2D.tsx     canvas rain background
+    StickyNav.tsx        top nav revealed once the hero scrolls out
+    ThemeSwitcher.tsx    theme pills (top right)
+    EasterEggs.tsx       hidden commands (konami, phrases…)
+    About / Skills / Projects / Timeline / Contact Section.tsx
+  config/
+    data.ts              content: owner, skills, projects, timeline, socials, nav
+    themes.ts            three Matrix-inspired palettes
+    boot-sequence.ts     hero terminal boot lines
+  hooks/
+    useScrolledPastHero.ts   show/hide sticky nav based on scroll
+    useKeySequence.ts        konami / phrase detectors for easter eggs
+  styles/
+    global.css               base styles + CSS custom properties
+    tokens.ts                small style helpers (e.g. cardStyle)
+  App.tsx                    page layout + theme → CSS vars sync
+  main.tsx                   app entry
 ```
 
 ## Customize it

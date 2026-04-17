@@ -1,8 +1,8 @@
-import { motion } from "framer-motion";
 import { SOCIALS } from "../config/data";
 import type { ThemeKey } from "../config/themes";
 import { THEMES } from "../config/themes";
-import { SectionHeader } from "./SectionHeader";
+import { cardStyle } from "../styles/tokens";
+import { Section } from "./Section";
 
 export interface ContactSectionProps {
   theme: ThemeKey;
@@ -12,33 +12,16 @@ export function ContactSection({ theme }: ContactSectionProps) {
   const t = THEMES[theme];
 
   return (
-    <section
+    <Section
       id="contact"
-      style={{
-        padding: "100px 20px 80px",
-        maxWidth: "900px",
-        margin: "0 auto",
-        position: "relative",
-        zIndex: 1,
-      }}
+      theme={theme}
+      tag="// 05"
+      title="Transmission"
+      paddingBottom={80}
     >
-      <SectionHeader theme={theme} tag="// 05" title="Transmission" />
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        viewport={{ once: true, margin: "-100px" }}
-        style={{
-          background: "rgba(0,0,0,0.75)",
-          border: `1px solid ${t.darkDim}`,
-          borderRadius: "8px",
-          padding: "32px",
-          backdropFilter: "blur(8px)",
-        }}
-      >
+      <div style={cardStyle(t)}>
         <p
           style={{
-            fontFamily: "'JetBrains Mono', monospace",
             fontSize: "14px",
             color: t.secondary,
             lineHeight: 1.8,
@@ -57,12 +40,13 @@ export function ContactSection({ theme }: ContactSectionProps) {
             gap: "12px",
           }}
         >
-          {SOCIALS.map((s) => (
+          {SOCIALS.map((social) => (
             <a
-              key={s.label}
-              href={s.href}
+              key={social.label}
+              href={social.href}
               target="_blank"
               rel="noopener noreferrer"
+              aria-label={`${social.label}: ${social.value}`}
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -83,39 +67,33 @@ export function ContactSection({ theme }: ContactSectionProps) {
                 e.currentTarget.style.background = t.glowSoft;
               }}
             >
-              <span style={{ fontSize: "16px", color: t.primary }}>{s.icon}</span>
+              <span style={{ fontSize: "16px", color: t.primary }}>
+                {social.icon}
+              </span>
               <div>
                 <div
                   style={{
-                    fontFamily: "'JetBrains Mono', monospace",
                     fontSize: "10px",
                     color: t.dim,
                     textTransform: "uppercase",
                     letterSpacing: "2px",
                   }}
                 >
-                  {s.label}
+                  {social.label}
                 </div>
-                <div
-                  style={{
-                    fontFamily: "'JetBrains Mono', monospace",
-                    fontSize: "13px",
-                    color: t.primary,
-                  }}
-                >
-                  {s.value}
+                <div style={{ fontSize: "13px", color: t.primary }}>
+                  {social.value}
                 </div>
               </div>
             </a>
           ))}
         </div>
-      </motion.div>
+      </div>
 
-      <div
+      <footer
         style={{
           textAlign: "center",
           marginTop: "60px",
-          fontFamily: "'JetBrains Mono', monospace",
           fontSize: "12px",
           color: t.darkDim,
         }}
@@ -125,9 +103,9 @@ export function ContactSection({ theme }: ContactSectionProps) {
         </div>
         <div>© {new Date().getFullYear()} Aurimas Ransys — ransys.dev</div>
         <div style={{ marginTop: "4px", fontSize: "11px", color: t.darkDim }}>
-          {"\u201cThere is no spoon.\u201d"}
+          &ldquo;There is no spoon.&rdquo;
         </div>
-      </div>
-    </section>
+      </footer>
+    </Section>
   );
 }

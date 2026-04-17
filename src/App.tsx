@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { AboutSection } from "./components/AboutSection";
 import { ContactSection } from "./components/ContactSection";
-import { MatrixRain } from "./components/MatrixRain";
+import EasterEggs from "./components/EasterEggs";
+import { MatrixRain2D } from "./components/MatrixRain2D";
 import { ProjectsSection } from "./components/ProjectsSection";
 import { SkillsSection } from "./components/SkillsSection";
 import { StickyNav } from "./components/StickyNav";
@@ -33,7 +34,8 @@ export default function App() {
         transition: "background 0.5s ease",
       }}
     >
-      <MatrixRain theme={theme} />
+      <EasterEggs theme={theme} setTheme={setTheme} />
+      <MatrixRain2D theme={theme} />
       <ThemeSwitcher theme={theme} setTheme={setTheme} />
       <StickyNav theme={theme} visible={showNav} />
       <TerminalHero theme={theme} />

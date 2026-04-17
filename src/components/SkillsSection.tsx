@@ -49,12 +49,10 @@ export function SkillsSection({ theme }: SkillsSectionProps) {
           >
             <h3
               style={{
-                fontFamily: "'JetBrains Mono', monospace",
                 fontSize: "11px",
                 color: key === "learning" ? "#ffaa00" : t.primary,
                 textTransform: "uppercase",
                 letterSpacing: "3px",
-                marginBottom: "16px",
                 margin: "0 0 16px",
               }}
             >

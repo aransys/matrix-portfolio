@@ -56,11 +56,17 @@ export function TimelineSection({ theme }: TimelineSectionProps) {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: "12px",
+                // Index-number styling: themed mono, tight letter-spacing
+                // so "01" fits comfortably inside the 24px disc.
+                color: isCurrent ? t.primary : t.dim,
+                fontFamily: "inherit",
+                fontSize: "10px",
+                fontWeight: 700,
+                letterSpacing: "0.5px",
                 lineHeight: 1,
               }}
             >
-              {item.icon}
+              {String(i + 1).padStart(2, "0")}
             </div>
             <div style={cardStyle(t, { padding: "20px 24px" })}>
               <span

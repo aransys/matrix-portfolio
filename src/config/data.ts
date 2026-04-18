@@ -67,7 +67,6 @@ export interface TimelineEntry {
   title: string;
   place: string;
   detail: string;
-  icon: string;
 }
 
 export const TIMELINE: TimelineEntry[] = [
@@ -77,7 +76,6 @@ export const TIMELINE: TimelineEntry[] = [
     place: "Leeds Beckett University",
     detail:
       "Year 1 — Building foundations in algorithms, data structures, and software engineering.",
-    icon: "🎓",
   },
   {
     period: "2024 – 2025",
@@ -85,7 +83,6 @@ export const TIMELINE: TimelineEntry[] = [
     place: "New City College London",
     detail:
       "Completed with Distinction. Full-stack web development with Django, Python, and PostgreSQL.",
-    icon: "🏆",
   },
   {
     period: "Previous",
@@ -93,7 +90,6 @@ export const TIMELINE: TimelineEntry[] = [
     place: "Lithuanian Armed Forces",
     detail:
       "Military service — discipline, teamwork, and leadership under pressure.",
-    icon: "⚔️",
   },
 ];
 

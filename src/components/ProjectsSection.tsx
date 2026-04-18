@@ -27,7 +27,10 @@ export function ProjectsSection({ theme }: ProjectsSectionProps) {
         <article
           key={project.codename}
           style={{
-            ...cardStyle(t, { padding: "28px 32px" }),
+            ...cardStyle(t, {
+              padding:
+                "clamp(20px, 3vw + 8px, 28px) clamp(20px, 3vw + 12px, 32px)",
+            }),
             transition: "border-color 0.3s ease",
           }}
           onMouseEnter={(e) => {

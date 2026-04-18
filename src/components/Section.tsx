@@ -34,7 +34,13 @@ export function Section({
     <section
       id={id}
       style={{
-        padding: `100px 20px ${paddingBottom ?? "100px"}`,
+        // Continuous scaling from phone to desktop — no breakpoint pops:
+        //   at 375px  → 60px vertical / 16px horizontal
+        //   at 768px  → 78px vertical / 20px horizontal (capped)
+        //   at 1200px → 100px vertical / 20px horizontal (capped)
+        padding: `clamp(60px, 5vw + 40px, 100px) clamp(16px, 2vw + 8px, 20px) ${
+          paddingBottom ?? "clamp(60px, 5vw + 40px, 100px)"
+        }`,
         maxWidth: "900px",
         margin: "0 auto",
         position: "relative",

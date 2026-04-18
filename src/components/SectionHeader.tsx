@@ -11,7 +11,7 @@ export interface SectionHeaderProps {
 export function SectionHeader({ theme, tag, title }: SectionHeaderProps) {
   const t = THEMES[theme];
   return (
-    <header style={{ marginBottom: "40px" }}>
+    <header style={{ marginBottom: "clamp(28px, 5vw, 40px)" }}>
       <span
         style={{
           fontSize: "11px",

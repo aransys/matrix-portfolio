@@ -17,13 +17,13 @@ export function ThemeSwitcher({ theme, setTheme }: ThemeSwitcherProps) {
       aria-label="Colour theme"
       style={{
         position: "fixed",
-        top: "20px",
-        right: "20px",
+        top: "clamp(12px, 2vw, 20px)",
+        right: "clamp(12px, 2vw, 20px)",
         zIndex: 100,
         display: "flex",
-        gap: "8px",
+        gap: "clamp(6px, 1vw + 2px, 8px)",
         background: "rgba(0,0,0,0.7)",
-        padding: "8px 12px",
+        padding: "clamp(6px, 1vw + 3px, 8px) clamp(10px, 1.5vw + 5px, 12px)",
         borderRadius: "24px",
         backdropFilter: "blur(10px)",
         border: "1px solid rgba(255,255,255,0.06)",

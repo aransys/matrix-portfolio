@@ -69,10 +69,29 @@ body {
   color: var(--theme-bg);
 }
 
+/* Themed focus ring — keyed to --theme-primary so it repaints with the
+   active palette. The inset dark halo gives separation on busy backgrounds
+   (Matrix rain, translucent cards); the outer glow matches the rest of the
+   site's aesthetic without screaming browser-default blue. */
 a:focus-visible,
-button:focus-visible {
+button:focus-visible,
+[role="radio"]:focus-visible,
+[tabindex]:focus-visible {
   outline: 2px solid var(--theme-primary);
-  outline-offset: 2px;
+  outline-offset: 3px;
+  border-radius: 4px;
+  box-shadow:
+    0 0 0 4px rgba(0, 0, 0, 0.35),
+    0 0 14px color-mix(in srgb, var(--theme-primary) 70%, transparent);
+  transition:
+    box-shadow 0.15s ease,
+    outline-color 0.15s ease;
+}
+
+/* Don't fight existing rounded buttons — let each element keep its own
+   radius rather than forcing a 4px ring on pill-shaped controls. */
+button:focus-visible {
+  border-radius: inherit;
 }
 
 /* Skip-to-content link: hidden until focused, then parks top-left for

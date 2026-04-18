@@ -9,14 +9,18 @@ import type { Theme } from "../config/themes";
 export const WARN_ACCENT = "#ffaa00";
 
 export interface CardStyleOptions {
-  /** Inner padding. Defaults to 32. */
+  /** Inner padding. Defaults to a responsive clamp — 20px on phones → 32px on desktop. */
   padding?: number | string;
 }
 
 /** Translucent dark card used inside most sections. */
 export function cardStyle(
   theme: Theme,
-  { padding = 32 }: CardStyleOptions = {},
+  {
+    // Defaults to a continuous clamp so every card shrinks gracefully on
+    // phones without needing a breakpoint at each call site.
+    padding = "clamp(20px, 2vw + 16px, 32px)",
+  }: CardStyleOptions = {},
 ): CSSProperties {
   return {
     background: "rgba(0,0,0,0.75)",

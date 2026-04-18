@@ -152,7 +152,7 @@ export function TerminalHero({ theme, onBootComplete }: TerminalHeroProps) {
         <div
           style={{
             background: "rgba(255,255,255,0.04)",
-            padding: "10px 16px",
+            padding: "clamp(8px, 1.5vw, 10px) clamp(12px, 2vw + 4px, 16px)",
             display: "flex",
             alignItems: "center",
             gap: "8px",
@@ -196,10 +196,13 @@ export function TerminalHero({ theme, onBootComplete }: TerminalHeroProps) {
 
         <div
           style={{
-            padding: "20px 24px 28px",
+            padding:
+              "clamp(16px, 2vw + 8px, 20px) clamp(16px, 2vw + 8px, 24px) clamp(20px, 3vw + 8px, 28px)",
             fontSize: "13px",
             lineHeight: 1.7,
-            minHeight: "340px",
+            // vh-based floor prevents the terminal from feeling hollow on
+            // phones where 340px would leave huge empty space below the boot.
+            minHeight: "clamp(280px, 40vh, 340px)",
             position: "relative",
           }}
         >

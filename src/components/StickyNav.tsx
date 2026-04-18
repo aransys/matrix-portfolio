@@ -32,11 +32,13 @@ export function StickyNav({ theme, visible }: StickyNavProps) {
         zIndex: 50,
         background: "rgba(0,0,0,0.85)",
         borderBottom: `1px solid ${t.darkDim}`,
-        padding: "12px 24px",
+        // Tighter spacing on phones — 5 links in a centered flex row need to
+        // fit inside ~340px of inner width without wrapping.
+        padding: "clamp(10px, 1.5vw + 6px, 12px) clamp(14px, 3vw, 24px)",
         display: "flex",
         justifyContent: "center",
-        gap: "24px",
-        fontSize: "12px",
+        gap: "clamp(12px, 3vw, 24px)",
+        fontSize: "clamp(11px, 0.4vw + 10px, 12px)",
         backdropFilter: "blur(12px)",
         transform: visible ? "translateY(0)" : "translateY(-100%)",
         transition: "transform 0.3s ease",

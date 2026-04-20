@@ -6,14 +6,24 @@ import { NAV_LINKS } from "../config/data";
 import type { ThemeKey } from "../config/themes";
 import { THEMES } from "../config/themes";
 import { WARN_ACCENT } from "../styles/tokens";
+import { TerminalPrompt } from "./TerminalPrompt";
+import type { TerminalLine, TerminalLineType } from "./TerminalPrompt";
 
 export interface TerminalHeroProps {
   theme: ThemeKey;
+  setTheme: (key: ThemeKey) => void;
   onBootComplete?: () => void;
 }
 
-export function TerminalHero({ theme, onBootComplete }: TerminalHeroProps) {
-  type DisplayLine = { text: string; type: BootLineType };
+export function TerminalHero({
+  theme,
+  setTheme,
+  onBootComplete,
+}: TerminalHeroProps) {
+  // `boot lines` keep their original types so the name + role still get the
+  // big typography. Once boot completes, post-boot output is appended to the
+  // same array but as plain TerminalLine entries.
+  type DisplayLine = { text: string; type: BootLineType | TerminalLineType };
 
   const [lines, setLines] = useState<DisplayLine[]>([]);
   const [bootDone, setBootDone] = useState(false);
@@ -90,6 +100,8 @@ export function TerminalHero({ theme, onBootComplete }: TerminalHeroProps) {
         return WARN_ACCENT;
       case "role":
         return t.secondary;
+      case "echo":
+        return t.secondary;
       case "dim":
       default:
         return t.dim;
@@ -100,7 +112,8 @@ export function TerminalHero({ theme, onBootComplete }: TerminalHeroProps) {
     const base: CSSProperties = {
       color: getLineColor(type),
       margin: 0,
-      whiteSpace: "pre",
+      whiteSpace: "pre-wrap",
+      wordBreak: "break-word",
     };
 
     if (type === "name") {
@@ -124,6 +137,31 @@ export function TerminalHero({ theme, onBootComplete }: TerminalHeroProps) {
       fontSize: "13px",
     };
   };
+
+  // Bridge for TerminalPrompt — it deals in TerminalLine, but we store
+  // DisplayLine (which is a superset). Adapter functions keep the prompt's
+  // type narrow.
+  const promptHistory: TerminalLine[] = lines
+    .filter((l) => l.type !== "name" && l.type !== "role")
+    .map((l) => ({
+      text: l.text,
+      type:
+        l.type === "ok"
+          ? "ok"
+          : l.type === "warn"
+            ? "warn"
+            : l.type === "echo"
+              ? "echo"
+              : "dim",
+    }));
+
+  // Once boot completes, the visual scrollback is rendered by the
+  // TerminalPrompt — BUT it can only render TerminalLine entries (no
+  // big-name/big-role typography). The boot lines that *do* use those
+  // special types are rendered above the prompt component.
+  const bigBootLines = lines.filter(
+    (l) => l.type === "name" || l.type === "role",
+  );
 
   return (
     <section
@@ -202,7 +240,11 @@ export function TerminalHero({ theme, onBootComplete }: TerminalHeroProps) {
             lineHeight: 1.7,
             // vh-based floor prevents the terminal from feeling hollow on
             // phones where 340px would leave huge empty space below the boot.
+            // The cap prevents it from dominating the viewport once a long
+            // command session has accumulated.
             minHeight: "clamp(280px, 40vh, 340px)",
+            maxHeight: "min(70vh, 600px)",
+            overflowY: "auto",
             position: "relative",
           }}
         >
@@ -218,77 +260,107 @@ export function TerminalHero({ theme, onBootComplete }: TerminalHeroProps) {
             }}
           />
 
-          {lines.map((line, i) => (
-            <div key={i} style={getLineStyle(line.type)}>
-              {line.text || "\u00A0"}
-            </div>
-          ))}
+          {!bootDone && (
+            <>
+              {lines.map((line, i) => (
+                <div key={i} style={getLineStyle(line.type)}>
+                  {line.text || "\u00A0"}
+                </div>
+              ))}
 
-          {typing && (
-            <div style={getLineStyle(typing.type)}>
-              {typing.text}
-              <span
+              {typing && (
+                <div style={getLineStyle(typing.type)}>
+                  {typing.text}
+                  <span
+                    style={{
+                      display: "inline-block",
+                      width: "8px",
+                      height: "14px",
+                      background: t.primary,
+                      marginLeft: "2px",
+                      verticalAlign: "text-bottom",
+                      animation: "cursorBlink 0.7s step-end infinite",
+                    }}
+                  />
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={skipBoot}
+                aria-label="Skip boot sequence"
                 style={{
-                  display: "inline-block",
-                  width: "8px",
-                  height: "14px",
-                  background: t.primary,
-                  marginLeft: "2px",
-                  verticalAlign: "text-bottom",
-                  animation: "cursorBlink 0.7s step-end infinite",
+                  position: "absolute",
+                  bottom: "12px",
+                  right: "16px",
+                  background: "transparent",
+                  border: `1px solid ${t.dim}`,
+                  color: t.dim,
+                  fontFamily: "inherit",
+                  fontSize: "11px",
+                  padding: "4px 14px",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                  transition: "all 0.15s ease",
                 }}
-              />
-            </div>
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = t.primary;
+                  e.currentTarget.style.borderColor = t.primary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = t.dim;
+                  e.currentTarget.style.borderColor = t.dim;
+                }}
+              >
+                skip &gt;
+              </button>
+            </>
           )}
 
           {bootDone && (
             <>
-              <div style={{ height: "16px" }} />
+              {/* Big-name + role lines from the boot kept above the prompt so
+                  the visual hierarchy survives. */}
+              {bigBootLines.map((line, i) => (
+                <div key={`big-${i}`} style={getLineStyle(line.type)}>
+                  {line.text || "\u00A0"}
+                </div>
+              ))}
+
+              <div style={{ height: "12px" }} />
               <NavLinks theme={theme} />
-              <span
+              <div style={{ height: "12px" }} />
+
+              <div
                 style={{
-                  display: "inline-block",
-                  width: "8px",
-                  height: "14px",
-                  background: t.primary,
-                  verticalAlign: "text-bottom",
-                  animation: "cursorBlink 0.7s step-end infinite",
-                  marginTop: "8px",
+                  fontSize: "11px",
+                  color: t.dim,
+                  marginBottom: "6px",
+                  opacity: 0.8,
                 }}
+              >
+                Type{" "}
+                <span style={{ color: t.primary }}>help</span> to see commands.
+              </div>
+
+              <TerminalPrompt
+                theme={theme}
+                setTheme={setTheme}
+                history={promptHistory}
+                appendLines={(newLines) =>
+                  setLines((prev) => [...prev, ...newLines])
+                }
+                clearScrollback={() =>
+                  // Wipe everything except the big-name lines so the hero keeps
+                  // its identity even after `clear`.
+                  setLines((prev) =>
+                    prev.filter(
+                      (l) => l.type === "name" || l.type === "role",
+                    ),
+                  )
+                }
               />
             </>
-          )}
-
-          {!bootDone && (
-            <button
-              type="button"
-              onClick={skipBoot}
-              aria-label="Skip boot sequence"
-              style={{
-                position: "absolute",
-                bottom: "12px",
-                right: "16px",
-                background: "transparent",
-                border: `1px solid ${t.dim}`,
-                color: t.dim,
-                fontFamily: "inherit",
-                fontSize: "11px",
-                padding: "4px 14px",
-                borderRadius: "4px",
-                cursor: "pointer",
-                transition: "all 0.15s ease",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = t.primary;
-                e.currentTarget.style.borderColor = t.primary;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = t.dim;
-                e.currentTarget.style.borderColor = t.dim;
-              }}
-            >
-              skip &gt;
-            </button>
           )}
         </div>
       </div>

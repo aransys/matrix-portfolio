@@ -30,6 +30,16 @@ export function Section({
   contentStyle,
   children,
 }: SectionProps) {
+  // Coerce raw numbers to a px length — without this, paddingBottom={80} would
+  // interpolate as the unit-less string "80" and the browser would reject the
+  // entire `padding` shorthand (leaving the section with no padding at all).
+  const resolvedPaddingBottom =
+    paddingBottom === undefined
+      ? "clamp(60px, 5vw + 40px, 100px)"
+      : typeof paddingBottom === "number"
+        ? `${paddingBottom}px`
+        : paddingBottom;
+
   return (
     <section
       id={id}
@@ -38,9 +48,7 @@ export function Section({
         //   at 375px  → 60px vertical / 16px horizontal
         //   at 768px  → 78px vertical / 20px horizontal (capped)
         //   at 1200px → 100px vertical / 20px horizontal (capped)
-        padding: `clamp(60px, 5vw + 40px, 100px) clamp(16px, 2vw + 8px, 20px) ${
-          paddingBottom ?? "clamp(60px, 5vw + 40px, 100px)"
-        }`,
+        padding: `clamp(60px, 5vw + 40px, 100px) clamp(16px, 2vw + 8px, 20px) ${resolvedPaddingBottom}`,
         maxWidth: "900px",
         margin: "0 auto",
         position: "relative",

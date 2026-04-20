@@ -44,7 +44,7 @@ export default function App() {
         <ScrollProgress theme={theme} />
         <ThemeSwitcher theme={theme} setTheme={setTheme} />
         <StickyNav theme={theme} visible={showNav} />
-        <TerminalHero theme={theme} />
+        <TerminalHero theme={theme} setTheme={setTheme} />
         <AboutSection theme={theme} />
         <SkillsSection theme={theme} />
         <ProjectsSection theme={theme} />

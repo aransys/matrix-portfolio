@@ -1,43 +1,51 @@
+import { motion } from "framer-motion";
 import { TIMELINE } from "../config/data";
 import type { ThemeKey } from "../config/themes";
-import { THEMES } from "../config/themes";
-import { cardStyle } from "../styles/tokens";
 import { Section } from "./Section";
 
 export interface TimelineSectionProps {
   theme: ThemeKey;
 }
 
+/**
+ * Timeline — a vertical rail of milestones. The current entry pulses
+ * a soft glow; older entries fade quietly down the rail.
+ */
 export function TimelineSection({ theme }: TimelineSectionProps) {
-  const t = THEMES[theme];
-
   return (
     <Section
       id="timeline"
       theme={theme}
-      tag="// 04"
-      title="Timeline"
-      contentStyle={{ position: "relative", paddingLeft: "32px" }}
+      tag="04"
+      title="Trajectory"
+      subtitle="Education, service, and the path that led here."
+      contentStyle={{ position: "relative", paddingLeft: "44px" }}
     >
       <div
+        aria-hidden
         style={{
           position: "absolute",
-          left: "8px",
+          left: "16px",
           top: 0,
           bottom: 0,
           width: "2px",
-          background: `linear-gradient(to bottom, ${t.primary}, ${t.darkDim})`,
-          opacity: 0.4,
+          background:
+            "linear-gradient(to bottom, var(--c-primary), var(--c-dark-dim))",
+          opacity: 0.45,
         }}
       />
       {TIMELINE.map((item, i) => {
         const isCurrent = i === 0;
         const isLast = i === TIMELINE.length - 1;
         return (
-          <div
+          <motion.div
             key={item.title}
+            initial={{ opacity: 0, x: -16 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.5, delay: i * 0.1 }}
             style={{
-              marginBottom: isLast ? 0 : "32px",
+              marginBottom: isLast ? 0 : "36px",
               position: "relative",
             }}
           >
@@ -45,62 +53,68 @@ export function TimelineSection({ theme }: TimelineSectionProps) {
               aria-hidden
               style={{
                 position: "absolute",
-                left: "-35px",
+                left: "-43px",
                 top: "2px",
-                width: "24px",
-                height: "24px",
+                width: "28px",
+                height: "28px",
                 borderRadius: "50%",
-                background: t.bg,
-                border: `2px solid ${isCurrent ? t.primary : t.dim}`,
-                boxShadow: isCurrent ? `0 0 10px ${t.primary}55` : "none",
+                background: "var(--c-bg)",
+                border: `2px solid ${isCurrent ? "var(--c-primary)" : "var(--c-dim)"}`,
+                boxShadow: isCurrent ? "0 0 16px var(--c-glow)" : "none",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                // Index-number styling: themed mono, tight letter-spacing
-                // so "01" fits comfortably inside the 24px disc.
-                color: isCurrent ? t.primary : t.dim,
+                color: isCurrent ? "var(--c-primary)" : "var(--c-dim)",
                 fontFamily: "inherit",
                 fontSize: "10px",
                 fontWeight: 700,
-                letterSpacing: "0.5px",
+                letterSpacing: "0.05em",
                 lineHeight: 1,
               }}
             >
               {String(i + 1).padStart(2, "0")}
             </div>
-            <div style={cardStyle(t, { padding: "20px 24px" })}>
+            <div
+              className="glass"
+              style={{
+                padding: "20px 24px",
+              }}
+            >
               <span
                 style={{
                   fontSize: "11px",
-                  color: t.dim,
-                  letterSpacing: "2px",
+                  color: "var(--c-dim)",
+                  letterSpacing: "0.18em",
+                  textTransform: "uppercase",
                 }}
               >
                 {item.period}
               </span>
               <h3
+                className="font-display"
                 style={{
-                  fontSize: "16px",
+                  fontSize: "var(--t-md)",
                   fontWeight: 700,
-                  color: t.primary,
+                  color: "var(--c-primary)",
                   margin: "6px 0 2px",
+                  letterSpacing: "-0.01em",
                 }}
               >
                 {item.title}
               </h3>
               <div
                 style={{
-                  fontSize: "12px",
-                  color: t.secondary,
-                  marginBottom: "8px",
+                  fontSize: "var(--t-sm)",
+                  color: "var(--c-secondary)",
+                  marginBottom: "10px",
                 }}
               >
                 {item.place}
               </div>
               <p
                 style={{
-                  fontSize: "13px",
-                  color: t.dim,
+                  fontSize: "var(--t-sm)",
+                  color: "var(--c-dim)",
                   lineHeight: 1.7,
                   margin: 0,
                 }}
@@ -108,7 +122,7 @@ export function TimelineSection({ theme }: TimelineSectionProps) {
                 {item.detail}
               </p>
             </div>
-          </div>
+          </motion.div>
         );
       })}
     </Section>

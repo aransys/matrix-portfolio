@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import type { CSSProperties, ReactNode } from "react";
 import type { ThemeKey } from "../config/themes";
 import { SectionHeader } from "./SectionHeader";
@@ -6,10 +6,12 @@ import { SectionHeader } from "./SectionHeader";
 export interface SectionProps {
   id: string;
   theme: ThemeKey;
-  /** Small tag shown above the title, e.g. "// 01" */
+  /** Numeric tag, e.g. "01" */
   tag: string;
+  /** Subtitle line below the big title */
+  subtitle?: string;
   title: string;
-  /** Optional override for the default inner padding-bottom (used by Contact) */
+  /** Optional override for the default inner padding-bottom */
   paddingBottom?: number | string;
   /** Optional override for the reveal container's inline style */
   contentStyle?: CSSProperties;
@@ -17,25 +19,25 @@ export interface SectionProps {
 }
 
 /**
- * Shared layout + scroll-reveal wrapper used by every content section.
- * Keeps the page consistent and removes the repeated boilerplate that used
- * to live at the top of every *Section component.
+ * Shared layout + scroll-reveal wrapper. Each section paints its own glow
+ * pool that fades in as it scrolls into view — gives the page a cinematic
+ * "scene ignites" feel without per-section custom code.
  */
 export function Section({
   id,
-  theme,
+  theme: _theme,
   tag,
+  subtitle,
   title,
   paddingBottom,
   contentStyle,
   children,
 }: SectionProps) {
-  // Coerce raw numbers to a px length — without this, paddingBottom={80} would
-  // interpolate as the unit-less string "80" and the browser would reject the
-  // entire `padding` shorthand (leaving the section with no padding at all).
+  const reducedMotion = useReducedMotion();
+
   const resolvedPaddingBottom =
     paddingBottom === undefined
-      ? "clamp(60px, 5vw + 40px, 100px)"
+      ? "clamp(80px, 8vw + 40px, 140px)"
       : typeof paddingBottom === "number"
         ? `${paddingBottom}px`
         : paddingBottom;
@@ -44,23 +46,40 @@ export function Section({
     <section
       id={id}
       style={{
-        // Continuous scaling from phone to desktop — no breakpoint pops:
-        //   at 375px  → 60px vertical / 16px horizontal
-        //   at 768px  → 78px vertical / 20px horizontal (capped)
-        //   at 1200px → 100px vertical / 20px horizontal (capped)
-        padding: `clamp(60px, 5vw + 40px, 100px) clamp(16px, 2vw + 8px, 20px) ${resolvedPaddingBottom}`,
-        maxWidth: "900px",
+        padding: `clamp(80px, 8vw + 40px, 140px) clamp(16px, 4vw, 28px) ${resolvedPaddingBottom}`,
+        maxWidth: "980px",
         margin: "0 auto",
         position: "relative",
         zIndex: 1,
       }}
     >
-      <SectionHeader theme={theme} tag={tag} title={title} />
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
+        aria-hidden
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: reducedMotion ? 0 : 1 }}
+        viewport={{ once: true, margin: "-25%" }}
+        transition={{ duration: 1.4, ease: "easeOut" }}
+        style={{
+          position: "absolute",
+          top: "5%",
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: "min(700px, 80%)",
+          height: "300px",
+          background:
+            "radial-gradient(circle at center, var(--c-glow-soft) 0%, transparent 70%)",
+          pointerEvents: "none",
+          zIndex: -1,
+        }}
+      />
+
+      <SectionHeader tag={tag} title={title} subtitle={subtitle} />
+
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
         whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+        viewport={{ once: true, margin: "-80px" }}
         style={contentStyle}
       >
         {children}

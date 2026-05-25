@@ -38,7 +38,7 @@ export const PROJECTS: Project[] = [
     title: "QuickGigs Platform",
     desc: "Full-stack freelance marketplace with user authentication, Stripe payment integration, and complete CRUD operations.",
     tech: ["Django", "Python", "PostgreSQL", "Stripe API"],
-    live: "https://quickgigs-django.onrender.com/",
+    live: "https://quickgigs-tblp.onrender.com",
     github: "https://github.com/aransys/quickgigs-django",
     status: "DEPLOYED",
   },

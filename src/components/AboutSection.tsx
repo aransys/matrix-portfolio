@@ -1,19 +1,34 @@
+import { motion } from "framer-motion";
 import { OWNER } from "../config/data";
 import type { ThemeKey } from "../config/themes";
-import { THEMES } from "../config/themes";
-import { cardStyle } from "../styles/tokens";
 import { Section } from "./Section";
 
 export interface AboutSectionProps {
   theme: ThemeKey;
 }
 
+/**
+ * Operator dossier — the "who is this" section. Now laid out as a glass
+ * dossier panel with bio prose to the side, dossier fields in a grid.
+ */
 export function AboutSection({ theme }: AboutSectionProps) {
-  const t = THEMES[theme];
-
   return (
-    <Section id="about" theme={theme} tag="// 01" title="About">
-      <div style={cardStyle(t)}>
+    <Section
+      id="about"
+      theme={theme}
+      tag="01"
+      title="The Operator"
+      subtitle="A short dossier on the person behind the keyboard."
+    >
+      <div
+        className="glass glass--raised"
+        style={{
+          padding: "clamp(24px, 3vw + 12px, 40px)",
+          position: "relative",
+        }}
+      >
+        <span className="scanline" />
+
         <div
           style={{
             display: "flex",
@@ -21,27 +36,21 @@ export function AboutSection({ theme }: AboutSectionProps) {
             alignItems: "flex-start",
             flexWrap: "wrap",
             gap: "16px",
-            marginBottom: "24px",
+            marginBottom: "28px",
           }}
         >
           <div>
-            <div
-              style={{
-                fontSize: "10px",
-                color: t.dim,
-                textTransform: "uppercase",
-                letterSpacing: "3px",
-                marginBottom: "4px",
-              }}
-            >
-              CLASSIFIED DOSSIER
+            <div className="tag" style={{ marginBottom: "6px" }}>
+              Classified Dossier
             </div>
             <h3
+              className="font-display"
               style={{
-                fontSize: "22px",
+                fontSize: "clamp(22px, 2.5vw + 10px, 32px)",
                 fontWeight: 700,
-                color: t.primary,
+                color: "var(--c-primary)",
                 margin: 0,
+                letterSpacing: "-0.01em",
               }}
             >
               {OWNER.name}
@@ -50,11 +59,12 @@ export function AboutSection({ theme }: AboutSectionProps) {
           <span
             style={{
               fontSize: "10px",
-              color: t.bg,
-              background: t.primary,
-              padding: "3px 10px",
-              borderRadius: "3px",
+              color: "var(--c-bg)",
+              background: "var(--c-primary)",
+              padding: "4px 12px",
+              borderRadius: "var(--r-sm)",
               fontWeight: 700,
+              letterSpacing: "0.1em",
             }}
           >
             ACTIVE
@@ -65,41 +75,46 @@ export function AboutSection({ theme }: AboutSectionProps) {
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-            gap: "16px",
-            fontSize: "13px",
+            gap: "20px",
+            marginBottom: "28px",
           }}
         >
-          {OWNER.dossierFields.map((field) => (
-            <div key={field.label}>
-              <div
-                style={{
-                  color: t.dim,
-                  fontSize: "10px",
-                  textTransform: "uppercase",
-                  letterSpacing: "2px",
-                  marginBottom: "4px",
-                }}
-              >
+          {OWNER.dossierFields.map((field, i) => (
+            <motion.div
+              key={field.label}
+              initial={{ opacity: 0, y: 8 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-30px" }}
+              transition={{ duration: 0.4, delay: i * 0.04 }}
+            >
+              <div className="tag" style={{ marginBottom: "6px" }}>
                 {field.label}
               </div>
-              <div style={{ color: t.secondary }}>{field.value}</div>
-            </div>
+              <div
+                style={{
+                  color: "var(--c-secondary)",
+                  fontSize: "var(--t-base)",
+                }}
+              >
+                {field.value}
+              </div>
+            </motion.div>
           ))}
         </div>
 
         <div
           style={{
-            marginTop: "24px",
-            borderTop: `1px solid ${t.darkDim}`,
-            paddingTop: "20px",
+            borderTop: "1px solid var(--c-border)",
+            paddingTop: "24px",
           }}
         >
           <p
             style={{
-              color: t.dim,
-              fontSize: "13px",
+              color: "var(--c-dim)",
+              fontSize: "var(--t-base)",
               lineHeight: 1.8,
               margin: 0,
+              maxWidth: "65ch",
             }}
           >
             {OWNER.bio}

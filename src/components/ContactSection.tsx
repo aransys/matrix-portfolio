@@ -1,32 +1,29 @@
+import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { SOCIALS } from "../config/data";
 import type { SocialLink } from "../config/data";
 import type { ThemeKey } from "../config/themes";
-import { THEMES } from "../config/themes";
-import { cardStyle } from "../styles/tokens";
 import { Section } from "./Section";
 
 export interface ContactSectionProps {
   theme: ThemeKey;
 }
 
-/** How long the "copied ✓" pill stays on screen after a successful copy. */
 const COPY_FEEDBACK_MS = 1800;
 
-/** mailto:/tel: links are the only ones we copy on click — every other URL
- *  stays a plain navigation. Returns the raw value (email or phone) stripped
- *  of the protocol, or null if the href shouldn't trigger copy behaviour. */
+/** Returns the raw value of a mailto:/tel: link, or null otherwise. */
 function extractCopyableValue(href: string): string | null {
-  if (href.startsWith("mailto:")) return href.slice("mailto:".length);
-  if (href.startsWith("tel:")) return href.slice("tel:".length);
+  if (href.startsWith("mailto:")) return href.slice(7);
+  if (href.startsWith("tel:")) return href.slice(4);
   return null;
 }
 
+/**
+ * Contact — clean glass tile grid. Email/phone tiles act as copy-buttons
+ * with inline confirmation; remote services open in a new tab.
+ */
 export function ContactSection({ theme }: ContactSectionProps) {
-  const t = THEMES[theme];
   const [copiedLabel, setCopiedLabel] = useState<string | null>(null);
-  // Keep the timer id in a ref so re-rendering (e.g. theme switch) doesn't
-  // race with the hide timeout.
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -45,8 +42,7 @@ export function ContactSection({ theme }: ContactSectionProps) {
         hideTimerRef.current = null;
       }, COPY_FEEDBACK_MS);
     } catch {
-      // Clipboard access can fail (insecure context, permissions). Fall
-      // through silently and let the default mailto: behaviour take over.
+      // Permissions / insecure context — let the default link behaviour win.
     }
   };
 
@@ -54,82 +50,93 @@ export function ContactSection({ theme }: ContactSectionProps) {
     <Section
       id="contact"
       theme={theme}
-      tag="// 05"
-      title="Transmission"
+      tag="05"
+      title="Send Signal"
+      subtitle="Open to internships, freelance work, and the occasional good problem."
       paddingBottom={80}
     >
-      <div style={cardStyle(t)}>
+      <div
+        className="glass glass--raised"
+        style={{
+          padding: "clamp(24px, 3vw + 12px, 36px)",
+          position: "relative",
+        }}
+      >
+        <span className="scanline" />
+
         <p
           style={{
-            fontSize: "14px",
-            color: t.secondary,
+            fontSize: "var(--t-base)",
+            color: "var(--c-secondary)",
             lineHeight: 1.8,
             margin: "0 0 28px",
+            maxWidth: "60ch",
           }}
         >
-          Open to internships, freelance projects, and collaboration.
-          <br />
-          Send a signal — I'll respond from the construct.
+          Choose your channel — I&apos;ll respond from the construct.
         </p>
 
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
             gap: "12px",
           }}
         >
-          {SOCIALS.map((social) => {
+          {SOCIALS.map((social, i) => {
             const copyValue = extractCopyableValue(social.href);
             const isCopyable = copyValue !== null;
             const isCopied = copiedLabel === social.label;
 
-            const commonStyle: React.CSSProperties = {
+            const tileStyle: React.CSSProperties = {
               position: "relative",
               display: "flex",
               alignItems: "center",
-              gap: "12px",
-              padding: "14px 18px",
-              background: t.glowSoft,
-              border: `1px solid ${t.darkDim}`,
-              borderRadius: "6px",
+              gap: "14px",
+              padding: "16px 18px",
+              background: "var(--c-glow-soft)",
+              border: "1px solid var(--c-border)",
+              borderRadius: "var(--r-md)",
               textDecoration: "none",
-              transition: "all 0.2s ease",
               textAlign: "left",
               font: "inherit",
               cursor: "pointer",
               width: "100%",
+              transition: "all 0.2s ease",
             };
 
-            const commonOnEnter = (e: React.MouseEvent<HTMLElement>) => {
-              e.currentTarget.style.borderColor = t.dim;
-              e.currentTarget.style.background = t.pillBg;
+            const onEnter = (e: React.MouseEvent<HTMLElement>) => {
+              e.currentTarget.style.borderColor = "var(--c-border-strong)";
+              e.currentTarget.style.background = "var(--c-pill-bg)";
+              e.currentTarget.style.transform = "translateY(-2px)";
             };
-            const commonOnLeave = (e: React.MouseEvent<HTMLElement>) => {
-              e.currentTarget.style.borderColor = t.darkDim;
-              e.currentTarget.style.background = t.glowSoft;
+            const onLeave = (e: React.MouseEvent<HTMLElement>) => {
+              e.currentTarget.style.borderColor = "var(--c-border)";
+              e.currentTarget.style.background = "var(--c-glow-soft)";
+              e.currentTarget.style.transform = "translateY(0)";
             };
 
             const inner = (
               <>
-                <span style={{ fontSize: "16px", color: t.primary }}>
+                <span
+                  aria-hidden
+                  style={{
+                    fontSize: "18px",
+                    color: "var(--c-primary)",
+                    width: "24px",
+                    textAlign: "center",
+                  }}
+                >
                   {social.icon}
                 </span>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div
-                    style={{
-                      fontSize: "10px",
-                      color: t.dim,
-                      textTransform: "uppercase",
-                      letterSpacing: "2px",
-                    }}
-                  >
+                  <div className="tag" style={{ marginBottom: "2px" }}>
                     {social.label}
                   </div>
                   <div
                     style={{
-                      fontSize: "13px",
-                      color: t.primary,
+                      fontSize: "var(--t-sm)",
+                      color: "var(--c-primary)",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                       whiteSpace: "nowrap",
@@ -143,8 +150,8 @@ export function ContactSection({ theme }: ContactSectionProps) {
                     aria-live="polite"
                     style={{
                       fontSize: "10px",
-                      color: isCopied ? t.primary : t.darkDim,
-                      letterSpacing: "1.5px",
+                      color: isCopied ? "var(--c-primary)" : "var(--c-dark-dim)",
+                      letterSpacing: "0.15em",
                       textTransform: "uppercase",
                       transition: "color 0.2s ease, opacity 0.2s ease",
                       opacity: isCopied ? 1 : 0.7,
@@ -157,35 +164,44 @@ export function ContactSection({ theme }: ContactSectionProps) {
               </>
             );
 
+            const motionProps = {
+              initial: { opacity: 0, y: 12 },
+              whileInView: { opacity: 1, y: 0 },
+              viewport: { once: true, margin: "-30px" },
+              transition: { duration: 0.4, delay: i * 0.06 },
+            } as const;
+
             if (isCopyable) {
               return (
-                <button
+                <motion.button
                   key={social.label}
                   type="button"
                   aria-label={`Copy ${social.label.toLowerCase()}: ${social.value}`}
                   onClick={() => handleCopy(social, copyValue)}
-                  style={commonStyle}
-                  onMouseEnter={commonOnEnter}
-                  onMouseLeave={commonOnLeave}
+                  style={tileStyle}
+                  onMouseEnter={onEnter}
+                  onMouseLeave={onLeave}
+                  {...motionProps}
                 >
                   {inner}
-                </button>
+                </motion.button>
               );
             }
 
             return (
-              <a
+              <motion.a
                 key={social.label}
                 href={social.href}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={`${social.label}: ${social.value}`}
-                style={commonStyle}
-                onMouseEnter={commonOnEnter}
-                onMouseLeave={commonOnLeave}
+                style={tileStyle}
+                onMouseEnter={onEnter}
+                onMouseLeave={onLeave}
+                {...motionProps}
               >
                 {inner}
-              </a>
+              </motion.a>
             );
           })}
         </div>
@@ -195,15 +211,24 @@ export function ContactSection({ theme }: ContactSectionProps) {
         style={{
           textAlign: "center",
           marginTop: "60px",
-          fontSize: "12px",
-          color: t.darkDim,
+          fontSize: "var(--t-sm)",
+          color: "var(--c-dark-dim)",
         }}
       >
         <div style={{ marginBottom: "8px" }}>
-          Built with React + TypeScript + Framer Motion
+          Built with React 19 · TypeScript · Framer Motion · WebGL
         </div>
-        <div>© {new Date().getFullYear()} Aurimas Ransys — ransys.dev</div>
-        <div style={{ marginTop: "4px", fontSize: "11px", color: t.darkDim }}>
+        <div>
+          © {new Date().getFullYear()} Aurimas Ransys — ransys.dev
+        </div>
+        <div
+          style={{
+            marginTop: "8px",
+            fontSize: "11px",
+            color: "var(--c-dark-dim)",
+            fontStyle: "italic",
+          }}
+        >
           &ldquo;There is no spoon.&rdquo;
         </div>
       </footer>

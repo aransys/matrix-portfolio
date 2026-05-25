@@ -14,7 +14,7 @@ const KONAMI_CODE = [
   "a",
 ] as const;
 
-/** Listen for the Konami cheat code and fire `callback` when it's entered. */
+/** Listen for the Konami cheat code and fire `callback` when entered. */
 export function useKonamiCode(callback: () => void) {
   useEffect(() => {
     let sequence: string[] = [];
@@ -22,11 +22,7 @@ export function useKonamiCode(callback: () => void) {
     const handleKeyDown = (e: KeyboardEvent) => {
       const key = /^[a-zA-Z]$/.test(e.key) ? e.key.toLowerCase() : e.code;
       sequence.push(key);
-
-      if (sequence.length > KONAMI_CODE.length) {
-        sequence.shift();
-      }
-
+      if (sequence.length > KONAMI_CODE.length) sequence.shift();
       if (sequence.join(",") === KONAMI_CODE.join(",")) {
         callback();
         sequence = [];
@@ -38,7 +34,6 @@ export function useKonamiCode(callback: () => void) {
   }, [callback]);
 }
 
-/** Don't count keystrokes aimed at form fields or contenteditable elements. */
 function isEditableTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
   const tag = target.tagName;
@@ -51,25 +46,64 @@ function isEditableTarget(target: EventTarget | null): boolean {
 }
 
 /**
- * Listen for a case-insensitive phrase being typed anywhere in the page.
- * Ignores keys pressed with Ctrl/Cmd and keystrokes inside inputs/textareas.
+ * Listen for any of a set of phrases being typed anywhere on the page.
+ * Ignores keystrokes aimed at form fields and keys pressed with Ctrl/Cmd.
+ *
+ * Maintains a rolling buffer the size of the longest phrase. On each
+ * keystroke, every phrase is checked against the suffix of the buffer.
+ * This is O(phrases × longestPhrase) per keystroke — fine for portfolio
+ * scale (a handful of phrases) and saves us from N separate listeners.
  */
-export function usePhraseDetector(phrase: string, callback: () => void) {
+export function usePhraseDispatcher(
+  phrases: Record<string, () => void>,
+): void {
   useEffect(() => {
+    const entries = Object.entries(phrases).map(([phrase, cb]) => ({
+      phrase: phrase.toLowerCase(),
+      cb,
+    }));
+    const longest = entries.reduce((m, e) => Math.max(m, e.phrase.length), 0);
+    if (longest === 0) return;
+
     let typed = "";
-    const normalized = phrase.toLowerCase();
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key.length !== 1 || e.ctrlKey || e.metaKey) return;
       if (isEditableTarget(e.target)) return;
-
       typed += e.key.toLowerCase();
-      if (typed.length > normalized.length) {
-        typed = typed.slice(-normalized.length);
-      }
+      if (typed.length > longest) typed = typed.slice(-longest);
 
-      if (typed === normalized) {
-        callback();
+      for (const { phrase, cb } of entries) {
+        if (typed.endsWith(phrase)) {
+          cb();
+          typed = "";
+          return;
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [phrases]);
+}
+
+/**
+ * Backwards-compatible single-phrase detector. Built on top of the
+ * dispatcher so the wiring stays consistent.
+ */
+export function usePhraseDetector(phrase: string, callback: () => void) {
+  useEffect(() => {
+    const map: Record<string, () => void> = { [phrase.toLowerCase()]: callback };
+    let typed = "";
+    const target = phrase.toLowerCase();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key.length !== 1 || e.ctrlKey || e.metaKey) return;
+      if (isEditableTarget(e.target)) return;
+      typed += e.key.toLowerCase();
+      if (typed.length > target.length) typed = typed.slice(-target.length);
+      if (typed === target) {
+        map[target]();
         typed = "";
       }
     };

@@ -11,14 +11,15 @@ import { NAV_LINKS, OWNER } from "../config/data";
 import type { ThemeKey } from "../config/themes";
 import { useTapPattern } from "../hooks/useTapPattern";
 import { GlitchText } from "./ui/GlitchText";
-import type { EggKey } from "../config/commands";
+import type { CommandContext, EggKey } from "../config/commands";
 import { HeroName } from "./HeroName";
 import { TerminalPrompt } from "./TerminalPrompt";
 import type { TerminalLine } from "./TerminalPrompt";
 
 export interface TerminalHeroProps {
   theme: ThemeKey;
-  setTheme: (key: ThemeKey) => void;
+  /** The palette's action surface, shared with the shell. */
+  commandCtx: Omit<CommandContext, "closePalette">;
   onOpenPalette: () => void;
   /** Switch to the plain, printable CV view. */
   onShowCv: () => void;
@@ -34,7 +35,7 @@ export interface TerminalHeroProps {
  * The optional bottom drawer reveals an interactive shell on demand, with
  * the boot log as its opening scrollback.
  */
-export function TerminalHero({ theme, setTheme, onOpenPalette, onShowCv }: TerminalHeroProps) {
+export function TerminalHero({ theme, commandCtx, onOpenPalette, onShowCv }: TerminalHeroProps) {
   const [scrollback, setScrollback] = useState<TerminalLine[]>(BOOT_LOG);
   const [shellOpen, setShellOpen] = useState(false);
   const reducedMotion = useReducedMotion();
@@ -76,7 +77,7 @@ export function TerminalHero({ theme, setTheme, onOpenPalette, onShowCv }: Termi
       >
         <RevealedHero
           theme={theme}
-          setTheme={setTheme}
+          commandCtx={commandCtx}
           onOpenPalette={onOpenPalette}
           onShowCv={onShowCv}
           shellOpen={shellOpen}
@@ -96,7 +97,8 @@ export function TerminalHero({ theme, setTheme, onOpenPalette, onShowCv }: Termi
 
 interface RevealedHeroProps {
   theme: ThemeKey;
-  setTheme: (key: ThemeKey) => void;
+  /** The palette's action surface, shared with the shell. */
+  commandCtx: Omit<CommandContext, "closePalette">;
   onOpenPalette: () => void;
   onShowCv: () => void;
   shellOpen: boolean;
@@ -108,7 +110,7 @@ interface RevealedHeroProps {
 
 function RevealedHero({
   theme,
-  setTheme,
+  commandCtx,
   onOpenPalette,
   onShowCv,
   shellOpen,
@@ -381,8 +383,9 @@ function RevealedHero({
               <span className="scanline" />
               <TerminalPrompt
                 theme={theme}
-                setTheme={setTheme}
-                onShowCv={onShowCv}
+                commandCtx={commandCtx}
+                onOpenPalette={onOpenPalette}
+                onClose={() => setShellOpen(false)}
                 history={scrollback}
                 appendLines={appendLines}
                 clearScrollback={clearScrollback}

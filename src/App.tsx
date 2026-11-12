@@ -174,7 +174,7 @@ export default function App() {
       <main style={{ position: "relative", zIndex: 1 }}>
         <TerminalHero
           theme={theme}
-          setTheme={setTheme}
+          commandCtx={ctx()}
           onOpenPalette={() => setPaletteOpen(true)}
           onShowCv={showCv}
         />

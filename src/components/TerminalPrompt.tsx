@@ -1,22 +1,22 @@
 import type { CSSProperties, KeyboardEvent } from "react";
 import { useEffect, useRef, useState } from "react";
+import type { CommandContext } from "../config/commands";
+import { buildCommands } from "../config/commands";
 import type { ThemeKey } from "../config/themes";
 import { THEMES } from "../config/themes";
+import type { ShellEnv, TerminalLine, TerminalLineType } from "../shell/shell";
+import { HOME, completeInput, runShell } from "../shell/shell";
 import { WARN_ACCENT } from "../styles/tokens";
 
-/** Single rendered line in the terminal scrollback. */
-export type TerminalLineType = "ok" | "warn" | "dim" | "echo";
-
-export interface TerminalLine {
-  text: string;
-  type: TerminalLineType;
-}
+export type { TerminalLine, TerminalLineType } from "../shell/shell";
 
 export interface TerminalPromptProps {
   theme: ThemeKey;
-  setTheme: (key: ThemeKey) => void;
-  /** Switch to the plain, printable CV view (`cv` / `redpill`). */
-  onShowCv: () => void;
+  /** The palette's action surface — themes and easter eggs run through it. */
+  commandCtx: Omit<CommandContext, "closePalette">;
+  onOpenPalette: () => void;
+  /** Close the shell drawer (`exit`). */
+  onClose: () => void;
   /** Already-rendered scrollback (boot output + previous command output). */
   history: TerminalLine[];
   /** Append more lines to the scrollback. */
@@ -25,167 +25,14 @@ export interface TerminalPromptProps {
   clearScrollback: () => void;
 }
 
-/** Shell prompt prefix — kept consistent with the title bar's "ransys.dev — zsh". */
-const PROMPT_PREFIX = "ransys@dev:~$ ";
+/** Shell prompt for a working directory, e.g. "ransys@dev:~/projects$ ". */
+const promptFor = (cwd: string) => `ransys@dev:${cwd}$ `;
 
 /** Maximum number of past commands kept for ↑/↓ history navigation. */
 const MAX_HISTORY = 50;
 
-/** Sections we know how to scroll to, plus their command aliases. */
-const SECTION_BY_COMMAND: Record<string, string> = {
-  about: "about",
-  skills: "skills",
-  projects: "projects",
-  missions: "projects",
-  timeline: "timeline",
-  contact: "contact",
-  transmission: "contact",
-  hero: "hero",
-  top: "hero",
-};
-
-/** Theme aliases — supports both canonical keys and a few thematic nicknames. */
-const THEME_BY_NAME: Record<string, ThemeKey> = {
-  matrix: "matrix",
-  reloaded: "reloaded",
-  revolutions: "revolutions",
-  green: "matrix",
-  blue: "reloaded",
-  orange: "revolutions",
-};
-
-interface CommandResult {
-  output: TerminalLine[];
-  /** Side-effect run after the output lines are committed (scroll, theme, …). */
-  effect?: () => void;
-}
-
-/** Static help table — kept as plain strings so each line gets its own row. */
-const HELP_LINES: TerminalLine[] = [
-  { text: "available commands:", type: "ok" },
-  { text: "  help              show this list", type: "dim" },
-  { text: "  about             jump to about section", type: "dim" },
-  { text: "  skills            jump to skills section", type: "dim" },
-  { text: "  projects          jump to projects (alias: missions)", type: "dim" },
-  { text: "  timeline          jump to timeline", type: "dim" },
-  { text: "  contact           jump to contact (alias: transmission)", type: "dim" },
-  { text: "  ls                list sections", type: "dim" },
-  { text: "  whoami            who am I?", type: "dim" },
-  { text: "  theme <name>      matrix | reloaded | revolutions", type: "dim" },
-  { text: "  cv                plain, printable CV (alias: redpill)", type: "dim" },
-  { text: "  date              current system time", type: "dim" },
-  { text: "  echo <text>       print text", type: "dim" },
-  { text: "  clear             wipe the scrollback", type: "dim" },
-];
-
-function runCommand(
-  raw: string,
-  setTheme: (key: ThemeKey) => void,
-  clearScrollback: () => void,
-  onShowCv: () => void,
-): CommandResult {
-  const trimmed = raw.trim();
-  if (trimmed === "") return { output: [] };
-
-  const [cmd, ...args] = trimmed.split(/\s+/);
-  const name = cmd.toLowerCase();
-
-  // Section jumps — short-circuit the big switch since they all behave the same.
-  if (name in SECTION_BY_COMMAND) {
-    const id = SECTION_BY_COMMAND[name];
-    return {
-      output: [{ text: `> jumping to #${id}…`, type: "ok" }],
-      effect: () => {
-        document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-      },
-    };
-  }
-
-  switch (name) {
-    case "help":
-      return { output: HELP_LINES };
-
-    case "ls":
-      return {
-        output: [{ text: "about/  skills/  projects/  timeline/  contact/", type: "dim" }],
-      };
-
-    case "whoami":
-      return {
-        output: [
-          { text: "Aurimas Ransys", type: "ok" },
-          { text: "Full Stack Developer · CS @ Leeds Beckett · Kaunas → Leeds", type: "dim" },
-        ],
-      };
-
-    case "theme": {
-      const arg = args[0]?.toLowerCase();
-      if (!arg) {
-        return {
-          output: [
-            { text: "usage: theme <matrix|reloaded|revolutions>", type: "warn" },
-          ],
-        };
-      }
-      const key = THEME_BY_NAME[arg];
-      if (!key) {
-        return {
-          output: [{ text: `unknown theme: ${arg}`, type: "warn" }],
-        };
-      }
-      return {
-        output: [{ text: `> theme set to ${key}`, type: "ok" }],
-        effect: () => setTheme(key),
-      };
-    }
-
-    case "cv":
-    case "resume":
-    case "redpill":
-      return {
-        output: [{ text: "> leaving the simulation…", type: "ok" }],
-        effect: () => window.setTimeout(onShowCv, 500),
-      };
-
-    case "date":
-      return { output: [{ text: new Date().toString(), type: "dim" }] };
-
-    case "echo":
-      return { output: [{ text: args.join(" "), type: "dim" }] };
-
-    case "clear":
-      return { output: [], effect: () => clearScrollback() };
-
-    case "sudo":
-      return {
-        output: [
-          {
-            text: `[sudo] permission denied: ${args.join(" ") || "(no command)"}`,
-            type: "warn",
-          },
-        ],
-      };
-
-    case "exit":
-      return {
-        output: [{ text: "Connection to construct closed.", type: "dim" }],
-      };
-
-    case "neo":
-    case "matrix":
-      return { output: [{ text: "Wake up, Neo…", type: "ok" }] };
-
-    default:
-      return {
-        output: [
-          {
-            text: `command not found: ${cmd}. type 'help' for available commands.`,
-            type: "warn",
-          },
-        ],
-      };
-  }
-}
+/** Pause before effects that take the visitor away, so the reply is readable. */
+const LEAVE_DELAY_MS = 500;
 
 function getLineColor(type: TerminalLineType, t: (typeof THEMES)[ThemeKey]): string {
   switch (type) {
@@ -211,8 +58,9 @@ const lineStyle = (type: TerminalLineType, t: (typeof THEMES)[ThemeKey]): CSSPro
 
 export function TerminalPrompt({
   theme,
-  setTheme,
-  onShowCv,
+  commandCtx,
+  onOpenPalette,
+  onClose,
   history,
   appendLines,
   clearScrollback,
@@ -223,6 +71,8 @@ export function TerminalPrompt({
   const [commandLog, setCommandLog] = useState<string[]>([]);
   /** -1 = editing a fresh line; 0..n-1 = pointing at a past entry. */
   const [historyIndex, setHistoryIndex] = useState(-1);
+  const [cwd, setCwd] = useState(HOME);
+  const prompt = promptFor(cwd);
   const inputRef = useRef<HTMLInputElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
 
@@ -237,29 +87,38 @@ export function TerminalPrompt({
     endRef.current?.scrollIntoView({ block: "nearest" });
   }, [history.length]);
 
+  const env: ShellEnv = {
+    runCommand: (id) =>
+      buildCommands({ ...commandCtx, closePalette: () => {} })
+        .find((c) => c.id === id)
+        ?.run(),
+    scrollTo: (id) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }),
+    openUrl: (url) => {
+      if (url.startsWith("mailto:")) window.location.href = url;
+      else window.open(url, "_blank", "noopener");
+    },
+    showCv: () => window.setTimeout(commandCtx.showCv, LEAVE_DELAY_MS),
+    openPalette: onOpenPalette,
+    closeShell: () => window.setTimeout(onClose, LEAVE_DELAY_MS),
+  };
+
   const submit = (raw: string) => {
-    // Echo the entered command alongside the prompt so the scrollback reads
-    // like a real terminal session.
-    const echoLine: TerminalLine = {
-      text: `${PROMPT_PREFIX}${raw}`,
-      type: "echo",
-    };
+    const result = runShell(raw, { cwd, log: commandLog });
 
-    const result = runCommand(raw, setTheme, clearScrollback, onShowCv);
-
-    // `clear` is the one command that wipes scrollback — in that case we don't
-    // want to immediately reintroduce the just-typed echo line.
-    const isClear = raw.trim().toLowerCase() === "clear";
-    if (!isClear) {
-      appendLines([echoLine, ...result.output]);
+    if (result.clear) {
+      clearScrollback();
+    } else {
+      // Echo the entered command alongside the prompt so the scrollback
+      // reads like a real terminal session.
+      appendLines([{ text: `${prompt}${raw}`, type: "echo" }, ...result.output]);
     }
+    if (result.cwd) setCwd(result.cwd);
 
-    // Side-effect runs after output is committed so any DOM lookups (e.g.
-    // scrollIntoView) see the latest layout.
+    // Run the side effect on the next frame so the output is on screen (and
+    // laid out) before anything scrolls or repaints.
     if (result.effect) {
-      // requestAnimationFrame keeps theme switches feeling instant while still
-      // giving React a chance to flush the appended lines first.
-      requestAnimationFrame(() => result.effect?.());
+      const effect = result.effect;
+      requestAnimationFrame(() => effect(env));
     }
 
     if (raw.trim() !== "") {
@@ -276,6 +135,21 @@ export function TerminalPrompt({
     if (e.key === "Enter") {
       e.preventDefault();
       submit(value);
+      return;
+    }
+    if (e.key === "Tab" && !e.shiftKey && value.trim() !== "") {
+      // Only when there is something to complete — on an empty line Tab
+      // still moves keyboard focus out of the shell.
+      e.preventDefault();
+      const completion = completeInput(value, cwd);
+      if (completion.options.length > 1) {
+        appendLines([
+          { text: `${prompt}${value}`, type: "echo" },
+          { text: completion.options.join("  "), type: "dim" },
+        ]);
+      }
+      setValue(completion.value);
+      setHistoryIndex(-1);
       return;
     }
     if (e.key === "ArrowUp") {
@@ -323,7 +197,7 @@ export function TerminalPrompt({
 
       <div style={{ display: "flex", alignItems: "center", marginTop: "4px" }}>
         <span style={{ color: t.dim, fontSize: "13px", whiteSpace: "pre" }}>
-          {PROMPT_PREFIX}
+          {prompt}
         </span>
         <span
           style={{

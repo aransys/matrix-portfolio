@@ -35,6 +35,11 @@ to extend.
   button, the palette, or `cv` in the shell) swaps the whole simulation
   for a light, fast, one-page CV built from the same data, which prints
   to a single PDF page. The blue pill goes back.
+- **A shell that works** — "drop into shell" opens a small interpreter
+  over a virtual filesystem generated from the site's content: `ls`,
+  `cd projects`, `cat quickgigs.md`, `open quickgigs`, `theme reloaded`,
+  `sudo hire`, Tab completion, ↑/↓ history and "did you mean" for typos.
+  Themes and easter eggs run through the same commands as the palette.
 - **Mission case files** — each project sits in a CRT monitor with a
   phosphor tint that clears to full colour on hover.
 - **Command palette** (`⌘K` or `/`) — navigation, themes and every easter
@@ -96,6 +101,8 @@ src/
     themes.ts               three Matrix-inspired palettes
     boot-sequence.ts        boot log shown when the hero shell opens
     glyphs.ts               glyph pool shared by the rain and the intro
+  shell/
+    shell.ts                shell interpreter, virtual filesystem, tab completion
   hooks/
     useScrolledPastHero.ts  show/hide sticky nav based on scroll
     useActiveSection.ts     IntersectionObserver-backed active-section tracker
@@ -125,6 +132,7 @@ first:
 - **Content** → `src/config/data.ts` (owner, socials, projects, skills, timeline, nav)
 - **Themes** → `src/config/themes.ts`
 - **Shell boot log** → `src/config/boot-sequence.ts`
+- **Shell commands** → `src/shell/shell.ts` (files are generated from `data.ts`)
 - **Meta / OG** → `index.html` (canonical URL, og:image URL)
 - **OG image** → re-run `python3 scripts/gen_og_image.py` after changing
   your name / tagline (requires Pillow)

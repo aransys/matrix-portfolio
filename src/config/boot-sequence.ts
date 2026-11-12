@@ -16,5 +16,5 @@ export const BOOT_LOG: TerminalLine[] = [
   { text: "Operator: Tank", type: "dim" },
   { text: '"We got a signal. Main line."', type: "dim" },
   { text: "", type: "dim" },
-  { text: "type 'help' for available commands.", type: "dim" },
+  { text: "type 'help' for commands, or try 'ls'. tab completes.", type: "dim" },
 ];

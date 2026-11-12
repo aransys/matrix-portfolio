@@ -14,7 +14,12 @@ import { WhiteRabbit } from "./eggs/WhiteRabbit";
 export interface EasterEggsProps {
   theme: ThemeKey;
   setTheme: (key: ThemeKey) => void;
+  /** Switch the whole page to the plain CV view. */
+  onRedPill: () => void;
 }
+
+/** Let the glitch storm play before the simulation drops away. */
+const RED_PILL_DELAY_MS = 1100;
 
 /**
  * Easter-egg orchestrator. Owns state for every effect, wires up every
@@ -26,7 +31,7 @@ export interface EasterEggsProps {
  * exposure is intentional — these are user-discoverable features, not
  * security-sensitive APIs.
  */
-export function EasterEggs({ theme, setTheme }: EasterEggsProps) {
+export function EasterEggs({ theme, setTheme, onRedPill }: EasterEggsProps) {
   // ---- state ----
   const [pillsOpen, setPillsOpen] = useState(false);
   const [agentSmithOn, setAgentSmithOn] = useState(false);
@@ -191,6 +196,7 @@ export function EasterEggs({ theme, setTheme }: EasterEggsProps) {
         open={pillsOpen}
         onClose={() => setPillsOpen(false)}
         onChoose={(t) => setTheme(t)}
+        onRedPill={() => window.setTimeout(onRedPill, RED_PILL_DELAY_MS)}
         onGlitchStorm={() => setGlitchKey((k) => k + 1)}
         onMessage={showMessage}
       />

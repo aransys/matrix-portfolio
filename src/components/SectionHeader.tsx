@@ -22,6 +22,9 @@ export function SectionHeader({ tag, title, subtitle }: SectionHeaderProps) {
         gridTemplateColumns: "auto 1fr",
         gap: "clamp(16px, 3vw, 28px)",
         alignItems: "end",
+        // Dark pool behind the header so the rain never runs through it
+        background:
+          "radial-gradient(ellipse 75% 85% at 35% 55%, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.55) 45%, transparent 100%)",
       }}
     >
       <motion.div

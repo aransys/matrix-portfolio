@@ -125,12 +125,17 @@ export interface OwnerDossierField {
 
 export interface Owner {
   name: string;
+  /** Plain job title and location — used by the printable CV view */
+  role: string;
+  location: string;
   dossierFields: OwnerDossierField[];
   bio: string;
 }
 
 export const OWNER: Owner = {
   name: "Aurimas Ransys",
+  role: "Full Stack Developer",
+  location: "Leeds, UK",
   dossierFields: [
     { label: "Designation", value: "Full Stack Developer" },
     { label: "Academic Unit", value: "Leeds Beckett University" },

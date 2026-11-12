@@ -11,8 +11,10 @@ export interface StickyNavProps {
 
 /**
  * Top sticky nav that reveals after the hero. Active section is tracked
- * by IntersectionObserver. A small ⌘K affordance on the right opens the
- * command palette.
+ * by IntersectionObserver. The button on the right opens the command
+ * palette — labelled "menu" on small screens, where it stands in for the
+ * section links. The right edge is kept clear for the docked theme
+ * switcher.
  */
 export function StickyNav({ theme: _theme, visible, onOpenPalette }: StickyNavProps) {
   const sectionIds = useMemo(
@@ -24,7 +26,7 @@ export function StickyNav({ theme: _theme, visible, onOpenPalette }: StickyNavPr
   return (
     <nav
       aria-label="Primary"
-      aria-hidden={!visible}
+      inert={!visible}
       style={{
         position: "fixed",
         top: 0,
@@ -34,6 +36,8 @@ export function StickyNav({ theme: _theme, visible, onOpenPalette }: StickyNavPr
         background: "rgba(0,0,0,0.82)",
         borderBottom: "1px solid var(--c-border)",
         padding: "clamp(10px, 1.5vw + 6px, 12px) clamp(14px, 3vw, 24px)",
+        // Room for the theme switcher, which docks into this corner
+        paddingRight: "calc(clamp(12px, 2vw, 20px) + 126px)",
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
@@ -75,7 +79,6 @@ export function StickyNav({ theme: _theme, visible, onOpenPalette }: StickyNavPr
             <a
               key={link.href}
               href={link.href}
-              tabIndex={visible ? 0 : -1}
               aria-current={isActive ? "location" : undefined}
               style={{
                 color: isActive ? "var(--c-primary)" : "var(--c-dim)",
@@ -101,7 +104,6 @@ export function StickyNav({ theme: _theme, visible, onOpenPalette }: StickyNavPr
         type="button"
         onClick={onOpenPalette}
         aria-label="Open command palette"
-        tabIndex={visible ? 0 : -1}
         style={{
           display: "inline-flex",
           alignItems: "center",
@@ -125,8 +127,11 @@ export function StickyNav({ theme: _theme, visible, onOpenPalette }: StickyNavPr
           e.currentTarget.style.borderColor = "var(--c-border)";
         }}
       >
-        <span aria-hidden>⌘K</span>
+        <span aria-hidden className="hide-sm">
+          ⌘K
+        </span>
         <span className="hide-sm">search</span>
+        <span className="only-sm">menu</span>
       </button>
     </nav>
   );

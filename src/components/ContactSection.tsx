@@ -150,7 +150,7 @@ export function ContactSection({ theme }: ContactSectionProps) {
                     aria-live="polite"
                     style={{
                       fontSize: "10px",
-                      color: isCopied ? "var(--c-primary)" : "var(--c-dark-dim)",
+                      color: isCopied ? "var(--c-primary)" : "var(--c-dim)",
                       letterSpacing: "0.15em",
                       textTransform: "uppercase",
                       transition: "color 0.2s ease, opacity 0.2s ease",
@@ -212,7 +212,7 @@ export function ContactSection({ theme }: ContactSectionProps) {
           textAlign: "center",
           marginTop: "60px",
           fontSize: "var(--t-sm)",
-          color: "var(--c-dark-dim)",
+          color: "var(--c-dim)",
         }}
       >
         <div style={{ marginBottom: "8px" }}>
@@ -225,7 +225,7 @@ export function ContactSection({ theme }: ContactSectionProps) {
           style={{
             marginTop: "8px",
             fontSize: "11px",
-            color: "var(--c-dark-dim)",
+            color: "var(--c-dim)",
             fontStyle: "italic",
           }}
         >

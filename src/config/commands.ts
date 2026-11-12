@@ -32,6 +32,8 @@ export interface CommandContext {
   triggerEgg: (key: EggKey) => void;
   toggleEgg: (key: EggKey) => void;
   showMessage: (msg: string, durationMs?: number) => void;
+  /** Switch to the plain, printable CV view. */
+  showCv: () => void;
   closePalette: () => void;
 }
 
@@ -163,7 +165,7 @@ export function buildCommands(ctx: CommandContext): (Command & {
     {
       id: "egg.pills",
       title: "Take a pill",
-      subtitle: "Make your choice — the offer expires",
+      subtitle: "Red wakes you up. Blue keeps the dream.",
       group: "easter-egg",
       icon: "◐",
       keywords: ["red", "blue", "morpheus", "choice", "neo"],
@@ -249,6 +251,18 @@ export function buildCommands(ctx: CommandContext): (Command & {
 
     // System
     {
+      id: "sys.cv",
+      title: "View plain CV",
+      subtitle: "The real world — printable, no simulation",
+      group: "system",
+      icon: "▤",
+      keywords: ["cv", "resume", "print", "pdf", "recruiter", "hire", "real", "red pill"],
+      run: () => {
+        ctx.closePalette();
+        ctx.showCv();
+      },
+    },
+    {
       id: "sys.source",
       title: "View source",
       subtitle: "GitHub — aransys/matrix-portfolio",
@@ -256,7 +270,7 @@ export function buildCommands(ctx: CommandContext): (Command & {
       icon: "◆",
       keywords: ["github", "source", "code", "repo"],
       run: () => {
-        window.open("https://github.com/aransys", "_blank", "noopener");
+        window.open("https://github.com/aransys/matrix-portfolio", "_blank", "noopener");
         ctx.closePalette();
       },
     },

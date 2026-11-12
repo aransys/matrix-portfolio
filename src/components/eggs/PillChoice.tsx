@@ -5,6 +5,8 @@ export interface PillChoiceProps {
   open: boolean;
   onClose: () => void;
   onChoose: (theme: ThemeKey) => void;
+  /** Red pill — leave the simulation for the plain CV view. */
+  onRedPill: () => void;
   /** Trigger a brief storm after a choice — caller decides which (red is more violent). */
   onGlitchStorm: () => void;
   onMessage: (msg: string, ms?: number) => void;
@@ -16,7 +18,8 @@ interface Pill {
   body: string;
   color: string;
   glow: string;
-  theme: ThemeKey;
+  /** Theme this pill switches to. The red pill leaves the simulation instead. */
+  theme?: ThemeKey;
   message: string;
 }
 
@@ -24,16 +27,15 @@ const PILLS: Pill[] = [
   {
     id: "red",
     label: "Red",
-    body: "You stay in Wonderland. I show you how deep the rabbit hole goes.",
+    body: "You wake up. No simulation — just the plain, printable truth of who built this.",
     color: "#ff3b3b",
     glow: "rgba(255,59,59,0.5)",
-    theme: "revolutions",
-    message: "You take the red pill — Wonderland it is.",
+    message: "You take the red pill. Welcome to the real world.",
   },
   {
     id: "blue",
     label: "Blue",
-    body: "The story ends. You wake up in your bed and believe whatever you want to believe.",
+    body: "The story ends. You stay in the simulation and believe whatever you want to believe.",
     color: "#3b8bff",
     glow: "rgba(59,139,255,0.5)",
     theme: "reloaded",
@@ -52,9 +54,16 @@ const PILLS: Pill[] = [
 
 /**
  * The pill modal — Morpheus's choice as an interactive overlay.
- * Three floating pills; each picks a theme and fires a thematic ripple.
+ * Red leaves the simulation for the plain CV view; the others pick a theme.
  */
-export function PillChoice({ open, onClose, onChoose, onGlitchStorm, onMessage }: PillChoiceProps) {
+export function PillChoice({
+  open,
+  onClose,
+  onChoose,
+  onRedPill,
+  onGlitchStorm,
+  onMessage,
+}: PillChoiceProps) {
   return (
     <AnimatePresence>
       {open && (
@@ -133,9 +142,13 @@ export function PillChoice({ open, onClose, onChoose, onGlitchStorm, onMessage }
                 type="button"
                 aria-label={`Take the ${pill.label.toLowerCase()} pill`}
                 onClick={() => {
-                  onChoose(pill.theme);
                   onMessage(pill.message, 3400);
-                  if (pill.id === "red") onGlitchStorm();
+                  if (pill.theme) {
+                    onChoose(pill.theme);
+                  } else {
+                    onGlitchStorm();
+                    onRedPill();
+                  }
                   onClose();
                 }}
                 initial={{ opacity: 0, y: 24 }}

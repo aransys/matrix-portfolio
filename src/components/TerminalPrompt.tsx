@@ -15,6 +15,8 @@ export interface TerminalLine {
 export interface TerminalPromptProps {
   theme: ThemeKey;
   setTheme: (key: ThemeKey) => void;
+  /** Switch to the plain, printable CV view (`cv` / `redpill`). */
+  onShowCv: () => void;
   /** Already-rendered scrollback (boot output + previous command output). */
   history: TerminalLine[];
   /** Append more lines to the scrollback. */
@@ -70,6 +72,7 @@ const HELP_LINES: TerminalLine[] = [
   { text: "  ls                list sections", type: "dim" },
   { text: "  whoami            who am I?", type: "dim" },
   { text: "  theme <name>      matrix | reloaded | revolutions", type: "dim" },
+  { text: "  cv                plain, printable CV (alias: redpill)", type: "dim" },
   { text: "  date              current system time", type: "dim" },
   { text: "  echo <text>       print text", type: "dim" },
   { text: "  clear             wipe the scrollback", type: "dim" },
@@ -79,6 +82,7 @@ function runCommand(
   raw: string,
   setTheme: (key: ThemeKey) => void,
   clearScrollback: () => void,
+  onShowCv: () => void,
 ): CommandResult {
   const trimmed = raw.trim();
   if (trimmed === "") return { output: [] };
@@ -134,6 +138,14 @@ function runCommand(
         effect: () => setTheme(key),
       };
     }
+
+    case "cv":
+    case "resume":
+    case "redpill":
+      return {
+        output: [{ text: "> leaving the simulation…", type: "ok" }],
+        effect: () => window.setTimeout(onShowCv, 500),
+      };
 
     case "date":
       return { output: [{ text: new Date().toString(), type: "dim" }] };
@@ -200,6 +212,7 @@ const lineStyle = (type: TerminalLineType, t: (typeof THEMES)[ThemeKey]): CSSPro
 export function TerminalPrompt({
   theme,
   setTheme,
+  onShowCv,
   history,
   appendLines,
   clearScrollback,
@@ -232,7 +245,7 @@ export function TerminalPrompt({
       type: "echo",
     };
 
-    const result = runCommand(raw, setTheme, clearScrollback);
+    const result = runCommand(raw, setTheme, clearScrollback, onShowCv);
 
     // `clear` is the one command that wipes scrollback — in that case we don't
     // want to immediately reintroduce the just-typed echo line.

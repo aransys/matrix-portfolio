@@ -621,3 +621,336 @@ button:focus-visible {
     transform: translateY(0);
   }
 }
+
+/* ------------------ Hero red-pill button ------------------ */
+.hero-redpill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: transparent;
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+  color: var(--c-dim);
+  font-family: inherit;
+  font-size: var(--t-sm);
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hero-redpill:hover {
+  color: #ff6b6b;
+  border-color: rgba(255, 59, 59, 0.55);
+  box-shadow: 0 0 24px rgba(255, 59, 59, 0.18);
+}
+
+.hero-redpill__pill {
+  width: 18px;
+  height: 9px;
+  border-radius: var(--r-pill);
+  background: linear-gradient(90deg, #ff3b3b 50%, #3a3a3a 50%);
+  box-shadow: 0 0 10px rgba(255, 59, 59, 0.6);
+}
+
+/* =====================================================================
+ * THE REAL WORLD — plain printable CV (red pill / ?cv)
+ * ===================================================================== */
+html.real-world {
+  /* Inline theme variables are set from JS, hence !important here */
+  --c-primary: #b3261e !important;
+  --c-bg: #f5f3ee !important;
+  --c-dim: #8a8780 !important;
+  --c-dark-dim: #c9c5bb !important;
+  color-scheme: light;
+}
+
+html.real-world body {
+  /* !important: index.html paints an inline dark background before load */
+  background: #f5f3ee !important;
+  background-image: none;
+  color: #17181a;
+  transition: none;
+}
+
+.real {
+  --ink: #17181a;
+  --ink-soft: #4a4c50;
+  --rule: #d9d5cb;
+  --red: #b3261e;
+  min-height: 100dvh;
+  background: #f5f3ee;
+  color: var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  animation: realWake 0.7s ease-out;
+}
+
+@keyframes realWake {
+  from { opacity: 0; filter: brightness(2.2); }
+  to { opacity: 1; filter: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .real { animation: none; }
+}
+
+.real__bar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  padding: 10px clamp(16px, 4vw, 28px);
+  background: rgba(245, 243, 238, 0.92);
+  border-bottom: 1px solid var(--rule);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 12px;
+}
+
+.real__bar-label,
+.real__bar-actions,
+.real__bar button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.real__bar-label {
+  color: var(--ink-soft);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.real__bar button {
+  padding: 7px 12px;
+  font: inherit;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.real__bar button:hover {
+  border-color: var(--ink);
+}
+
+.real__bar .real__back {
+  color: #fff;
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+.real__pill {
+  width: 16px;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #e5352b 50%, #3a3a3a 50%);
+}
+
+.real__pill--blue {
+  background: linear-gradient(90deg, #3b8bff 50%, #9aa0a8 50%);
+}
+
+.real__page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: clamp(28px, 6vw, 56px) clamp(16px, 4vw, 28px) 72px;
+}
+
+.real__header {
+  padding-bottom: 20px;
+  border-bottom: 2px solid var(--ink);
+}
+
+.real h1 {
+  font-family: "Space Grotesk", system-ui, sans-serif;
+  font-size: clamp(32px, 5vw + 12px, 48px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+
+/* Focused on arrival for screen readers; no ring on a heading */
+.real h1:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.real__role {
+  margin-top: 6px;
+  font-size: 17px;
+  color: var(--ink-soft);
+}
+
+.real__contacts {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 22px;
+  margin-top: 14px;
+  font-size: 14px;
+}
+
+.real a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--red);
+  text-underline-offset: 3px;
+  overflow-wrap: anywhere;
+}
+
+.real a:hover {
+  color: var(--red);
+}
+
+.real__label {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.real section {
+  margin-top: 30px;
+}
+
+.real h2 {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--red);
+  padding-bottom: 6px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.real h3 {
+  font-size: 16px;
+  font-weight: 650;
+}
+
+.real__item + .real__item {
+  margin-top: 16px;
+}
+
+.real__meta {
+  margin-top: 3px;
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  white-space: pre-wrap;
+}
+
+.real__item--dated {
+  display: grid;
+  grid-template-columns: 124px minmax(0, 1fr);
+  gap: 16px;
+}
+
+.real__period {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 12px;
+  color: var(--ink-soft);
+  padding-top: 3px;
+}
+
+.real__place {
+  font-weight: 400;
+  color: var(--ink-soft);
+}
+
+.real__skills {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 28px;
+}
+
+.real__skills dt {
+  font-weight: 650;
+}
+
+.real__skills dd {
+  color: var(--ink-soft);
+}
+
+@media (max-width: 560px) {
+  .real__item--dated,
+  .real__skills {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+  }
+  .real__skills > div + div {
+    margin-top: 10px;
+  }
+}
+
+/* Sized to fit one A4 / Letter page */
+@media print {
+  @page {
+    margin: 12mm 14mm;
+  }
+  html.real-world body,
+  .real {
+    background: #fff !important;
+  }
+  .real {
+    min-height: 0;
+    font-size: 9.5pt;
+    line-height: 1.38;
+    animation: none;
+  }
+  .real__bar {
+    display: none;
+  }
+  .real__page {
+    max-width: none;
+    padding: 0;
+  }
+  .real__header {
+    padding-bottom: 9pt;
+  }
+  .real h1 {
+    font-size: 24pt;
+  }
+  .real__role {
+    font-size: 11.5pt;
+    margin-top: 2pt;
+  }
+  .real__contacts {
+    margin-top: 6pt;
+    font-size: 9pt;
+  }
+  .real section {
+    margin-top: 11pt;
+  }
+  .real h2 {
+    font-size: 8.5pt;
+    padding-bottom: 3pt;
+    margin-bottom: 6pt;
+  }
+  .real h3 {
+    font-size: 10.5pt;
+  }
+  .real__meta {
+    font-size: 8.5pt;
+    margin-top: 1pt;
+  }
+  .real__item + .real__item {
+    margin-top: 7pt;
+  }
+  .real__skills {
+    gap: 6pt 24pt;
+  }
+  .real__item {
+    break-inside: avoid;
+  }
+}

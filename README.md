@@ -31,8 +31,16 @@ to extend.
   `:focus-visible` rings, ARIA labels on the theme radiogroup, and motion
   honouring `prefers-reduced-motion` at the Framer Motion, CSS, and canvas
   layers.
-- **Easter eggs** — Konami code and typed phrase detectors (try "spoon" or
-  "there is no spoon").
+- **Red pill → plain CV** — the red pill (also `?cv` in the URL, the hero
+  button, the palette, or `cv` in the shell) swaps the whole simulation
+  for a light, fast, one-page CV built from the same data, which prints
+  to a single PDF page. The blue pill goes back.
+- **Mission case files** — each project sits in a CRT monitor with a
+  phosphor tint that clears to full colour on hover.
+- **Command palette** (`⌘K` or `/`) — navigation, themes and every easter
+  egg in one searchable list.
+- **Easter eggs** — Konami code and typed phrases (try typing "redpill",
+  "rabbit" or "smith" anywhere on the page).
 
 ## Tech stack
 
@@ -48,12 +56,12 @@ Current production build (gzipped):
 
 | File                | gzipped |
 | ------------------- | ------- |
-| `index.html`        | 0.88 kB |
-| `assets/index.css`  | 0.71 kB |
-| `assets/index.js`   | 111 kB  |
+| `index.html`        | 1.0 kB  |
+| `assets/index.css`  | 3.0 kB  |
+| `assets/index.js`   | 127 kB  |
 
 Most of the JS is React + Framer Motion; the app code itself is small and
-the canvas rain is hand-written (no external animation lib).
+the rain shader is hand-written (no external animation lib).
 
 ## Getting started
 
@@ -77,6 +85,7 @@ src/
     TerminalHero.tsx        hero layout, nav row, palette + shell buttons
     HeroName.tsx            the name, resolved out of falling code
     MatrixRain.tsx          WebGL rain background (2D canvas fallback)
+    RealView.tsx            plain printable CV — the "real world" view
     StickyNav.tsx           top nav, shown after hero, with active-link highlight
     ScrollProgress.tsx      themed top-of-viewport progress bar
     ThemeSwitcher.tsx       theme radiogroup (top right)
@@ -100,6 +109,8 @@ src/
 
 public/
   favicon.svg               themed >_ terminal prompt mark
+  apple-touch-icon.png      180×180 PNG of the same mark for iOS home screens
+  missions/                 project screenshots (1600×1000) for the case files
   og-image.png              1200×630 Open Graph preview
 
 scripts/

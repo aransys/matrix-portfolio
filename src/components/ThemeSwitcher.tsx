@@ -5,6 +5,11 @@ import { THEMES, THEME_ORDER } from "../config/themes";
 export interface ThemeSwitcherProps {
   theme: ThemeKey;
   setTheme: (key: ThemeKey) => void;
+  /**
+   * True while the sticky nav is showing: the switcher tucks into the
+   * nav bar's right edge and only shows its tagline on hover.
+   */
+  docked?: boolean;
 }
 
 /**
@@ -12,7 +17,7 @@ export interface ThemeSwitcherProps {
  * the active one is bolder and exposes a tooltip with the film tagline.
  * Switching is animated — the CSS variables fade everywhere at once.
  */
-export function ThemeSwitcher({ theme, setTheme }: ThemeSwitcherProps) {
+export function ThemeSwitcher({ theme, setTheme, docked = false }: ThemeSwitcherProps) {
   const [hovered, setHovered] = useState<ThemeKey | null>(null);
 
   return (
@@ -21,7 +26,8 @@ export function ThemeSwitcher({ theme, setTheme }: ThemeSwitcherProps) {
       aria-label="Colour theme"
       style={{
         position: "fixed",
-        top: "clamp(12px, 2vw, 20px)",
+        top: docked ? "8px" : "clamp(12px, 2vw, 20px)",
+        transition: "top 0.35s var(--ease-out)",
         right: "clamp(12px, 2vw, 20px)",
         zIndex: 100,
         display: "flex",
@@ -35,7 +41,7 @@ export function ThemeSwitcher({ theme, setTheme }: ThemeSwitcherProps) {
           display: "flex",
           gap: "clamp(6px, 1vw + 2px, 8px)",
           background: "rgba(0,0,0,0.62)",
-          padding: "8px 12px",
+          padding: docked ? "7px 12px" : "8px 12px",
           borderRadius: "var(--r-pill)",
           backdropFilter: "blur(12px) saturate(140%)",
           WebkitBackdropFilter: "blur(12px) saturate(140%)",
@@ -73,7 +79,7 @@ export function ThemeSwitcher({ theme, setTheme }: ThemeSwitcherProps) {
           );
         })}
       </div>
-      {(hovered || theme) && (
+      {(hovered || !docked) && (
         <div
           aria-hidden
           style={{

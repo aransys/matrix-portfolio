@@ -86,29 +86,3 @@ export function usePhraseDispatcher(
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [phrases]);
 }
-
-/**
- * Backwards-compatible single-phrase detector. Built on top of the
- * dispatcher so the wiring stays consistent.
- */
-export function usePhraseDetector(phrase: string, callback: () => void) {
-  useEffect(() => {
-    const map: Record<string, () => void> = { [phrase.toLowerCase()]: callback };
-    let typed = "";
-    const target = phrase.toLowerCase();
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key.length !== 1 || e.ctrlKey || e.metaKey) return;
-      if (isEditableTarget(e.target)) return;
-      typed += e.key.toLowerCase();
-      if (typed.length > target.length) typed = typed.slice(-target.length);
-      if (typed === target) {
-        map[target]();
-        typed = "";
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [phrase, callback]);
-}

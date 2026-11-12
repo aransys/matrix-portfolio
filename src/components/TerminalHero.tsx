@@ -20,6 +20,8 @@ export interface TerminalHeroProps {
   theme: ThemeKey;
   setTheme: (key: ThemeKey) => void;
   onOpenPalette: () => void;
+  /** Switch to the plain, printable CV view. */
+  onShowCv: () => void;
 }
 
 /**
@@ -32,7 +34,7 @@ export interface TerminalHeroProps {
  * The optional bottom drawer reveals an interactive shell on demand, with
  * the boot log as its opening scrollback.
  */
-export function TerminalHero({ theme, setTheme, onOpenPalette }: TerminalHeroProps) {
+export function TerminalHero({ theme, setTheme, onOpenPalette, onShowCv }: TerminalHeroProps) {
   const [scrollback, setScrollback] = useState<TerminalLine[]>(BOOT_LOG);
   const [shellOpen, setShellOpen] = useState(false);
   const reducedMotion = useReducedMotion();
@@ -76,6 +78,7 @@ export function TerminalHero({ theme, setTheme, onOpenPalette }: TerminalHeroPro
           theme={theme}
           setTheme={setTheme}
           onOpenPalette={onOpenPalette}
+          onShowCv={onShowCv}
           shellOpen={shellOpen}
           setShellOpen={setShellOpen}
           scrollback={scrollback}
@@ -95,6 +98,7 @@ interface RevealedHeroProps {
   theme: ThemeKey;
   setTheme: (key: ThemeKey) => void;
   onOpenPalette: () => void;
+  onShowCv: () => void;
   shellOpen: boolean;
   setShellOpen: (open: boolean) => void;
   scrollback: TerminalLine[];
@@ -106,6 +110,7 @@ function RevealedHero({
   theme,
   setTheme,
   onOpenPalette,
+  onShowCv,
   shellOpen,
   setShellOpen,
   scrollback,
@@ -345,6 +350,11 @@ function RevealedHero({
         >
           {shellOpen ? "close shell ▴" : "drop into shell ▾"}
         </button>
+
+        <button type="button" onClick={onShowCv} className="hero-redpill">
+          <span aria-hidden className="hero-redpill__pill" />
+          red pill: plain CV
+        </button>
       </motion.div>
 
       <AnimatePresence>
@@ -372,6 +382,7 @@ function RevealedHero({
               <TerminalPrompt
                 theme={theme}
                 setTheme={setTheme}
+                onShowCv={onShowCv}
                 history={scrollback}
                 appendLines={appendLines}
                 clearScrollback={clearScrollback}

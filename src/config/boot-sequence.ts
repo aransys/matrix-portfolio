@@ -1,40 +1,20 @@
-export type BootLineType =
-  | "dim"
-  | "ok"
-  | "warn"
-  | "glitch"
-  | "name"
-  | "role";
+import type { TerminalLine } from "../components/TerminalPrompt";
 
-export interface BootLine {
-  text: string;
-  type: BootLineType;
-  delay: number;
-  typeSpeed?: number;
-}
-
-export const BOOT_LINES: BootLine[] = [
-  { text: "RANSYS SYSTEMS v2.0.26", type: "dim", delay: 80 },
-  { text: "Initialising kernel...", type: "dim", delay: 500 },
-  { text: "[  OK  ] Mounted /dev/portfolio", type: "ok", delay: 350 },
-  { text: "[  OK  ] Started network daemon", type: "ok", delay: 280 },
-  { text: "[  OK  ] Loaded skills.module", type: "ok", delay: 300 },
-  { text: "[ WARN ] Matrix rain shader compiled", type: "warn", delay: 450 },
-  { text: "[  OK  ] Connected to the construct", type: "ok", delay: 350 },
-  { text: "", type: "dim", delay: 150 },
-  { text: "Operator: Tank", type: "dim", delay: 500 },
-  { text: '"We got a signal. Main line."', type: "dim", delay: 700 },
-  { text: "", type: "dim", delay: 200 },
-  { text: "GLITCH", type: "glitch", delay: 0 },
-  { text: "", type: "dim", delay: 150 },
-  { text: "AURIMAS RANSYS", type: "name", delay: 0, typeSpeed: 70 },
-  { text: "", type: "dim", delay: 80 },
-  { text: "Full Stack Developer", type: "role", delay: 0, typeSpeed: 35 },
-  { text: "", type: "dim", delay: 80 },
-  {
-    text: "CS Student @ Leeds Beckett  //  Kaunas → Leeds",
-    type: "dim",
-    delay: 0,
-    typeSpeed: 20,
-  },
+/**
+ * Boot log shown as the opening scrollback of the hero's shell — what the
+ * visitor finds already on screen when they drop into the terminal.
+ */
+export const BOOT_LOG: TerminalLine[] = [
+  { text: "RANSYS SYSTEMS v2.0.26", type: "dim" },
+  { text: "Initialising kernel...", type: "dim" },
+  { text: "[  OK  ] Mounted /dev/portfolio", type: "ok" },
+  { text: "[  OK  ] Started network daemon", type: "ok" },
+  { text: "[  OK  ] Loaded skills.module", type: "ok" },
+  { text: "[ WARN ] Matrix rain shader compiled", type: "warn" },
+  { text: "[  OK  ] Connected to the construct", type: "ok" },
+  { text: "", type: "dim" },
+  { text: "Operator: Tank", type: "dim" },
+  { text: '"We got a signal. Main line."', type: "dim" },
+  { text: "", type: "dim" },
+  { text: "type 'help' for available commands.", type: "dim" },
 ];

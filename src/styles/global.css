@@ -9,8 +9,6 @@
  *     keyframes in their own <style> tags.
  * ===================================================================== */
 
-@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Space+Grotesk:wght@400;500;700&display=swap");
-
 /* ------------------ Reset ------------------ */
 *,
 *::before,
@@ -29,7 +27,7 @@
   --c-dark-dim: #005a20;
   --c-bg: #020604;
   --c-bg-deep: #000200;
-  --c-surface: rgba(6, 18, 10, 0.72);
+  --c-surface: rgba(6, 18, 10, 0.84);
   --c-surface-raised: rgba(10, 26, 14, 0.86);
   --c-border: rgba(0, 255, 102, 0.18);
   --c-border-strong: rgba(0, 255, 102, 0.35);
@@ -378,5 +376,248 @@ button:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   .parallax {
     transform: none !important;
+  }
+}
+
+/* ------------------ Hero name ------------------ */
+.hero-name {
+  font-size: var(--t-display);
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  margin: 0;
+  color: var(--c-primary);
+  text-shadow: 0 0 40px var(--c-glow-soft);
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.hero-name__word {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+/* Letters lock in white-hot from the intro, then cool to the theme colour */
+.hero-name__letter {
+  display: inline-block;
+  transition: color 0.9s var(--ease-out), text-shadow 0.9s var(--ease-out);
+}
+
+/* ------------------ Mission case files ------------------ */
+.mission {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: clamp(20px, 3vw, 36px);
+  align-items: center;
+  padding: clamp(16px, 2vw + 6px, 26px);
+}
+
+.mission--flip .mission__screen {
+  order: 2;
+}
+
+@media (max-width: 760px) {
+  .mission {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .mission--flip .mission__screen {
+    order: 0;
+  }
+}
+
+.mission__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+}
+
+.mission__status {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--c-primary);
+  background: var(--c-pill-bg);
+  border: 1px solid var(--c-border-strong);
+  border-radius: var(--r-sm);
+  padding: 4px 10px;
+  white-space: nowrap;
+}
+
+.mission__title {
+  font-size: clamp(20px, 2vw + 8px, 28px);
+  font-weight: 700;
+  color: var(--c-primary);
+  letter-spacing: -0.01em;
+  margin: 10px 0 12px;
+}
+
+.mission__desc {
+  color: var(--c-dim);
+  font-size: var(--t-base);
+  line-height: 1.75;
+  margin-bottom: 16px;
+}
+
+.mission__tech {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.mission__tech li {
+  font-size: 11px;
+  color: var(--c-secondary);
+  background: var(--c-pill-bg);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-pill);
+  padding: 4px 12px;
+}
+
+.mission__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+}
+
+.mission__link {
+  font-size: var(--t-sm);
+  color: var(--c-dim);
+  text-decoration: none;
+  padding: 4px 0;
+  transition: color 0.15s;
+}
+
+.mission__link--primary,
+.mission__link:hover {
+  color: var(--c-primary);
+}
+
+.mission__link:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* The monitor */
+.crt {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-radius: 10px;
+  border: 1px solid var(--c-border-strong);
+  background: var(--c-bg-deep);
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.55), 0 20px 50px -24px #000;
+  transition: border-color 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+}
+
+.crt img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  transition: filter 0.5s var(--ease-out), transform 0.6s var(--ease-out);
+}
+
+/* Phosphor tint — multiplies the theme colour over a greyscale feed */
+.crt::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: var(--c-primary);
+  mix-blend-mode: multiply;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s var(--ease-out);
+}
+
+/* Scanlines + tube vignette */
+.crt::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.22) 0,
+      rgba(0, 0, 0, 0.22) 1px,
+      transparent 1px,
+      transparent 3px
+    ),
+    radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
+}
+
+.crt__cta {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  z-index: 3;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--c-primary);
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid var(--c-border-strong);
+  border-radius: var(--r-sm);
+  padding: 5px 10px;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.25s var(--ease-out), transform 0.25s var(--ease-out);
+}
+
+.crt__nofeed {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  color: var(--c-dim);
+  background: radial-gradient(ellipse at center, var(--c-glow-soft), transparent 70%);
+}
+
+.crt__nofeed-code {
+  font-size: clamp(18px, 2.4vw + 8px, 30px);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--c-primary);
+  opacity: 0.55;
+}
+
+/* Only devices that can hover get the encrypted-until-hover treatment;
+   touch screens show the feed in full colour from the start. */
+@media (hover: hover) {
+  .crt img {
+    filter: grayscale(1) contrast(1.1) brightness(0.9);
+  }
+  .crt::before {
+    opacity: 0.85;
+  }
+  .mission:hover .crt img {
+    filter: none;
+    transform: scale(1.02);
+  }
+  .mission:hover .crt::before {
+    opacity: 0;
+  }
+  .mission:hover .crt {
+    border-color: var(--c-primary);
+    box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.55), 0 0 32px -6px var(--c-glow),
+      0 20px 50px -24px #000;
+  }
+  .mission:hover .crt__cta {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

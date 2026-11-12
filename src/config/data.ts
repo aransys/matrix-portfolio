@@ -23,17 +23,37 @@ export const SKILLS: Record<string, SkillGroup> = {
 };
 
 export interface Project {
+  /** Two-digit mission number shown on the case file, e.g. "01" */
+  id: string;
   codename: string;
   title: string;
   desc: string;
   tech: string[];
-  live: string;
+  /** Live URL — omit when there is nothing separate to open */
+  live?: string;
   github: string;
   status: string;
+  /**
+   * Screenshot shown in the case file's monitor, served from /public.
+   * Leave undefined to show the "no visual feed" placeholder.
+   * Recommended: 1600×1000 (16:10), top of the page, JPEG or WebP.
+   */
+  image?: string;
 }
 
 export const PROJECTS: Project[] = [
   {
+    id: "00",
+    codename: "CONSTRUCT",
+    title: "ransys.dev — this site",
+    desc: "The portfolio you are looking at. A WebGL shader draws the digital rain from a katakana glyph atlas, the name resolves out of falling code, and a command palette, an in-page shell and three film-graded themes sit on top.",
+    tech: ["React 19", "TypeScript", "WebGL / GLSL", "Framer Motion", "Vite"],
+    github: "https://github.com/aransys/matrix-portfolio",
+    status: "YOU ARE HERE",
+    image: "/missions/construct.jpg",
+  },
+  {
+    id: "01",
     codename: "QUICKGIGS",
     title: "QuickGigs Platform",
     desc: "Full-stack freelance marketplace with user authentication, Stripe payment integration, and complete CRUD operations.",
@@ -41,8 +61,10 @@ export const PROJECTS: Project[] = [
     live: "https://quickgigs-tblp.onrender.com",
     github: "https://github.com/aransys/quickgigs-django",
     status: "DEPLOYED",
+    image: "/missions/quickgigs.jpg",
   },
   {
+    id: "02",
     codename: "WORCESTER",
     title: "Worcester Laundry Service",
     desc: "Responsive landing page with modern CSS animations and accessibility features.",
@@ -50,15 +72,18 @@ export const PROJECTS: Project[] = [
     live: "https://aransys.github.io/Project-1/",
     github: "https://github.com/aransys/Project-1",
     status: "DEPLOYED",
+    image: "/missions/worcester.jpg",
   },
   {
+    id: "03",
     codename: "SOUNDWAVE",
     title: "Music Explorer",
     desc: "Interactive music discovery application with real-time search and API integration.",
-    tech: ["JavaScript", "HTML5", "CSS3", "REST API"],
+    tech: ["JavaScript", "HTML5", "CSS3", "Deezer API"],
     live: "https://aransys.github.io/Project-2/",
     github: "https://github.com/aransys/Project-2",
     status: "DEPLOYED",
+    image: "/missions/soundwave.jpg",
   },
 ];
 

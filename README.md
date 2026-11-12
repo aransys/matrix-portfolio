@@ -7,9 +7,15 @@ to extend.
 
 ## Highlights
 
-- **Terminal-style hero** with a typed boot sequence, skippable via button.
-- **Canvas Matrix rain** — 2D canvas, `performance.now()` animation loop,
-  pauses when the tab is hidden and fully disables under
+- **Name resolves out of the rain** — on the first visit of a session, a
+  stream of code falls down each letter's column and locks the letter in.
+  The rest of the hero is usable from the first paint; any click, key or
+  scroll finishes the intro, and it is skipped under
+  `prefers-reduced-motion`.
+- **WebGL Matrix rain** — one fragment shader sampling a katakana glyph
+  atlas, two depth layers, a brighter pool of code around the pointer, and
+  palette blending on theme change. Falls back to 2D canvas, pauses when
+  the tab is hidden, and renders a single still frame under
   `prefers-reduced-motion`.
 - **Three themes** (Matrix / Reloaded / Revolutions) synced to the page via
   CSS custom properties, so switching palettes transitions colours
@@ -68,8 +74,9 @@ src/
   components/
     Section.tsx             shared section layout + scroll-reveal wrapper
     SectionHeader.tsx       section tag + title + accent rule
-    TerminalHero.tsx        boot-sequence hero with skip button
-    MatrixRain2D.tsx        canvas rain background
+    TerminalHero.tsx        hero layout, nav row, palette + shell buttons
+    HeroName.tsx            the name, resolved out of falling code
+    MatrixRain.tsx          WebGL rain background (2D canvas fallback)
     StickyNav.tsx           top nav, shown after hero, with active-link highlight
     ScrollProgress.tsx      themed top-of-viewport progress bar
     ThemeSwitcher.tsx       theme radiogroup (top right)
@@ -78,7 +85,8 @@ src/
   config/
     data.ts                 content: owner, skills, projects, timeline, socials, nav
     themes.ts               three Matrix-inspired palettes
-    boot-sequence.ts        hero terminal boot lines
+    boot-sequence.ts        boot log shown when the hero shell opens
+    glyphs.ts               glyph pool shared by the rain and the intro
   hooks/
     useScrolledPastHero.ts  show/hide sticky nav based on scroll
     useActiveSection.ts     IntersectionObserver-backed active-section tracker
@@ -105,7 +113,7 @@ first:
 
 - **Content** → `src/config/data.ts` (owner, socials, projects, skills, timeline, nav)
 - **Themes** → `src/config/themes.ts`
-- **Boot text** → `src/config/boot-sequence.ts`
+- **Shell boot log** → `src/config/boot-sequence.ts`
 - **Meta / OG** → `index.html` (canonical URL, og:image URL)
 - **OG image** → re-run `python3 scripts/gen_og_image.py` after changing
   your name / tagline (requires Pillow)

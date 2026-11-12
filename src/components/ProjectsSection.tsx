@@ -1,5 +1,7 @@
 import { motion } from "framer-motion";
+import { useState } from "react";
 import { PROJECTS } from "../config/data";
+import type { Project } from "../config/data";
 import type { ThemeKey } from "../config/themes";
 import { Section } from "./Section";
 
@@ -8,9 +10,10 @@ export interface ProjectsSectionProps {
 }
 
 /**
- * Mission archive — projects rendered as cinematic glass cards with
- * codename headers and tech pills. Each card animates in independently
- * as it enters the viewport.
+ * Mission archive — each project is a case file: a CRT monitor showing the
+ * project on one side, the briefing on the other. Sides alternate down the
+ * page. Monitors show a phosphor-tinted feed that clears to full colour on
+ * hover or focus (touch devices get full colour straight away).
  */
 export function ProjectsSection({ theme }: ProjectsSectionProps) {
   return (
@@ -20,7 +23,7 @@ export function ProjectsSection({ theme }: ProjectsSectionProps) {
       tag="03"
       title="Mission Log"
       subtitle="Shipped work — see each in production or browse the source."
-      contentStyle={{ display: "flex", flexDirection: "column", gap: "24px" }}
+      contentStyle={{ display: "flex", flexDirection: "column", gap: "28px" }}
     >
       {PROJECTS.map((project, i) => (
         <motion.article
@@ -28,167 +31,100 @@ export function ProjectsSection({ theme }: ProjectsSectionProps) {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.5, delay: i * 0.08 }}
-          className="glass lift glass--interactive"
-          style={{
-            padding: "clamp(22px, 3vw + 8px, 32px)",
-            position: "relative",
-            overflow: "hidden",
-          }}
+          transition={{ duration: 0.5 }}
+          className={`glass mission${i % 2 === 1 ? " mission--flip" : ""}`}
         >
-          <div
-            aria-hidden
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              height: "1px",
-              background: "linear-gradient(90deg, transparent, var(--c-primary), transparent)",
-              opacity: 0.4,
-            }}
-          />
+          <MissionScreen project={project} />
 
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "flex-start",
-              flexWrap: "wrap",
-              gap: "8px",
-              marginBottom: "14px",
-            }}
-          >
-            <div>
-              <span
-                style={{
-                  fontSize: "10px",
-                  color: "var(--c-dim)",
-                  letterSpacing: "0.22em",
-                  textTransform: "uppercase",
-                }}
-              >
-                MISSION_{String(i + 1).padStart(2, "0")} // {project.codename}
+          <div className="mission__brief">
+            <div className="mission__meta">
+              <span className="tag">
+                MISSION_{project.id} // {project.codename}
               </span>
-              <h3
-                className="font-display"
-                style={{
-                  fontSize: "clamp(18px, 2vw + 6px, 24px)",
-                  fontWeight: 700,
-                  color: "var(--c-primary)",
-                  margin: "4px 0 0",
-                  letterSpacing: "-0.01em",
-                }}
-              >
-                {project.title}
-              </h3>
+              <span className="mission__status">{project.status}</span>
             </div>
-            <span
-              style={{
-                fontSize: "10px",
-                // Theme-coloured status chip. Uses CSS variables so swapping
-                // themes repaints it in a single browser tick — no React
-                // re-render needed.
-                color: "var(--c-primary)",
-                background: "var(--c-pill-bg)",
-                padding: "4px 12px",
-                borderRadius: "var(--r-sm)",
-                border: "1px solid var(--c-border-strong)",
-                letterSpacing: "0.1em",
-                fontWeight: 600,
-                textShadow: "0 0 8px var(--c-glow-soft)",
-              }}
-            >
-              {project.status}
-            </span>
-          </div>
 
-          <p
-            style={{
-              color: "var(--c-dim)",
-              fontSize: "var(--t-base)",
-              lineHeight: 1.75,
-              margin: "0 0 18px",
-            }}
-          >
-            {project.desc}
-          </p>
+            <h3 className="font-display mission__title">{project.title}</h3>
+            <p className="mission__desc">{project.desc}</p>
 
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: "6px",
-              marginBottom: "20px",
-            }}
-          >
-            {project.tech.map((tech) => (
-              <span
-                key={tech}
-                style={{
-                  fontSize: "11px",
-                  color: "var(--c-secondary)",
-                  background: "var(--c-pill-bg)",
-                  padding: "4px 12px",
-                  borderRadius: "var(--r-pill)",
-                  border: "1px solid var(--c-border)",
-                }}
+            <ul className="mission__tech" aria-label="Built with">
+              {project.tech.map((tech) => (
+                <li key={tech}>{tech}</li>
+              ))}
+            </ul>
+
+            <div className="mission__links">
+              {project.live && (
+                <a
+                  href={project.live}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${project.title} — live demo`}
+                  className="mission__link mission__link--primary"
+                >
+                  ▸ Live demo
+                </a>
+              )}
+              <a
+                href={project.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`${project.title} — source code on GitHub`}
+                className="mission__link"
               >
-                {tech}
-              </span>
-            ))}
-          </div>
-
-          <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
-            <a
-              href={project.live}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`${project.title} — live demo`}
-              style={{
-                fontSize: "var(--t-sm)",
-                color: "var(--c-primary)",
-                textDecoration: "none",
-                transition: "opacity 0.15s",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "6px",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.opacity = "0.7";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.opacity = "1";
-              }}
-            >
-              ▸ Live demo
-            </a>
-            <a
-              href={project.github}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`${project.title} — source code on GitHub`}
-              style={{
-                fontSize: "var(--t-sm)",
-                color: "var(--c-dim)",
-                textDecoration: "none",
-                transition: "color 0.15s",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "6px",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = "var(--c-primary)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = "var(--c-dim)";
-              }}
-            >
-              ◇ Source code
-            </a>
+                ◇ Source code
+              </a>
+            </div>
           </div>
         </motion.article>
       ))}
     </Section>
+  );
+}
+
+/**
+ * The monitor. Links to the live project when there is one. Falls back to
+ * a "no visual feed" card when the project has no screenshot or the file
+ * fails to load.
+ */
+function MissionScreen({ project }: { project: Project }) {
+  const [failed, setFailed] = useState(false);
+  const hasImage = project.image !== undefined && !failed;
+
+  const feed = hasImage ? (
+    <img
+      src={project.image}
+      alt={`Screenshot of ${project.title}`}
+      width={1600}
+      height={1000}
+      loading="lazy"
+      decoding="async"
+      onError={() => setFailed(true)}
+    />
+  ) : (
+    <span className="crt__nofeed">
+      <span>NO VISUAL FEED</span>
+      <span className="crt__nofeed-code">{project.codename}</span>
+    </span>
+  );
+
+  if (!project.live) {
+    return <div className="crt mission__screen">{feed}</div>;
+  }
+  return (
+    <a
+      href={project.live}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="crt mission__screen"
+      aria-label={`Open ${project.title} live`}
+      // The text link beside it does the same job for keyboard users.
+      tabIndex={-1}
+    >
+      {feed}
+      <span className="crt__cta" aria-hidden>
+        ▸ jack in
+      </span>
+    </a>
   );
 }

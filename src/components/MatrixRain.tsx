@@ -1,78 +1,82 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import { RAIN_FONT_STACK, RAIN_GLYPHS } from "../config/glyphs";
 import type { ThemeKey } from "../config/themes";
 import { THEMES } from "../config/themes";
 
 export interface MatrixRainProps {
   theme: ThemeKey;
-  /** Override the head density per column (0–1). Lower = fewer drops. */
+  /** Share of columns carrying a stream (0–1). Lower = sparser rain. */
   density?: number;
-  /**
-   * Multiplier on the active stream count. The cinematic hero looks best
-   * when ~60% of columns are running; lift to 1 for a denser storm during
-   * easter eggs.
-   */
+  /** Overall brightness multiplier for the rain. */
   intensity?: number;
+}
+
+/** A running renderer. `setTheme` recolours it without restarting. */
+interface RainHandle {
+  setTheme: (key: ThemeKey) => void;
+  cleanup: () => void;
 }
 
 /**
  * Digital rain orchestrator.
  *
- * Attempts WebGL2 first (single full-screen fragment shader, ~1-2ms/frame
- * on low-end GPUs). If WebGL2 or shader compilation fails — older devices,
- * locked-down browsers, headless contexts — falls back to a richer 2D
- * canvas implementation with depth layers.
+ * Attempts WebGL2 first (one full-screen fragment shader sampling a glyph
+ * atlas). If WebGL2 or shader compilation fails — older devices,
+ * locked-down browsers — falls back to a 2D canvas implementation.
  *
  * Both implementations:
+ *   - draw real katakana glyphs from the shared pool
  *   - honour `prefers-reduced-motion` (render one frame, then stop)
  *   - pause when the tab is hidden
- *   - resize on viewport changes (debounced via rAF)
- *   - read colours from the active theme without re-mounting
+ *   - resize on viewport changes
+ *   - recolour on theme change without re-mounting, so the streams keep
+ *     falling while the palette blends
  */
 export function MatrixRain({ theme, density = 0.6, intensity = 0.7 }: MatrixRainProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [renderer, setRenderer] = useState<"webgl" | "2d" | null>(null);
+  const handleRef = useRef<RainHandle | null>(null);
+  const themeRef = useRef(theme);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    // Try WebGL2 first; fall back to 2D if it can't compile.
+    let handle: RainHandle | null = null;
     const gl = canvas.getContext("webgl2", {
       antialias: false,
       alpha: false,
-      // Power preference cue: hint at low-power so this never spins up the
-      // discrete GPU just for ambient rain.
+      // Hint at low-power so ambient rain never spins up a discrete GPU.
       powerPreference: "low-power",
       preserveDrawingBuffer: false,
     });
-
-    // `setRenderer` is called in the body to flip the `data-renderer`
-    // attribute on the canvas (useful for debugging). It runs once per
-    // theme/density change — not the cascading pattern the lint rule
-    // warns about.
-    if (gl) {
-      const ok = startWebGL(gl, theme, density, intensity);
-      if (ok) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setRenderer("webgl");
-        return ok.cleanup;
-      }
+    if (gl) handle = startWebGL(gl, themeRef.current, density, intensity);
+    if (handle) {
+      canvas.dataset.renderer = "webgl";
+    } else {
+      const ctx = canvas.getContext("2d", { alpha: false });
+      if (!ctx) return;
+      handle = start2D(ctx, themeRef.current);
+      canvas.dataset.renderer = "2d";
     }
 
-    // Fallback: 2D canvas
-    const ctx = canvas.getContext("2d", { alpha: false });
-    if (!ctx) return;
-    const cleanup = start2D(ctx, theme);
-    setRenderer("2d");
-    return cleanup;
-  }, [theme, density, intensity]);
+    handleRef.current = handle;
+    return () => {
+      handleRef.current = null;
+      handle.cleanup();
+    };
+  }, [density, intensity]);
+
+  useEffect(() => {
+    themeRef.current = theme;
+    handleRef.current?.setTheme(theme);
+  }, [theme]);
 
   return (
     <>
       <canvas
         ref={canvasRef}
         aria-hidden
-        data-renderer={renderer ?? "init"}
+        data-renderer="init"
         style={{
           position: "fixed",
           inset: 0,
@@ -99,11 +103,34 @@ export function MatrixRain({ theme, density = 0.6, intensity = 0.7 }: MatrixRain
   );
 }
 
-/* ============================ WebGL renderer ============================ */
+/* ============================== Glyph atlas ============================== */
 
-interface WebGLHandle {
-  cleanup: () => void;
+const ATLAS_GRID = 8;
+const ATLAS_CELL = 64;
+
+/** Paint the glyph pool into an 8×8 white-on-black grid for the shader. */
+function createGlyphAtlas(): HTMLCanvasElement | null {
+  const atlas = document.createElement("canvas");
+  atlas.width = atlas.height = ATLAS_GRID * ATLAS_CELL;
+  const ctx = atlas.getContext("2d");
+  if (!ctx) return null;
+  ctx.fillStyle = "#000";
+  ctx.fillRect(0, 0, atlas.width, atlas.height);
+  ctx.fillStyle = "#fff";
+  // Glyphs sit well inside their cell so neighbours never bleed together
+  // when the texture is minified.
+  ctx.font = `600 ${ATLAS_CELL * 0.7}px ${RAIN_FONT_STACK}`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  RAIN_GLYPHS.forEach((ch, i) => {
+    const x = (i % ATLAS_GRID) * ATLAS_CELL + ATLAS_CELL / 2;
+    const y = Math.floor(i / ATLAS_GRID) * ATLAS_CELL + ATLAS_CELL / 2;
+    ctx.fillText(ch, x, y + ATLAS_CELL * 0.04);
+  });
+  return atlas;
 }
+
+/* ============================ WebGL renderer ============================ */
 
 const VERTEX_SHADER = `#version 300 es
 in vec2 a_position;
@@ -115,33 +142,37 @@ void main() {
 `;
 
 /**
- * Procedural digital-rain shader.
+ * Digital-rain shader.
  *
- * Approach:
- *   - Divide screen into a grid of `CELL_PX` cells.
- *   - Each column streams a "head" downward at a per-column speed.
- *   - Cell colour depends on its distance from that head.
- *   - The glyph drawn in each cell is a procedurally-hashed 5x7 binary
- *     pattern — cheap, varied, and re-randomises a few times per second
- *     to mimic the classic "flickering glyphs" of rezmason's rain.
- *   - A second, slower layer behind it gives depth without overlap.
+ *   - The screen is a grid of `u_cell`-sized cells; each cell shows one
+ *     glyph from the atlas, mirrored like the film's.
+ *   - Each column streams a "head" downward at its own speed; a cell's
+ *     colour depends on how far behind the head it sits.
+ *   - Glyphs mostly hold still. A minority of cells re-roll quickly, the
+ *     rest only every few seconds.
+ *   - A second, larger and slower layer behind gives depth.
+ *   - The rain brightens in a soft pool around the pointer.
  */
 const FRAGMENT_SHADER = `#version 300 es
 precision highp float;
 in vec2 v_uv;
 out vec4 frag;
 
+uniform sampler2D u_atlas;
 uniform vec2 u_resolution;
 uniform float u_time;
+uniform float u_cell;
 uniform float u_density;
 uniform float u_intensity;
+uniform vec2 u_pointer;
+uniform float u_pointerRadius;
 uniform vec3 u_bg;
 uniform vec3 u_head;
 uniform vec3 u_bright;
 uniform vec3 u_body;
 uniform vec3 u_dim;
 
-const float CELL_PX = 16.0;
+const float ATLAS_GRID = 8.0;
 
 float hash11(float p) {
   p = fract(p * 0.1031);
@@ -156,47 +187,43 @@ float hash21(vec2 p) {
   return fract((p3.x + p3.y) * p3.z);
 }
 
-/** 5x5 procedural glyph — binary pattern hashed from (cell, glyphId) */
-float glyph(vec2 cellUV, float glyphId) {
-  vec2 g = floor(cellUV * 5.0);
-  // Edge mask so glyphs don't tile into a solid block
-  if (g.x < 0.0 || g.x > 4.0 || g.y < 0.0 || g.y > 4.0) return 0.0;
-  float h = hash21(vec2(g.x + glyphId * 47.13, g.y + glyphId * 31.97));
-  return step(0.55, h);
+/** Coverage of atlas glyph id (0..1) at cellUV, mirrored on x. */
+float glyph(vec2 cellUV, float id, float cellPx) {
+  float idx = min(floor(id * ATLAS_GRID * ATLAS_GRID), ATLAS_GRID * ATLAS_GRID - 1.0);
+  vec2 atlasCell = vec2(mod(idx, ATLAS_GRID), floor(idx / ATLAS_GRID));
+  vec2 uv = (atlasCell + vec2(1.0 - cellUV.x, cellUV.y)) / ATLAS_GRID;
+  // Explicit gradients: the UV jumps at every cell edge, which would
+  // otherwise make the GPU pick a blurry mip level along the grid lines.
+  float g = 1.0 / (cellPx * ATLAS_GRID);
+  return textureGrad(u_atlas, uv, vec2(g, 0.0), vec2(0.0, g)).r;
 }
 
-/**
- * Render a single rain layer.
- * depth 0 = front (fast, bright), 1 = back (slower, dimmer).
- */
+/** One rain layer. depth 0 = front (fast, bright), 1 = back (slow, dim). */
 vec3 layer(vec2 px, float depth) {
-  float cs = CELL_PX * mix(1.0, 1.4, depth);
+  float cs = u_cell * mix(1.0, 1.5, depth);
   vec2 cell = floor(px / cs);
   vec2 cellUV = fract(px / cs);
-
   float col = cell.x;
-  float seed = hash11(col + depth * 73.0);
-  // Active probability — sparse columns make the rain feel less uniform
-  float active = step(1.0 - u_density * mix(1.0, 0.7, depth), hash11(col + 19.0 + depth * 5.0));
-
-  float speed = mix(6.0, 14.0, seed) * mix(1.0, 0.55, depth);
-  float headY = u_time * speed - seed * 200.0;
   float row = cell.y;
-  float numRows = u_resolution.y / cs + 30.0;
-  float dist = headY - row;
-  dist = mod(dist, numRows);
 
-  // Glyph churn — re-randomise a few times per second per cell
-  float churn = floor(u_time * 6.5 + col * 7.0 + row * 3.0);
-  float glyphId = hash21(vec2(col + churn, row + depth * 11.0));
-  float g = glyph(cellUV, glyphId * 100.0);
+  float seed = hash11(col + depth * 73.0);
+  float lit = step(1.0 - u_density * mix(1.0, 0.7, depth), hash11(col + 19.0 + depth * 5.0));
+
+  float speed = mix(5.0, 13.0, seed) * mix(1.0, 0.55, depth);
+  float trailLen = mix(14.0, 34.0, hash11(col * 1.7 + 3.0 + depth * 11.0));
+  float numRows = u_resolution.y / cs + trailLen + 12.0 * hash11(col + 41.0);
+  float dist = mod(u_time * speed - seed * 200.0 - row, numRows);
+  if (dist > trailLen) return vec3(0.0);
+
+  // Most cells hold their glyph for seconds; roughly one in six churns.
+  float cellSeed = hash21(vec2(col + depth * 17.0, row));
+  float rate = cellSeed > 0.84 ? 5.0 : 0.35;
+  float tick = floor(u_time * rate + cellSeed * 40.0);
+  float g = glyph(cellUV, hash21(vec2(col + tick * 3.1, row + depth * 11.0 + tick)), cs);
 
   // Distance-to-head colour ramp
   vec3 c;
-  float trailLen = 24.0;
-  if (dist < 0.0 || dist > trailLen) {
-    return vec3(0.0);
-  } else if (dist < 1.0) {
+  if (dist < 1.0) {
     c = u_head;
   } else if (dist < 2.5) {
     c = mix(u_bright, u_head, 1.0 - smoothstep(1.0, 2.5, dist));
@@ -205,12 +232,13 @@ vec3 layer(vec2 px, float depth) {
   } else {
     c = mix(u_dim, u_body, exp(-(dist - 8.0) * 0.18));
   }
+  // Tail dissolves instead of cutting off
+  c *= 1.0 - smoothstep(trailLen * 0.55, trailLen, dist);
 
-  // Random flicker (sparse)
-  float flick = step(0.985, hash21(vec2(col * 7.0 + churn, row + 13.0)));
-  c += flick * 0.25;
+  // Sparse sparkle on churning cells
+  c += step(0.97, hash21(vec2(col * 7.0 + tick, row + 13.0))) * 0.2;
 
-  return c * g * active * mix(1.0, 0.55, depth) * u_intensity;
+  return c * g * lit * mix(1.0, 0.5, depth) * u_intensity;
 }
 
 void main() {
@@ -218,17 +246,34 @@ void main() {
   // Flip Y so rain falls downward (WebGL y points up)
   px.y = u_resolution.y - px.y;
 
-  vec3 col = u_bg;
-  col += layer(px, 0.0);            // front layer
-  col += layer(px + vec2(7.3, 0.0), 1.0) * 0.45; // back layer, slight x offset
+  vec3 rain = layer(px + vec2(u_cell * 0.37, 0.0), 1.0) * 0.5; // back
+  rain += layer(px, 0.0);                                        // front
+
+  // Soft pool of brighter code around the pointer
+  float d = distance(px, u_pointer) / u_pointerRadius;
+  rain *= 1.0 + 1.1 * exp(-d * d);
 
   // Cheap vignette
   float vig = smoothstep(1.2, 0.35, length(v_uv - 0.5));
-  col *= mix(0.55, 1.0, vig);
-
-  frag = vec4(col, 1.0);
+  frag = vec4((u_bg + rain) * mix(0.55, 1.0, vig), 1.0);
 }
 `;
+
+/** Front-layer cell size in CSS pixels. */
+const CELL_CSS_PX = 18;
+/** Radius of the pointer highlight in CSS pixels. */
+const POINTER_RADIUS_CSS_PX = 170;
+/** Higher = faster palette blend on theme change (≈ 0.6s to settle). */
+const THEME_BLEND_RATE = 6;
+
+const RAMP_KEYS = ["bg", "rainHead", "rainBright", "rainBody", "rainDim"] as const;
+
+function themeRamp(key: ThemeKey): Float32Array<ArrayBuffer> {
+  const t = THEMES[key];
+  const out = new Float32Array(RAMP_KEYS.length * 3);
+  RAMP_KEYS.forEach((k, i) => out.set(hexToRgb(t[k]), i * 3));
+  return out;
+}
 
 function compileShader(
   gl: WebGL2RenderingContext,
@@ -252,7 +297,9 @@ function startWebGL(
   themeKey: ThemeKey,
   density: number,
   intensity: number,
-): WebGLHandle | null {
+): RainHandle | null {
+  const atlas = createGlyphAtlas();
+  if (!atlas) return null;
   const vs = compileShader(gl, gl.VERTEX_SHADER, VERTEX_SHADER);
   const fs = compileShader(gl, gl.FRAGMENT_SHADER, FRAGMENT_SHADER);
   if (!vs || !fs) return null;
@@ -273,33 +320,43 @@ function startWebGL(
   const buf = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, buf);
   gl.bufferData(gl.ARRAY_BUFFER, quad, gl.STATIC_DRAW);
-
   const aPos = gl.getAttribLocation(prog, "a_position");
   gl.enableVertexAttribArray(aPos);
   gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
 
-  const uResolution = gl.getUniformLocation(prog, "u_resolution");
-  const uTime = gl.getUniformLocation(prog, "u_time");
-  const uDensity = gl.getUniformLocation(prog, "u_density");
-  const uIntensity = gl.getUniformLocation(prog, "u_intensity");
-  const uBg = gl.getUniformLocation(prog, "u_bg");
-  const uHead = gl.getUniformLocation(prog, "u_head");
-  const uBright = gl.getUniformLocation(prog, "u_bright");
-  const uBody = gl.getUniformLocation(prog, "u_body");
-  const uDim = gl.getUniformLocation(prog, "u_dim");
+  const tex = gl.createTexture();
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, atlas);
+  gl.generateMipmap(gl.TEXTURE_2D);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
-  const t = THEMES[themeKey];
-  gl.uniform3fv(uBg, hexToRgb(t.bg));
-  gl.uniform3fv(uHead, hexToRgb(t.rainHead));
-  gl.uniform3fv(uBright, hexToRgb(t.rainBright));
-  gl.uniform3fv(uBody, hexToRgb(t.rainBody));
-  gl.uniform3fv(uDim, hexToRgb(t.rainDim));
-  gl.uniform1f(uDensity, density);
-  gl.uniform1f(uIntensity, intensity);
+  const loc = (name: string) => gl.getUniformLocation(prog, name);
+  const uResolution = loc("u_resolution");
+  const uTime = loc("u_time");
+  const uPointer = loc("u_pointer");
+  const rampLocs = ["u_bg", "u_head", "u_bright", "u_body", "u_dim"].map(loc);
+
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  gl.uniform1i(loc("u_atlas"), 0);
+  gl.uniform1f(loc("u_cell"), CELL_CSS_PX * dpr);
+  gl.uniform1f(loc("u_pointerRadius"), POINTER_RADIUS_CSS_PX * dpr);
+  gl.uniform1f(loc("u_density"), density);
+  gl.uniform1f(loc("u_intensity"), intensity);
+
+  // Palette: `ramp` is what's on screen, `target` is where it's heading.
+  const ramp = themeRamp(themeKey);
+  let target = themeRamp(themeKey);
+  let blending = false;
+  function uploadRamp() {
+    rampLocs.forEach((l, i) => gl.uniform3fv(l, ramp.subarray(i * 3, i * 3 + 3)));
+  }
+  uploadRamp();
 
   const canvas = gl.canvas as HTMLCanvasElement;
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
-
   function resize() {
     const w = Math.floor(window.innerWidth * dpr);
     const h = Math.floor(window.innerHeight * dpr);
@@ -312,31 +369,59 @@ function startWebGL(
   }
   resize();
 
-  let rafId = 0;
-  let running = true;
-  const startTime = performance.now();
+  // Parked far off-screen until the pointer first moves.
+  let pointerX = -1e5;
+  let pointerY = -1e5;
+  function onPointerMove(e: PointerEvent) {
+    if (e.pointerType === "touch") return;
+    pointerX = e.clientX * dpr;
+    pointerY = e.clientY * dpr;
+  }
+  function onPointerLeave() {
+    pointerX = pointerY = -1e5;
+  }
+  window.addEventListener("pointermove", onPointerMove, { passive: true });
+  document.documentElement.addEventListener("pointerleave", onPointerLeave);
 
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // Start mid-storm so the very first frame already has streams on screen.
+  const TIME_OFFSET = 40;
+  const startTime = performance.now();
+  let lastFrame = startTime;
+  let rafId = 0;
+  let running = true;
+
+  function draw(now: number) {
+    if (blending) {
+      const k = reducedMotion ? 1 : 1 - Math.exp(-((now - lastFrame) / 1000) * THEME_BLEND_RATE);
+      let remaining = 0;
+      for (let i = 0; i < ramp.length; i++) {
+        ramp[i] += (target[i] - ramp[i]) * k;
+        remaining = Math.max(remaining, Math.abs(target[i] - ramp[i]));
+      }
+      if (remaining < 0.002) {
+        ramp.set(target);
+        blending = false;
+      }
+      uploadRamp();
+    }
+    lastFrame = now;
+    gl.uniform1f(uTime, TIME_OFFSET + (reducedMotion ? 0 : (now - startTime) / 1000));
+    gl.uniform2f(uPointer, pointerX, pointerY);
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+  }
 
   function frame() {
     if (!running) return;
-    const now = performance.now();
-    const elapsed = (now - startTime) / 1000;
-    gl.uniform1f(uTime, elapsed);
-    gl.drawArrays(gl.TRIANGLES, 0, 6);
-    if (!reducedMotion) {
-      rafId = requestAnimationFrame(frame);
-    }
+    draw(performance.now());
+    if (!reducedMotion) rafId = requestAnimationFrame(frame);
   }
   frame();
 
-  let resizeRaf = 0;
   function onResize() {
-    if (resizeRaf) return;
-    resizeRaf = requestAnimationFrame(() => {
-      resize();
-      resizeRaf = 0;
-    });
+    resize();
+    // The canvas clears on resize; a static scene needs repainting by hand.
+    if (reducedMotion) draw(performance.now());
   }
   window.addEventListener("resize", onResize);
 
@@ -346,18 +431,26 @@ function startWebGL(
       if (rafId) cancelAnimationFrame(rafId);
     } else if (!reducedMotion) {
       running = true;
+      lastFrame = performance.now();
       frame();
     }
   }
   document.addEventListener("visibilitychange", onVisibility);
 
   return {
+    setTheme(key) {
+      target = themeRamp(key);
+      blending = true;
+      if (reducedMotion) draw(performance.now());
+    },
     cleanup() {
       running = false;
       if (rafId) cancelAnimationFrame(rafId);
-      if (resizeRaf) cancelAnimationFrame(resizeRaf);
       window.removeEventListener("resize", onResize);
+      window.removeEventListener("pointermove", onPointerMove);
+      document.documentElement.removeEventListener("pointerleave", onPointerLeave);
       document.removeEventListener("visibilitychange", onVisibility);
+      gl.deleteTexture(tex);
       gl.deleteProgram(prog);
       gl.deleteBuffer(buf);
       gl.deleteShader(vs);
@@ -366,30 +459,24 @@ function startWebGL(
   };
 }
 
-function hexToRgb(hex: string): Float32Array {
+function hexToRgb(hex: string): [number, number, number] {
   const h = hex.replace("#", "");
   const expand = h.length === 3 ? h.split("").map((c) => c + c).join("") : h;
-  const r = parseInt(expand.slice(0, 2), 16) / 255;
-  const g = parseInt(expand.slice(2, 4), 16) / 255;
-  const b = parseInt(expand.slice(4, 6), 16) / 255;
-  return new Float32Array([r, g, b]);
+  return [0, 2, 4].map((i) => parseInt(expand.slice(i, i + 2), 16) / 255) as [
+    number,
+    number,
+    number,
+  ];
 }
 
 /* ============================== 2D fallback ============================== */
 
-/** Half-width katakana + digits — classic rezmason-style glyph pool */
-const FALLBACK_CHARS =
-  "ｦｧｨｩｪｫｬｭｮｯｰｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾗﾘﾜ0123456789";
-
-function start2D(
-  ctx: CanvasRenderingContext2D,
-  themeKey: ThemeKey,
-): () => void {
+function start2D(ctx: CanvasRenderingContext2D, themeKey: ThemeKey): RainHandle {
   const canvas = ctx.canvas;
-  const t = THEMES[themeKey];
+  let t = THEMES[themeKey];
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  const fontSize = 15;
+  const fontSize = CELL_CSS_PX;
   const trailCells = 26;
   let columns = 0;
   let drops: number[] = [];
@@ -398,50 +485,41 @@ function start2D(
 
   function init() {
     columns = Math.floor(canvas.width / fontSize);
-    drops = Array.from({ length: columns }, () => -(Math.random() * 60));
+    drops = Array.from({ length: columns }, () => Math.random() * 60 - 20);
     speeds = Array.from({ length: columns }, () => 0.35 + Math.random() * 0.55);
   }
 
-  function resize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    init();
-  }
-  resize();
-  window.addEventListener("resize", resize);
-
   let raf = 0;
-  let frame = 0;
   function draw() {
-    frame += 1;
     const now = performance.now();
     const dt = Math.min((now - last) / 16, 2);
     last = now;
+    // Glyphs re-roll a few times a second, not every frame.
+    const tick = Math.floor(now / 220);
 
     ctx.globalAlpha = 1;
     ctx.fillStyle = t.bg;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.font = `${fontSize}px "JetBrains Mono", "Courier New", monospace`;
+    ctx.font = `600 ${fontSize - 3}px ${RAIN_FONT_STACK}`;
     ctx.textAlign = "left";
     ctx.textBaseline = "top";
 
     for (let i = 0; i < columns; i++) {
       const x = i * fontSize;
-      const head = drops[i];
+      const head = Math.floor(drops[i]);
 
       for (let k = 0; k < trailCells; k++) {
         const row = head - k;
         const y = row * fontSize;
         if (y < -fontSize || y > canvas.height + fontSize) continue;
 
-        const seed = (i * 1315423911 + k * 73856093 + frame * 19349663) >>> 0;
-        const ch = FALLBACK_CHARS[seed % FALLBACK_CHARS.length];
-        const flick = (seed % 97) / 97 > 0.94 ? 0.12 : 0;
+        const seed = (i * 1315423911 + row * 73856093 + tick * 19349663) >>> 0;
+        const ch = RAIN_GLYPHS[seed % RAIN_GLYPHS.length];
 
         if (k === 0) {
           ctx.fillStyle = t.rainHead;
-          ctx.globalAlpha = 0.95 + flick;
+          ctx.globalAlpha = 0.95;
         } else if (k < 3) {
           ctx.fillStyle = t.rainBright;
           ctx.globalAlpha = 0.78 * Math.pow(0.88, k);
@@ -460,13 +538,24 @@ function start2D(
 
       ctx.globalAlpha = 1;
       drops[i] += speeds[i] * dt * 0.52;
-      if (drops[i] * fontSize > canvas.height + fontSize * 2) {
-        drops[i] = -trailCells - Math.random() * 35;
+      if (drops[i] * fontSize > canvas.height + fontSize * trailCells) {
+        drops[i] = -Math.random() * 35;
       }
     }
 
     if (!reducedMotion) raf = requestAnimationFrame(draw);
   }
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    init();
+    if (reducedMotion) draw();
+  }
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  init();
+  window.addEventListener("resize", resize);
 
   function onVisibility() {
     if (document.hidden) {
@@ -480,9 +569,15 @@ function start2D(
   document.addEventListener("visibilitychange", onVisibility);
   draw();
 
-  return () => {
-    if (raf) cancelAnimationFrame(raf);
-    window.removeEventListener("resize", resize);
-    document.removeEventListener("visibilitychange", onVisibility);
+  return {
+    setTheme(key) {
+      t = THEMES[key];
+      if (reducedMotion) draw();
+    },
+    cleanup() {
+      if (raf) cancelAnimationFrame(raf);
+      window.removeEventListener("resize", resize);
+      document.removeEventListener("visibilitychange", onVisibility);
+    },
   };
 }

@@ -50,9 +50,14 @@
       content="Matrix-themed card reading AURIMAS RANSYS — full stack developer"
     />
 
-    <!-- Start the Google Fonts handshake in parallel with CSS parsing -->
+    <!-- Fonts load straight from the document (not a CSS @import) so the
+         browser discovers them before the app stylesheet has even parsed -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Space+Grotesk:wght@400;500;700&display=swap"
+    />
   </head>
   <body style="background-color: #0a0a0a">
     <div id="root"></div>

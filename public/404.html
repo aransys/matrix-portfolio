@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <meta name="color-scheme" content="dark" />
+    <title>404 — There is no page</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <style>
+      :root {
+        --green: #00ff66;
+        --dim: #5f9a76;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        background: #0a0a0a radial-gradient(ellipse at center, #06200f 0%, #0a0a0a 70%);
+        color: var(--green);
+        font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        text-align: center;
+      }
+      main {
+        max-width: 560px;
+      }
+      .code {
+        margin: 0;
+        color: var(--green);
+        font-size: clamp(72px, 22vw, 168px);
+        font-weight: 700;
+        line-height: 1;
+        letter-spacing: -0.04em;
+        text-shadow: 0 0 40px rgba(0, 255, 102, 0.45);
+      }
+      h1 {
+        margin: 18px 0 0;
+        font-size: clamp(18px, 3vw, 24px);
+        font-weight: 500;
+      }
+      p {
+        margin: 14px 0 0;
+        color: var(--dim);
+        font-size: 14px;
+        line-height: 1.7;
+      }
+      .path {
+        color: var(--green);
+        word-break: break-all;
+      }
+      a {
+        display: inline-block;
+        margin-top: 30px;
+        padding: 11px 20px;
+        border: 1px solid rgba(0, 255, 102, 0.5);
+        border-radius: 8px;
+        color: var(--green);
+        font-size: 12px;
+        letter-spacing: 0.18em;
+        text-decoration: none;
+        text-transform: uppercase;
+      }
+      a:hover,
+      a:focus-visible {
+        background: rgba(0, 255, 102, 0.1);
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(0, 255, 102, 0.4);
+      }
+      .caret {
+        display: inline-block;
+        width: 0.55em;
+        height: 1em;
+        margin-left: 4px;
+        vertical-align: -0.12em;
+        background: var(--green);
+        animation: blink 0.7s step-end infinite;
+      }
+      @keyframes blink {
+        50% {
+          opacity: 0;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .caret {
+          animation: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="code" aria-hidden="true">404</p>
+      <h1>There is no page.<span class="caret" aria-hidden="true"></span></h1>
+      <p>
+        Do not try to load <span class="path" id="path">this address</span>. That is impossible.
+        Instead, only try to realise the truth: it was never there.
+      </p>
+      <a href="/">Take me back</a>
+    </main>
+    <script>
+      document.getElementById("path").textContent = location.pathname;
+    </script>
+  </body>
+</html>

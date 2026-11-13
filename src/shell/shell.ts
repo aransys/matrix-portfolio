@@ -1,5 +1,6 @@
-import { PHRASE_TO_COMMAND } from "../config/commands";
 import { OWNER, PROJECTS, SKILLS, SOCIALS, TIMELINE } from "../config/data";
+import type { TrailStepId } from "../trail/trail";
+import { FINAL_STEP, TRAIL_STEPS, finaleUnlocked, nextStep, trailCount } from "../trail/trail";
 
 /**
  * The hero's in-page shell: a tiny interpreter over a virtual filesystem
@@ -28,6 +29,10 @@ export interface ShellEnv {
   showCv: () => void;
   openPalette: () => void;
   closeShell: () => void;
+  /** Record a step of the white-rabbit trail. */
+  markTrail: (id: TrailStepId) => void;
+  /** Play the end of the trail. */
+  finale: () => void;
 }
 
 export interface ShellState {
@@ -35,6 +40,8 @@ export interface ShellState {
   cwd: string;
   /** Previously entered commands, oldest first. */
   log: string[];
+  /** Steps of the white-rabbit trail found so far. */
+  trail: string[];
 }
 
 export interface ShellResult {
@@ -99,8 +106,13 @@ const FILES: Record<string, FsFile> = {
     ],
   },
   "~/.rabbit": {
-    lines: [ok("follow the white rabbit.")],
-    effect: (env) => env.runCommand("egg.rabbit"),
+    lines: [
+      ok("follow the white rabbit."),
+      dim(""),
+      dim("knock, knock. it is hiding in the corner of one of the mission cards."),
+      dim("run 'trail' here, or tap the rabbit in the corner, to see how deep this goes."),
+    ],
+    effect: (env) => env.markTrail("hole"),
   },
   ...Object.fromEntries(
     PROJECTS.map((p): [string, FsFile] => [
@@ -136,6 +148,22 @@ export function resolvePath(cwd: string, arg: string): string {
     else parts.push(seg);
   }
   return [HOME, ...parts].join("/");
+}
+
+/**
+ * Find the file a visitor most likely means. Forgiving on purpose: case
+ * does not matter, and neither does a missing leading dot or extension,
+ * so `cat Rabbit`, `cat about` and `cat .rabbit` all land.
+ */
+function findFile(cwd: string, arg: string): string | undefined {
+  const path = resolvePath(cwd, arg.toLowerCase());
+  if (path in FILES) return path;
+  const bare = (name: string) => name.replace(/^\./, "").replace(/\.\w+$/, "");
+  const wanted = bare(baseOf(path));
+  if (!wanted) return undefined;
+  return Object.keys(FILES).find(
+    (file) => parentOf(file) === parentOf(path) && bare(baseOf(file)) === wanted,
+  );
 }
 
 /** Entry names in a directory; directories carry a trailing slash. */
@@ -212,14 +240,22 @@ const COMMANDS: ShellCommand[] = [
     summary: "list files (-a shows hidden ones)",
     complete: "dir",
     run: (args, state) => {
-      const all = args.some((a) => /^-\w*a/.test(a));
+      const all = args.some((a) => /^-\w*a/i.test(a));
       const target = args.find((a) => !a.startsWith("-"));
-      const path = resolvePath(state.cwd, target ?? ".");
+      const path = resolvePath(state.cwd, (target ?? ".").toLowerCase());
       if (path in FILES) return { output: [dim(baseOf(path))] };
       if (!DIRS.includes(path)) {
         return { output: [warn(`ls: ${target}: no such file or directory`)] };
       }
-      return { output: [dim(listDir(path, all).join("  "))] };
+      const output = [dim(listDir(path, all).join("  "))];
+      // Say so when something is being left out, rather than hide it twice.
+      const hidden = listDir(path, true).length - listDir(path, false).length;
+      if (!all && hidden > 0) {
+        output.push(dim(`(${hidden} hidden. ls -a shows everything.)`));
+      } else if (all && hidden > 0) {
+        output.push(dim("(read a file with cat, e.g. cat .rabbit)"));
+      }
+      return { output };
     },
   },
   {
@@ -228,7 +264,7 @@ const COMMANDS: ShellCommand[] = [
     summary: "change directory",
     complete: "dir",
     run: (args, state) => {
-      const path = resolvePath(state.cwd, args[0] ?? HOME);
+      const path = resolvePath(state.cwd, (args[0] ?? HOME).toLowerCase());
       if (path in FILES) return { output: [warn(`cd: ${args[0]}: not a directory`)] };
       if (!DIRS.includes(path)) {
         return { output: [warn(`cd: ${args[0]}: no such file or directory`)] };
@@ -247,8 +283,9 @@ const COMMANDS: ShellCommand[] = [
       const output: TerminalLine[] = [];
       const effects: ((env: ShellEnv) => void)[] = [];
       for (const arg of args) {
-        const path = resolvePath(state.cwd, arg);
-        const file = FILES[path];
+        const path = resolvePath(state.cwd, arg.toLowerCase());
+        const found = findFile(state.cwd, arg);
+        const file = found ? FILES[found] : undefined;
         if (file) {
           output.push(...file.lines);
           if (file.effect) effects.push(file.effect);
@@ -269,7 +306,7 @@ const COMMANDS: ShellCommand[] = [
     usage: "open <name>",
     summary: "open a project, section or link — try: open quickgigs",
     complete: () => [...Object.keys(openTargets()), "about", "skills", "projects", "timeline", "contact", "cv"],
-    run: (args) => {
+    run: (args, state) => {
       if (args.length === 0) {
         return {
           output: [
@@ -283,6 +320,8 @@ const COMMANDS: ShellCommand[] = [
       if (name === "cv" || name === "resume") return leaveSimulation();
       if (name in SECTIONS) return jumpTo(SECTIONS[name]);
       const url = openTargets()[name];
+      // Not a link: if it is a file, opening it means reading it.
+      if (!url && findFile(state.cwd, args[0])) return findCommand("cat")!.run([args[0]], state);
       if (!url) return { output: [warn(`open: ${args[0]}: nothing by that name`)] };
       return {
         output: [ok(`> opening ${url.replace(/^mailto:/, "")}…`)],
@@ -407,13 +446,111 @@ const COMMANDS: ShellCommand[] = [
     run: () => ({ output: [warn("rm: cannot remove: the Matrix has you.")] }),
   },
   {
-    name: "42",
-    usage: "42",
+    name: "trail",
+    usage: "trail",
     summary: "",
     hidden: true,
-    run: () => ({ output: [], effect: (env) => env.runCommand("egg.42") }),
+    run: (_args, state) => ({ output: trailLines(state.trail) }),
+  },
+  {
+    // "there is no spoon" — and the ways people actually type it.
+    name: "there",
+    aliases: ["spoon", "no", "theres", "there's"],
+    usage: "there is no spoon",
+    summary: "",
+    hidden: true,
+    run: (args, state) => {
+      const rest = args.join(" ").toLowerCase().replace(/[^a-z ]/g, "").trim();
+      if (!["", "spoon", "no spoon", "is no spoon"].includes(rest)) {
+        return {
+          output: [warn("that is not what the boy said."), dim("he said: there is no spoon.")],
+        };
+      }
+      if (!finaleUnlocked(state.trail)) {
+        const missing = TRAIL_STEPS.filter(
+          (s) => s.id !== FINAL_STEP && !state.trail.includes(s.id),
+        );
+        return {
+          output: [
+            dim("the spoon does not bend. not yet."),
+            dim(`you have ${trailCount(state.trail)}. first:`),
+            ...missing.map((s) => dim(`  - ${s.clue}`)),
+          ],
+        };
+      }
+      return {
+        output: [
+          ok("then you will see that it is not the spoon that bends."),
+          ok("it is only yourself."),
+        ],
+        effect: (env) => {
+          env.markTrail(FINAL_STEP);
+          env.finale();
+        },
+      };
+    },
+  },
+  {
+    name: "pills",
+    aliases: ["pill", "bluepill"],
+    usage: "pills",
+    summary: "",
+    hidden: true,
+    run: () => ({ output: [ok("> make your choice…")], effect: (env) => env.runCommand("egg.pills") }),
+  },
+  {
+    name: "dejavu",
+    aliases: ["glitch", "cat"],
+    usage: "dejavu",
+    summary: "",
+    hidden: true,
+    run: () => ({
+      output: [dim("a déjà vu is usually a glitch in the Matrix.")],
+      effect: (env) => env.runCommand("egg.dejavu"),
+    }),
+  },
+  {
+    name: "rabbit",
+    aliases: ["whiterabbit"],
+    usage: "rabbit",
+    summary: "",
+    hidden: true,
+    run: () => ({ output: [dim("you do not call the rabbit. you follow it. try: ls -a")] }),
+  },
+  {
+    name: "neo",
+    aliases: ["wakeup"],
+    usage: "neo",
+    summary: "",
+    hidden: true,
+    run: () => ({
+      output: [ok("Wake up, Neo…"), ok("The Matrix has you…"), ok("Follow the white rabbit.")],
+    }),
+  },
+  {
+    name: "smith",
+    aliases: ["agent"],
+    usage: "smith",
+    summary: "",
+    hidden: true,
+    run: () => ({ output: [warn("Mr. Anderson. We have been expecting you.")] }),
   },
 ];
+
+/** `trail` — what has been found, and a pointer to the next thing. */
+function trailLines(found: string[]): TerminalLine[] {
+  const next = nextStep(found);
+  return [
+    ok(`follow the white rabbit — ${trailCount(found)}`),
+    ...TRAIL_STEPS.map((s) =>
+      found.includes(s.id) ? ok(`  [x] ${s.label}`) : dim("  [ ] ? ? ?"),
+    ),
+    dim(""),
+    ...(next
+      ? [dim(`"${next.quote}"`), dim(`next: ${next.clue}`)]
+      : [dim("there is nothing left to find. you are the one.")]),
+  ];
+}
 
 function findCommand(name: string): ShellCommand | undefined {
   return COMMANDS.find((c) => c.name === name || c.aliases?.includes(name));
@@ -457,14 +594,13 @@ export function runShell(raw: string, state: ShellState): ShellResult {
 
   if (name in SECTIONS) return jumpTo(SECTIONS[name]);
 
-  // Every phrase the easter-egg listener reacts to also works as a command.
-  const eggId = PHRASE_TO_COMMAND[name];
-  if (eggId) {
-    return {
-      output: [ok(`> ${name}…`)],
-      effect: (env) => env.runCommand(eggId),
-    };
+  // A bare file name reads the file: `.rabbit` or `about.txt` on its own.
+  if (args.length === 0 && /[./]/.test(first) && findFile(state.cwd, first)) {
+    return findCommand("cat")!.run([first], state);
   }
+
+  // A bare theme name works as shorthand for `theme <name>`.
+  if (name in THEME_BY_NAME) return findCommand("theme")!.run([name], state);
 
   const guess = closestCommand(name);
   return {

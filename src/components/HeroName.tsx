@@ -11,25 +11,22 @@ export interface HeroNameProps {
   onClick?: () => void;
 }
 
-const INTRO_SEEN_KEY = "ransys.dev:intro-seen";
+/**
+ * Kept in memory only, so the intro plays on every page load (including a
+ * reload) but not a second time when the hero remounts within one load —
+ * coming back from the plain CV view, for instance.
+ */
+let introPlayed = false;
 
-/** The intro plays once per browser session and never under reduced motion. */
+/** The intro plays once per page load and never under reduced motion. */
 function shouldPlayIntro(): boolean {
   if (typeof window === "undefined") return false;
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return false;
-  try {
-    return window.sessionStorage.getItem(INTRO_SEEN_KEY) === null;
-  } catch {
-    return true;
-  }
+  return !introPlayed;
 }
 
 function markIntroSeen() {
-  try {
-    window.sessionStorage.setItem(INTRO_SEEN_KEY, "1");
-  } catch {
-    // ignore storage errors (privacy mode, etc.)
-  }
+  introPlayed = true;
 }
 
 /** Latest time a letter's stream starts falling. */
@@ -47,7 +44,7 @@ const TRAIL_CELLS = 12;
  *
  * The real `<h1>` text is in the DOM from the first paint (hidden while the
  * intro runs), so layout never shifts and assistive tech reads the name
- * straight away. On first visit of a session, a stream of glyphs falls down
+ * straight away. On every page load, a stream of glyphs falls down
  * each letter's column on a temporary overlay canvas; when a stream's head
  * reaches its letter the letter locks in white-hot and cools to the theme
  * colour. Any click, key press, scroll or resize finishes it immediately.

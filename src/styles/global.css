@@ -236,9 +236,11 @@ button:focus-visible {
   50%, 100% { opacity: 0; }
 }
 
+/* Moves by `top`, inside a parent that clips it. A viewport-sized
+   transform here used to stretch the page's scroll height as it ran. */
 @keyframes scanlineMove {
-  0% { transform: translateY(-4px); }
-  100% { transform: translateY(100vh); }
+  0% { top: -4px; }
+  100% { top: 100%; }
 }
 
 @keyframes float {
@@ -263,11 +265,6 @@ button:focus-visible {
 @keyframes glitchFlash {
   0% { opacity: 0.35; }
   100% { opacity: 0; }
-}
-
-@keyframes rabbitHop {
-  0%, 100% { transform: translateY(0) rotate(-4deg); }
-  50% { transform: translateY(-14px) rotate(4deg); }
 }
 
 .scanline {
@@ -952,5 +949,705 @@ html.real-world body {
   }
   .real__item {
     break-inside: avoid;
+  }
+}
+
+/* ---------------- Trajectory: call trace ---------------- */
+
+.trace-rail {
+  position: absolute;
+  left: 16px;
+  top: 0;
+  bottom: 52px; /* stops at the last entry, above the readout */
+  width: 2px;
+  background: var(--c-dark-dim);
+  opacity: 0.9;
+}
+
+.trace-rail__fill {
+  position: absolute;
+  inset: 0;
+  transform-origin: top;
+  background: linear-gradient(to bottom, var(--c-dim), var(--c-primary));
+  box-shadow: 0 0 10px var(--c-glow);
+}
+
+.trace-rail__head {
+  position: absolute;
+  left: 50%;
+  width: 8px;
+  height: 26px;
+  margin: -22px 0 0 -4px;
+  border-radius: 4px;
+  background: linear-gradient(to bottom, transparent, var(--c-rain-head, #fff));
+  box-shadow: 0 6px 18px 2px var(--c-glow);
+}
+
+.trace-node {
+  position: absolute;
+  left: -43px;
+  top: 2px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--c-bg);
+  border: 2px solid var(--c-dark-dim);
+  color: var(--c-dark-dim);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  line-height: 1;
+  transition:
+    border-color 0.35s ease,
+    color 0.35s ease,
+    box-shadow 0.35s ease;
+}
+
+.trace-node--locked {
+  border-color: var(--c-primary);
+  color: var(--c-primary);
+  box-shadow: 0 0 16px var(--c-glow);
+  animation: traceLock 0.5s ease-out;
+}
+
+@keyframes traceLock {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 var(--c-primary);
+  }
+  40% {
+    transform: scale(1.25);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.trace-readout {
+  display: inline-block;
+  margin: 20px 0 0;
+  padding: 8px 12px;
+  min-height: 32px;
+  box-sizing: border-box;
+  font-size: 11px;
+  line-height: 14px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--c-dim);
+  font-family: inherit;
+  text-align: left;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 6px;
+  transition:
+    color 0.4s ease,
+    border-color 0.4s ease;
+}
+
+.trace-readout--done {
+  color: var(--c-primary);
+  border-color: var(--c-border-strong);
+  cursor: pointer;
+}
+
+.trace-readout__origin {
+  color: var(--c-secondary);
+}
+
+.trace-readout__mark {
+  font-size: 8px;
+  vertical-align: 1px;
+  margin-right: 6px;
+}
+
+.trace-readout__mark--live {
+  animation: cursorBlink 0.7s step-end infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trace-node--locked,
+  .trace-readout__mark--live {
+    animation: none;
+  }
+}
+
+/* ---------------- The trail: rabbit mark, cat, finale ---------------- */
+
+.rabbit-mark {
+  position: absolute;
+  right: 10px;
+  bottom: 8px;
+  padding: 6px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+  opacity: 0.5;
+  filter: grayscale(1) brightness(1.7);
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease,
+    filter 0.3s ease;
+}
+
+.rabbit-mark:hover,
+.rabbit-mark:focus-visible {
+  opacity: 1;
+  transform: translateY(-3px) scale(1.25);
+  filter: grayscale(1) brightness(2) drop-shadow(0 0 8px var(--c-glow));
+}
+
+.deja-cat {
+  position: fixed;
+  left: 0;
+  bottom: 10px;
+  z-index: 90;
+  pointer-events: none;
+  animation: catWalk linear both;
+}
+
+.deja-cat__body {
+  display: inline-block;
+  font-size: 34px;
+  line-height: 1;
+  /* A dark silhouette with a phosphor rim, facing the way it walks. */
+  transform: scaleX(-1);
+  filter: grayscale(1) brightness(0.22) drop-shadow(0 0 5px var(--c-primary));
+  animation: catStep 0.36s ease-in-out infinite;
+}
+
+@keyframes catWalk {
+  from {
+    transform: translateX(-60px);
+  }
+  to {
+    transform: translateX(100vw);
+  }
+}
+
+@keyframes catStep {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -3px;
+  }
+}
+
+/* Full-screen scenes (the pill choice, the finale) clear the page away
+   rather than blur it: only the rain and the scene are left. */
+main {
+  transition: opacity 0.3s ease;
+}
+
+html.finale-open main {
+  opacity: 0;
+  transition-duration: 0.9s;
+}
+
+html.pills-open main {
+  opacity: 0;
+}
+
+.finale {
+  position: fixed;
+  inset: 0;
+  z-index: 230;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(24px, 6vh, 60px) 20px;
+  overflow-y: auto;
+  /* Light enough that the bending rain stays visible around the words. */
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.45) 75%);
+}
+
+.finale__body {
+  max-width: 720px;
+  text-align: center;
+}
+
+/* It takes focus so Escape and screen readers land here, but a ring
+   hugging the quote is not part of the scene. */
+.finale__body:focus,
+.finale__body:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.finale__quote {
+  margin: 18px 0 0;
+  min-height: 7.5em;
+  font-size: clamp(19px, 1.6vw + 12px, 30px);
+  font-weight: 500;
+  line-height: 1.45;
+  color: var(--c-primary);
+  text-shadow: 0 0 24px var(--c-glow-soft);
+}
+
+.finale__caret {
+  display: inline-block;
+  width: 0.5em;
+  height: 1em;
+  margin-left: 3px;
+  vertical-align: -0.12em;
+  background: var(--c-primary);
+  animation: cursorBlink 0.7s step-end infinite;
+}
+
+.finale__after {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 1.2s ease 0.4s;
+}
+
+.finale__after--in {
+  opacity: 1;
+  visibility: visible;
+}
+
+.finale__credit {
+  margin: 16px 0 0;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--c-dim);
+}
+
+.finale__note {
+  margin: 28px 0 0;
+  font-size: var(--t-sm);
+  line-height: 1.8;
+  color: var(--c-secondary);
+}
+
+.finale__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.finale__btn {
+  padding: 10px 18px;
+  background: transparent;
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+  color: var(--c-dim);
+  font-family: inherit;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.finale__btn:hover {
+  color: var(--c-primary);
+  border-color: var(--c-border-strong);
+}
+
+.finale__btn--primary {
+  color: var(--c-primary);
+  border-color: var(--c-border-strong);
+  background: var(--c-surface);
+}
+
+/* Timeline origin, while it is still waiting to be touched */
+.trace-readout--live {
+  animation: originPulse 1.8s ease-in-out infinite;
+}
+
+.trace-readout__hint {
+  color: var(--c-dim);
+}
+
+@keyframes originPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 var(--c-glow);
+  }
+  50% {
+    box-shadow: 0 0 18px 2px var(--c-glow);
+  }
+}
+
+/* ---------------- Trail tracker ---------------- */
+
+.trail {
+  position: fixed;
+  right: clamp(12px, 2vw, 18px);
+  bottom: clamp(12px, 2vw, 18px);
+  z-index: 85;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+html.finale-open .trail,
+html.pills-open .trail {
+  visibility: hidden;
+}
+
+.trail__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.82);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-pill);
+  color: var(--c-dim);
+  font-family: inherit;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.trail__chip:hover,
+.trail__chip[aria-expanded="true"] {
+  color: var(--c-primary);
+  border-color: var(--c-border-strong);
+  box-shadow: 0 0 22px var(--c-glow-soft);
+}
+
+/* Before anything is found the chip is an open invitation. */
+.trail__chip--invite {
+  color: var(--c-primary);
+  border-color: var(--c-border-strong);
+  animation: originPulse 2.6s ease-in-out infinite;
+}
+
+.trail__rabbit {
+  display: inline-block;
+  font-size: 15px;
+  line-height: 1;
+  filter: grayscale(1) brightness(2);
+  animation: trailFound 0.6s ease-out;
+}
+
+@keyframes trailFound {
+  0% {
+    translate: 0 0;
+  }
+  35% {
+    translate: 0 -9px;
+  }
+  100% {
+    translate: 0 0;
+  }
+}
+
+.trail__panel {
+  width: min(340px, calc(100vw - 24px));
+  padding: 16px 18px 18px;
+  text-align: left;
+  transform-origin: bottom right;
+}
+
+.trail__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.trail__count {
+  color: var(--c-primary);
+  font-size: var(--t-sm);
+  font-weight: 700;
+}
+
+.trail__steps {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--c-dim);
+}
+
+.trail__step {
+  display: flex;
+  gap: 9px;
+}
+
+.trail__step--done {
+  color: var(--c-primary);
+}
+
+.trail__next {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--c-border);
+}
+
+.trail__quote {
+  margin: 0;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 16px;
+  line-height: 1.4;
+  color: var(--c-primary);
+}
+
+.trail__clue {
+  margin: 8px 0 0;
+  font-size: 12px;
+  line-height: 1.65;
+  color: var(--c-secondary);
+}
+
+.trail__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.trail__go {
+  margin-top: 14px;
+  padding: 8px 12px;
+  background: var(--c-pill-bg);
+  border: 1px solid var(--c-border-strong);
+  border-radius: var(--r-md);
+  color: var(--c-primary);
+  font-family: inherit;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.trail__go:hover {
+  box-shadow: 0 0 18px var(--c-glow-soft);
+}
+
+.trail__go--quiet {
+  background: transparent;
+  border-color: var(--c-border);
+  color: var(--c-dim);
+}
+
+@media (max-width: 520px) {
+  /* Just the rabbit and the count on a phone, until it has been opened. */
+  .trail__chip--invite .trail__label {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trace-readout--live,
+  .trail__chip--invite,
+  .trail__rabbit {
+    animation: none;
+  }
+}
+
+/* ---------------- Hero nav: decode links ---------------- */
+
+.decode-link {
+  display: inline-flex;
+  align-items: baseline;
+  padding: 6px 4px;
+  color: var(--c-dim);
+  font-size: var(--t-sm);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.decode-link__mark {
+  margin-right: 0.6em;
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.decode-link__cursor {
+  width: 0.55em;
+  height: 1em;
+  margin-left: 0.3em;
+  align-self: center;
+  background: var(--c-primary);
+  opacity: 0;
+}
+
+.decode-link:hover,
+.decode-link:focus-visible {
+  color: var(--c-primary);
+  text-shadow: 0 0 14px var(--c-glow);
+}
+
+.decode-link:hover .decode-link__mark,
+.decode-link:focus-visible .decode-link__mark {
+  color: var(--c-rain-head, #fff);
+  transform: translateX(3px);
+}
+
+.decode-link:hover .decode-link__cursor,
+.decode-link:focus-visible .decode-link__cursor {
+  opacity: 1;
+  animation: cursorBlink 0.7s step-end infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .decode-link:hover .decode-link__cursor,
+  .decode-link:focus-visible .decode-link__cursor {
+    animation: none;
+  }
+}
+
+/* ---------------- The pill choice ---------------- */
+
+.pills {
+  position: fixed;
+  inset: 0;
+  z-index: 220;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(28px, 5vh, 52px);
+  padding: clamp(24px, 6vh, 60px) 16px;
+  overflow-y: auto;
+  /* A plain scrim, deliberately without backdrop blur: blurring the live
+     rain canvas every frame is what made this screen stutter. */
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.92) 0%, rgba(0, 0, 0, 0.6) 85%);
+}
+
+.pills__intro {
+  max-width: 640px;
+  text-align: center;
+}
+
+.pills__quote {
+  margin: 10px 0 0;
+  font-size: clamp(20px, 2.5vw + 10px, 32px);
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--c-primary);
+}
+
+.pills__row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(14px, 4vw, 44px);
+}
+
+.pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: min(190px, 40vw);
+  padding: 14px 8px;
+  background: transparent;
+  border: none;
+  border-radius: var(--r-md);
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.pill__capsule {
+  position: relative;
+  width: 116px;
+  height: 58px;
+  border-radius: 999px;
+  background:
+    radial-gradient(ellipse 22px 7px at 30px 14px, rgba(255, 255, 255, 0.5), transparent 70%),
+    linear-gradient(135deg, var(--pill) 0 50%, #1c1c1c 50% 100%);
+  box-shadow:
+    0 0 26px var(--pill-glow),
+    inset 0 -10px 22px rgba(0, 0, 0, 0.4);
+  /* Idle float and hover lift are both transforms only, so they stay on
+     the compositor and never repaint. */
+  animation: pillFloat 3.4s ease-in-out var(--float-delay, 0s) infinite;
+  transition:
+    scale 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.22s ease;
+  will-change: transform;
+}
+
+@keyframes pillFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-7px) rotate(3deg);
+  }
+}
+
+.pill:hover .pill__capsule,
+.pill:focus-visible .pill__capsule {
+  scale: 1.12;
+  box-shadow:
+    0 0 44px var(--pill),
+    inset 0 -10px 22px rgba(0, 0, 0, 0.4);
+}
+
+.pill:active .pill__capsule {
+  scale: 0.96;
+}
+
+.pill__label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--pill);
+}
+
+.pill__body {
+  max-width: 180px;
+  font-size: var(--t-sm);
+  line-height: 1.55;
+  color: var(--c-dim);
+  transition: color 0.2s ease;
+}
+
+.pill:hover .pill__body,
+.pill:focus-visible .pill__body {
+  color: var(--c-secondary);
+}
+
+.pills__leave {
+  padding: 8px 18px;
+  background: transparent;
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+  color: var(--c-dim);
+  font-family: inherit;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.pills__leave:hover {
+  color: var(--c-primary);
+  border-color: var(--c-border-strong);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pill__capsule {
+    animation: none;
   }
 }

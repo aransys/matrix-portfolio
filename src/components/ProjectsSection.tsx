@@ -3,7 +3,12 @@ import { useState } from "react";
 import { PROJECTS } from "../config/data";
 import type { Project } from "../config/data";
 import type { ThemeKey } from "../config/themes";
+import { eggBridge } from "../trail/eggBridge";
+import { markFound } from "../trail/trail";
 import { Section } from "./Section";
+
+/** The white rabbit hides on the mission the visitor is standing in. */
+const RABBIT_MISSION = "CONSTRUCT";
 
 export interface ProjectsSectionProps {
   theme: ThemeKey;
@@ -76,6 +81,20 @@ export function ProjectsSection({ theme }: ProjectsSectionProps) {
               </a>
             </div>
           </div>
+
+          {project.codename === RABBIT_MISSION && (
+            <button
+              type="button"
+              className="rabbit-mark"
+              aria-label="A white rabbit"
+              onClick={() => {
+                if (markFound("rabbit")) eggBridge()?.showMessage("Knock, knock, Neo.", 1600);
+                eggBridge()?.triggerEgg("pills");
+              }}
+            >
+              🐇
+            </button>
+          )}
         </motion.article>
       ))}
     </Section>

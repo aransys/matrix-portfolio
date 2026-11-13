@@ -7,7 +7,7 @@ to extend.
 
 ## Highlights
 
-- **Name resolves out of the rain** — on the first visit of a session, a
+- **Name resolves out of the rain** — on every page load, a
   stream of code falls down each letter's column and locks the letter in.
   The rest of the hero is usable from the first paint; any click, key or
   scroll finishes the intro, and it is skipped under
@@ -39,13 +39,20 @@ to extend.
   over a virtual filesystem generated from the site's content: `ls`,
   `cd projects`, `cat quickgigs.md`, `open quickgigs`, `theme reloaded`,
   `sudo hire`, Tab completion, ↑/↓ history and "did you mean" for typos.
-  Themes and easter eggs run through the same commands as the palette.
+  Themes run through the same commands as the palette.
 - **Mission case files** — each project sits in a CRT monitor with a
   phosphor tint that clears to full colour on hover.
-- **Command palette** (`⌘K` or `/`) — navigation, themes and every easter
-  egg in one searchable list.
-- **Easter eggs** — Konami code and typed phrases (try typing "redpill",
-  "rabbit" or "smith" anywhere on the page).
+- **Command palette** (`⌘K` or `/`) — navigation, themes and system
+  actions in one searchable list.
+- **Follow the white rabbit** — one hidden trail of five steps across the
+  shell, the mission log, the pill choice and the timeline, with progress
+  saved between visits. A rabbit in the bottom-right corner tracks it and
+  gives the next clue, with a button that takes you to the right place
+  (`trail` in the shell shows the same). The ending bends the rain. *Spoilers:* the steps and their clues are in
+  `src/trail/trail.ts`.
+- **Ambient touches** — a black cat that walks past twice (déjà vu), the
+  tab title changing while you are away, a themed `404.html`, and an
+  operator HUD on the Konami code.
 
 ## Tech stack
 
@@ -94,7 +101,7 @@ src/
     StickyNav.tsx           top nav, shown after hero, with active-link highlight
     ScrollProgress.tsx      themed top-of-viewport progress bar
     ThemeSwitcher.tsx       theme radiogroup (top right)
-    EasterEggs.tsx          hidden commands (konami, phrases…)
+    EasterEggs.tsx          pill choice, finale, trail tracker, cat, operator HUD
     About / Skills / Projects / Timeline / Contact Section.tsx
   config/
     data.ts                 content: owner, skills, projects, timeline, socials, nav
@@ -103,10 +110,13 @@ src/
     glyphs.ts               glyph pool shared by the rain and the intro
   shell/
     shell.ts                shell interpreter, virtual filesystem, tab completion
+  trail/
+    trail.ts                the white-rabbit trail: steps, clues, saved progress
+    eggBridge.ts            how sections reach the easter-egg layer
   hooks/
     useScrolledPastHero.ts  show/hide sticky nav based on scroll
     useActiveSection.ts     IntersectionObserver-backed active-section tracker
-    useKeySequence.ts       konami / phrase detectors for easter eggs
+    useKeySequence.ts       konami code detector
     __tests__/              vitest unit tests for hooks
   styles/
     global.css              base styles + CSS custom properties + focus ring

@@ -16,6 +16,7 @@ import { ThemeSwitcher } from "./components/ThemeSwitcher";
 import { TimelineSection } from "./components/TimelineSection";
 import type { ThemeKey } from "./config/themes";
 import { THEMES, themeToCssVars } from "./config/themes";
+import { eggBridge } from "./trail/eggBridge";
 import { useScrolledPastHero } from "./hooks/useScrolledPastHero";
 
 const THEME_STORAGE_KEY = "ransys.dev:theme";
@@ -139,12 +140,7 @@ export default function App() {
   // EasterEggs component, exposed via window.__matrixEggs. We read it
   // lazily so it's always fresh.
   const ctx = useCallback(() => {
-    type EggBridge = {
-      triggerEgg: (k: EggKey) => void;
-      toggleEgg: (k: EggKey) => void;
-      showMessage: (m: string, ms?: number) => void;
-    };
-    const eggs = (window as unknown as { __matrixEggs?: EggBridge }).__matrixEggs;
+    const eggs = eggBridge();
     return {
       setTheme: (k: ThemeKey) => setTheme(k),
       triggerEgg: (k: EggKey) => eggs?.triggerEgg(k),

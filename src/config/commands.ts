@@ -18,14 +18,7 @@ export interface Command {
   shortcut?: string;
 }
 
-export type EggKey =
-  | "pills"
-  | "agentSmith"
-  | "operatorMode"
-  | "glitchStorm"
-  | "rabbit"
-  | "reboot"
-  | "fortyTwo";
+export type EggKey = "pills" | "operatorMode" | "dejaVu" | "finale";
 
 export interface CommandContext {
   setTheme: (key: ThemeKey) => void;
@@ -161,16 +154,43 @@ export function buildCommands(ctx: CommandContext): (Command & {
       },
     },
 
-    // Easter eggs (all visible from the palette — discoverable)
+    // The trail. Only its way in is listed; the rest has to be found.
+    // The hidden rows still answer to a search for their name.
+    {
+      id: "egg.rabbit",
+      title: "Follow the white rabbit",
+      subtitle: "There is more here than the menu shows",
+      group: "easter-egg",
+      icon: "◐",
+      keywords: ["rabbit", "alice", "secret", "easter", "egg", "trail", "hidden"],
+      run: () => {
+        ctx.showMessage("The rabbit went down the shell. Drop in and list everything: ls -a", 4200);
+        ctx.closePalette();
+      },
+    },
     {
       id: "egg.pills",
       title: "Take a pill",
       subtitle: "Red wakes you up. Blue keeps the dream.",
       group: "easter-egg",
       icon: "◐",
-      keywords: ["red", "blue", "morpheus", "choice", "neo"],
+      hidden: true,
+      keywords: ["red", "blue", "morpheus", "choice", "pills"],
       run: () => {
         ctx.triggerEgg("pills");
+        ctx.closePalette();
+      },
+    },
+    {
+      id: "egg.dejavu",
+      title: "Déjà vu",
+      subtitle: "A glitch in the Matrix",
+      group: "easter-egg",
+      icon: "⚡",
+      hidden: true,
+      keywords: ["deja", "dejavu", "cat", "glitch"],
+      run: () => {
+        ctx.triggerEgg("dejaVu");
         ctx.closePalette();
       },
     },
@@ -180,71 +200,11 @@ export function buildCommands(ctx: CommandContext): (Command & {
       subtitle: "Toggle debug HUD — fps, cursor, telemetry",
       group: "easter-egg",
       icon: "◇",
-      keywords: ["debug", "tank", "konami", "hud"],
+      hidden: true,
+      keywords: ["operator", "debug", "tank", "konami", "hud"],
       shortcut: "Konami",
       run: () => {
         ctx.toggleEgg("operatorMode");
-        ctx.closePalette();
-      },
-    },
-    {
-      id: "egg.smith",
-      title: "Agent Smith",
-      subtitle: "The cursor… replicates",
-      group: "easter-egg",
-      icon: "ψ",
-      keywords: ["smith", "agent", "clone", "cursor"],
-      run: () => {
-        ctx.toggleEgg("agentSmith");
-        ctx.closePalette();
-      },
-    },
-    {
-      id: "egg.glitch",
-      title: "Glitch storm",
-      subtitle: "Tear in the simulation",
-      group: "easter-egg",
-      icon: "⚡",
-      keywords: ["glitch", "deja vu", "scan", "tear"],
-      run: () => {
-        ctx.triggerEgg("glitchStorm");
-        ctx.closePalette();
-      },
-    },
-    {
-      id: "egg.rabbit",
-      title: "Follow the white rabbit",
-      subtitle: "It knows the way",
-      group: "easter-egg",
-      icon: "🜔",
-      keywords: ["rabbit", "alice", "wonderland"],
-      run: () => {
-        ctx.triggerEgg("rabbit");
-        ctx.closePalette();
-      },
-    },
-    {
-      id: "egg.reboot",
-      title: "System reboot",
-      subtitle: "Wipe the screen — start fresh",
-      group: "easter-egg",
-      icon: "↻",
-      keywords: ["restart", "boot", "wakeup", "neo"],
-      run: () => {
-        ctx.triggerEgg("reboot");
-        ctx.closePalette();
-      },
-    },
-    {
-      id: "egg.42",
-      title: "The answer",
-      subtitle: "What is 42 in the Matrix?",
-      group: "easter-egg",
-      icon: "✦",
-      hidden: true,
-      keywords: ["42", "hitchhiker", "douglas", "answer", "life", "universe"],
-      run: () => {
-        ctx.triggerEgg("fortyTwo");
         ctx.closePalette();
       },
     },
@@ -293,26 +253,3 @@ export function buildCommands(ctx: CommandContext): (Command & {
 function scrollTo(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
 }
-
-/** Lowercase phrase → matching command id. Phrases never include spaces. */
-export const PHRASE_TO_COMMAND: Record<string, string> = {
-  redpill: "egg.pills",
-  bluepill: "egg.pills",
-  pills: "egg.pills",
-  pill: "egg.pills",
-  matrix: "theme.matrix",
-  reloaded: "theme.reloaded",
-  revolutions: "theme.revolutions",
-  glitch: "egg.glitch",
-  rabbit: "egg.rabbit",
-  whiterabbit: "egg.rabbit",
-  smith: "egg.smith",
-  agent: "egg.smith",
-  wakeup: "egg.reboot",
-  reboot: "egg.reboot",
-  neo: "egg.reboot",
-  operator: "egg.operator",
-  tank: "egg.operator",
-  fortytwo: "egg.42",
-  // numeric "42" handled separately so it doesn't collide with other words
-};

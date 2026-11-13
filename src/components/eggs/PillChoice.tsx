@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useRef } from "react";
 import type { ThemeKey } from "../../config/themes";
 
 export interface PillChoiceProps {
@@ -52,9 +53,17 @@ const PILLS: Pill[] = [
   },
 ];
 
+/** Entrance timing: quick, and close together, so the screen feels immediate. */
+const ENTER = { duration: 0.28, ease: [0.16, 1, 0.3, 1] as const };
+const STAGGER_S = 0.055;
+
 /**
  * The pill modal — Morpheus's choice as an interactive overlay.
  * Red leaves the simulation for the plain CV view; the others pick a theme.
+ *
+ * Built to stay smooth over the live rain: a plain dark scrim (no backdrop
+ * blur, which re-filters the whole animated canvas every frame), and all
+ * continuous motion done in CSS on `transform` alone.
  */
 export function PillChoice({
   open,
@@ -64,83 +73,68 @@ export function PillChoice({
   onGlitchStorm,
   onMessage,
 }: PillChoiceProps) {
+  const firstPillRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    firstPillRef.current?.focus({ preventScroll: true });
+    // The page steps back so only the rain and the choice are on screen.
+    document.documentElement.classList.add("pills-open");
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.documentElement.classList.remove("pills-open");
+    };
+  }, [open, onClose]);
+
   return (
     <AnimatePresence>
       {open && (
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.25 }}
-          onClick={onClose}
+          className="pills"
           role="dialog"
           aria-modal="true"
           aria-label="The choice — pick a pill"
-          style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 220,
-            background: "rgba(0,0,0,0.78)",
-            backdropFilter: "blur(14px) saturate(140%)",
-            WebkitBackdropFilter: "blur(14px) saturate(140%)",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "clamp(24px, 6vh, 60px) 16px",
-          }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.18 }}
+          onClick={onClose}
         >
           <motion.div
-            initial={{ opacity: 0, y: -8 }}
+            className="pills__intro"
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
+            transition={ENTER}
             onClick={(e) => e.stopPropagation()}
-            style={{
-              textAlign: "center",
-              maxWidth: "640px",
-              marginBottom: "clamp(28px, 5vh, 56px)",
-            }}
           >
-            <div className="tag" style={{ marginBottom: "10px" }}>
-              MORPHEUS // PROTOCOL 01
-            </div>
-            <p
-              className="font-display"
-              style={{
-                fontSize: "clamp(20px, 2.5vw + 10px, 32px)",
-                color: "var(--c-primary)",
-                lineHeight: 1.3,
-                margin: 0,
-                fontWeight: 500,
-              }}
-            >
+            <div className="tag">MORPHEUS // PROTOCOL 01</div>
+            <p className="font-display pills__quote">
               &ldquo;This is your last chance. After this, there is no turning back.&rdquo;
-            </p>
-            <p
-              style={{
-                color: "var(--c-dim)",
-                fontSize: "var(--t-sm)",
-                marginTop: "12px",
-              }}
-            >
-              Make your choice.
             </p>
           </motion.div>
 
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              display: "flex",
-              gap: "clamp(18px, 4vw, 40px)",
-              flexWrap: "wrap",
-              justifyContent: "center",
-            }}
-          >
+          <div className="pills__row" onClick={(e) => e.stopPropagation()}>
             {PILLS.map((pill, i) => (
               <motion.button
                 key={pill.id}
+                ref={i === 0 ? firstPillRef : undefined}
                 type="button"
+                className="pill"
                 aria-label={`Take the ${pill.label.toLowerCase()} pill`}
+                style={
+                  {
+                    "--pill": pill.color,
+                    "--pill-glow": pill.glow,
+                    "--float-delay": `${-i * 1.1}s`,
+                  } as React.CSSProperties
+                }
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ ...ENTER, delay: 0.06 + i * STAGGER_S }}
                 onClick={() => {
                   onMessage(pill.message, 3400);
                   if (pill.theme) {
@@ -151,101 +145,24 @@ export function PillChoice({
                   }
                   onClose();
                 }}
-                initial={{ opacity: 0, y: 24 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.15 + i * 0.1 }}
-                whileHover={{ scale: 1.06, y: -6 }}
-                whileTap={{ scale: 0.95 }}
-                style={{
-                  background: "transparent",
-                  border: "none",
-                  cursor: "pointer",
-                  padding: 0,
-                  fontFamily: "inherit",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: "14px",
-                  width: "min(180px, 38vw)",
-                }}
               >
-                {/* The pill shape */}
-                <motion.div
-                  animate={{ y: [0, -6, 0] }}
-                  transition={{
-                    duration: 3.2 + i * 0.4,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}
-                  style={{
-                    width: "120px",
-                    height: "62px",
-                    borderRadius: "var(--r-pill)",
-                    background: `linear-gradient(135deg, ${pill.color} 0%, ${pill.color} 50%, #1a1a1a 50%, #2a2a2a 100%)`,
-                    boxShadow: `0 0 32px ${pill.glow}, inset 0 0 20px rgba(255,255,255,0.18), inset 0 -10px 30px rgba(0,0,0,0.35)`,
-                    position: "relative",
-                  }}
-                >
-                  <div
-                    aria-hidden
-                    style={{
-                      position: "absolute",
-                      top: "12px",
-                      left: "16px",
-                      width: "20px",
-                      height: "8px",
-                      borderRadius: "50%",
-                      background: "rgba(255,255,255,0.45)",
-                      filter: "blur(3px)",
-                    }}
-                  />
-                </motion.div>
-
-                <div
-                  style={{
-                    fontSize: "12px",
-                    color: pill.color,
-                    letterSpacing: "0.2em",
-                    textTransform: "uppercase",
-                    fontWeight: 700,
-                  }}
-                >
-                  {pill.label}
-                </div>
-                <p
-                  style={{
-                    fontSize: "var(--t-sm)",
-                    color: "var(--c-dim)",
-                    lineHeight: 1.55,
-                    margin: 0,
-                    maxWidth: "180px",
-                  }}
-                >
-                  {pill.body}
-                </p>
+                <span aria-hidden className="pill__capsule" />
+                <span className="pill__label">{pill.label}</span>
+                <span className="pill__body">{pill.body}</span>
               </motion.button>
             ))}
           </div>
 
-          <button
+          <motion.button
             type="button"
+            className="pills__leave"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.25, delay: 0.25 }}
             onClick={onClose}
-            style={{
-              marginTop: "clamp(28px, 5vh, 48px)",
-              padding: "8px 18px",
-              background: "transparent",
-              border: "1px solid var(--c-border)",
-              borderRadius: "var(--r-md)",
-              color: "var(--c-dim)",
-              fontFamily: "inherit",
-              fontSize: "11px",
-              letterSpacing: "0.18em",
-              textTransform: "uppercase",
-              cursor: "pointer",
-            }}
           >
             walk away
-          </button>
+          </motion.button>
         </motion.div>
       )}
     </AnimatePresence>

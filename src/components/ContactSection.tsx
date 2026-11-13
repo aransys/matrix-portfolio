@@ -60,6 +60,7 @@ export function ContactSection({ theme }: ContactSectionProps) {
         style={{
           padding: "clamp(24px, 3vw + 12px, 36px)",
           position: "relative",
+          overflow: "hidden",
         }}
       >
         <span className="scanline" />

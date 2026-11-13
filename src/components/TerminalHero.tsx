@@ -5,13 +5,15 @@ import {
   useTransform,
   useReducedMotion,
 } from "framer-motion";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { BOOT_LOG } from "../config/boot-sequence";
 import { NAV_LINKS, OWNER } from "../config/data";
 import type { ThemeKey } from "../config/themes";
 import { useTapPattern } from "../hooks/useTapPattern";
+import { DecodeLink } from "./ui/DecodeLink";
 import { GlitchText } from "./ui/GlitchText";
-import type { CommandContext, EggKey } from "../config/commands";
+import type { CommandContext } from "../config/commands";
+import { OPEN_SHELL_EVENT, eggBridge } from "../trail/eggBridge";
 import { HeroName } from "./HeroName";
 import { TerminalPrompt } from "./TerminalPrompt";
 import type { TerminalLine } from "./TerminalPrompt";
@@ -29,7 +31,7 @@ export interface TerminalHeroProps {
  * Cinematic hero.
  *
  * Everything — name, role, navigation, palette and shell buttons — is on
- * the page from the first paint. On the first visit of a session the name
+ * the page from the first paint. On every page load the name
  * resolves out of falling code (see `HeroName`); nothing else waits on it.
  *
  * The optional bottom drawer reveals an interactive shell on demand, with
@@ -39,6 +41,21 @@ export function TerminalHero({ theme, commandCtx, onOpenPalette, onShowCv }: Ter
   const [scrollback, setScrollback] = useState<TerminalLine[]>(BOOT_LOG);
   const [shellOpen, setShellOpen] = useState(false);
   const reducedMotion = useReducedMotion();
+
+  // The trail tracker can ask for the shell from anywhere on the page.
+  useEffect(() => {
+    const open = () => {
+      setShellOpen(true);
+      // After the drawer has grown, bring its prompt into view and focus it.
+      window.setTimeout(() => {
+        const shell = document.getElementById("hero-shell");
+        shell?.scrollIntoView({ behavior: "smooth", block: "center" });
+        shell?.querySelector("input")?.focus({ preventScroll: true });
+      }, 380);
+    };
+    window.addEventListener(OPEN_SHELL_EVENT, open);
+    return () => window.removeEventListener(OPEN_SHELL_EVENT, open);
+  }, []);
 
   // Parallax: as the user scrolls, the hero gently lifts and fades
   const { scrollY } = useScroll();
@@ -126,11 +143,7 @@ function RevealedHero({
   // counterpart to typing "redpill". Dispatches through the global egg
   // bridge so we don't need to thread callbacks down to this component.
   const onTriplePress = useTapPattern(3, () => {
-    type EggBridge = {
-      triggerEgg: (k: EggKey) => void;
-    };
-    const eggs = (window as unknown as { __matrixEggs?: EggBridge }).__matrixEggs;
-    eggs?.triggerEgg("pills");
+    eggBridge()?.triggerEgg("pills");
   });
 
   return (
@@ -153,11 +166,11 @@ function RevealedHero({
         aria-hidden
         style={{
           position: "absolute",
-          inset: "-18% -12%",
+          inset: "-34% -30%",
           zIndex: -1,
           pointerEvents: "none",
           background:
-            "radial-gradient(ellipse at center, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.55) 42%, transparent 70%)",
+            "radial-gradient(ellipse at center, rgba(0,0,0,0.94) 0%, rgba(0,0,0,0.88) 38%, rgba(0,0,0,0.5) 58%, transparent 74%)",
         }}
       />
 
@@ -242,32 +255,26 @@ function RevealedHero({
         }}
       >
         {NAV_LINKS.map((link) => (
-          <a
+          <DecodeLink
             key={link.href}
             href={link.href}
-            className="lift"
-            style={{
-              color: "var(--c-dim)",
-              fontSize: "var(--t-sm)",
-              textDecoration: "none",
-              padding: "6px 10px",
-              borderRadius: "var(--r-sm)",
-              transition: "color 0.2s, background 0.2s",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = "var(--c-primary)";
-              e.currentTarget.style.background = "var(--c-glow-soft)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = "var(--c-dim)";
-              e.currentTarget.style.background = "transparent";
-            }}
-          >
-            {link.heroLabel}
-          </a>
+            label={link.heroLabel.replace(/^>\s*/, "")}
+          />
         ))}
       </motion.div>
 
+      {/* Buttons and the shell drawer share one block, so the drawer's
+          height is the only thing that changes when it opens or closes —
+          as a separate flex child, the column gap appeared and vanished
+          in a single frame and the close animation ended with a jump. */}
+      <div
+        style={{
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -366,13 +373,13 @@ function RevealedHero({
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.32, ease: [0.4, 0, 0.2, 1] }}
             style={{ width: "100%", maxWidth: "720px", overflow: "hidden" }}
           >
             <div
               className="glass glass--raised"
               style={{
-                marginTop: "8px",
+                marginTop: "24px",
                 padding: "20px 22px",
                 textAlign: "left",
                 position: "relative",
@@ -380,7 +387,6 @@ function RevealedHero({
                 overflowY: "auto",
               }}
             >
-              <span className="scanline" />
               <TerminalPrompt
                 theme={theme}
                 commandCtx={commandCtx}
@@ -394,6 +400,7 @@ function RevealedHero({
           </motion.div>
         )}
       </AnimatePresence>
+      </div>
     </motion.div>
   );
 }

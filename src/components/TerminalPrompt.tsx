@@ -7,6 +7,7 @@ import { THEMES } from "../config/themes";
 import type { ShellEnv, TerminalLine, TerminalLineType } from "../shell/shell";
 import { HOME, completeInput, runShell } from "../shell/shell";
 import { WARN_ACCENT } from "../styles/tokens";
+import { getFound, markFound } from "../trail/trail";
 
 export type { TerminalLine, TerminalLineType } from "../shell/shell";
 
@@ -100,10 +101,12 @@ export function TerminalPrompt({
     showCv: () => window.setTimeout(commandCtx.showCv, LEAVE_DELAY_MS),
     openPalette: onOpenPalette,
     closeShell: () => window.setTimeout(onClose, LEAVE_DELAY_MS),
+    markTrail: (id) => void markFound(id),
+    finale: () => window.setTimeout(() => commandCtx.triggerEgg("finale"), 1400),
   };
 
   const submit = (raw: string) => {
-    const result = runShell(raw, { cwd, log: commandLog });
+    const result = runShell(raw, { cwd, log: commandLog, trail: getFound() });
 
     if (result.clear) {
       clearScrollback();
@@ -195,7 +198,14 @@ export function TerminalPrompt({
         </div>
       ))}
 
-      <div style={{ display: "flex", alignItems: "center", marginTop: "4px" }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          marginTop: "4px",
+          position: "relative",
+        }}
+      >
         <span style={{ color: t.dim, fontSize: "13px", whiteSpace: "pre" }}>
           {prompt}
         </span>
@@ -233,14 +243,20 @@ export function TerminalPrompt({
           autoComplete="off"
           autoCorrect="off"
           spellCheck={false}
-          // Visually hidden but still keyboard-reachable & screen-reader-labelled.
+          // Invisible but still keyboard-reachable & screen-reader-labelled.
           // The visible "prompt + value + cursor" above is the rendered version.
+          // It sits ON the prompt line: browsers scroll the focused field
+          // into view on every keystroke, so parked at the top of the panel
+          // it dragged the scrollback back to the start while typing.
           style={{
             position: "absolute",
-            left: "-9999px",
-            top: 0,
+            left: 0,
+            bottom: 0,
             width: "1px",
             height: "1px",
+            padding: 0,
+            // 16px stops iOS zooming the page when the field takes focus.
+            fontSize: "16px",
             opacity: 0,
             border: "none",
             outline: "none",

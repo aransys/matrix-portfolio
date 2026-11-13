@@ -18,7 +18,7 @@ export interface CommandPaletteProps {
 const GROUP_LABEL: Record<Command["group"], string> = {
   navigate: "Navigate",
   theme: "Themes",
-  "easter-egg": "Easter eggs",
+  "easter-egg": "Off the menu",
   system: "System",
 };
 

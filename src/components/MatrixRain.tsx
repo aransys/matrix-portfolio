@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { RAIN_FONT_STACK, RAIN_GLYPHS } from "../config/glyphs";
+import { RAIN_BEND_EVENT } from "../trail/eggBridge";
 import type { ThemeKey } from "../config/themes";
 import { THEMES } from "../config/themes";
 
@@ -166,6 +167,7 @@ uniform float u_density;
 uniform float u_intensity;
 uniform vec2 u_pointer;
 uniform float u_pointerRadius;
+uniform float u_bend;
 uniform vec3 u_bg;
 uniform vec3 u_head;
 uniform vec3 u_bright;
@@ -245,12 +247,22 @@ void main() {
   vec2 px = v_uv * u_resolution;
   // Flip Y so rain falls downward (WebGL y points up)
   px.y = u_resolution.y - px.y;
+  vec2 screen = px;
+
+  // "There is no spoon": a lens that bends the code around the pointer
+  // and, above half strength, a slow waver through the whole field.
+  float lens = min(u_bend * 2.0, 1.0);
+  float waver = max(u_bend - 0.5, 0.0) * 2.0;
+  vec2 toPointer = px - u_pointer;
+  float lensDist = length(toPointer) / (u_pointerRadius * 1.5);
+  px -= toPointer * 0.55 * lens * exp(-lensDist * lensDist);
+  px.x += waver * u_cell * 1.6 * sin(px.y / (u_cell * 9.0) + u_time * 1.3);
 
   vec3 rain = layer(px + vec2(u_cell * 0.37, 0.0), 1.0) * 0.5; // back
   rain += layer(px, 0.0);                                        // front
 
   // Soft pool of brighter code around the pointer
-  float d = distance(px, u_pointer) / u_pointerRadius;
+  float d = distance(screen, u_pointer) / u_pointerRadius;
   rain *= 1.0 + 1.1 * exp(-d * d);
 
   // Cheap vignette
@@ -258,6 +270,9 @@ void main() {
   frag = vec4((u_bg + rain) * mix(0.55, 1.0, vig), 1.0);
 }
 `;
+
+/** How quickly the finale's bend eases in and out, per second. */
+const BEND_RATE = 1.6;
 
 /** Front-layer cell size in CSS pixels. */
 const CELL_CSS_PX = 18;
@@ -338,6 +353,7 @@ function startWebGL(
   const uResolution = loc("u_resolution");
   const uTime = loc("u_time");
   const uPointer = loc("u_pointer");
+  const uBend = loc("u_bend");
   const rampLocs = ["u_bg", "u_head", "u_bright", "u_body", "u_dim"].map(loc);
 
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -363,11 +379,18 @@ function startWebGL(
     if (canvas.width !== w || canvas.height !== h) {
       canvas.width = w;
       canvas.height = h;
-      gl.viewport(0, 0, w, h);
-      gl.uniform2f(uResolution, w, h);
     }
+    // Always, not only when the size changed: a renderer started on a
+    // canvas that is already the right size (a remount) still has a fresh
+    // program whose resolution is zero, which draws nothing at all.
+    gl.viewport(0, 0, w, h);
+    gl.uniform2f(uResolution, w, h);
   }
   resize();
+
+  // Lens strength for the trail's finale, eased towards its target.
+  let bend = 0;
+  let bendTarget = 0;
 
   // Parked far off-screen until the pointer first moves.
   let pointerX = -1e5;
@@ -405,6 +428,10 @@ function startWebGL(
       }
       uploadRamp();
     }
+    bend = reducedMotion
+      ? bendTarget
+      : bend + (bendTarget - bend) * (1 - Math.exp(-((now - lastFrame) / 1000) * BEND_RATE));
+    gl.uniform1f(uBend, bend);
     lastFrame = now;
     gl.uniform1f(uTime, TIME_OFFSET + (reducedMotion ? 0 : (now - startTime) / 1000));
     gl.uniform2f(uPointer, pointerX, pointerY);
@@ -437,6 +464,12 @@ function startWebGL(
   }
   document.addEventListener("visibilitychange", onVisibility);
 
+  const onBend = (e: Event) => {
+    bendTarget = (e as CustomEvent<number>).detail;
+    if (reducedMotion) draw(performance.now());
+  };
+  window.addEventListener(RAIN_BEND_EVENT, onBend);
+
   return {
     setTheme(key) {
       target = themeRamp(key);
@@ -447,6 +480,7 @@ function startWebGL(
       running = false;
       if (rafId) cancelAnimationFrame(rafId);
       window.removeEventListener("resize", onResize);
+      window.removeEventListener(RAIN_BEND_EVENT, onBend);
       window.removeEventListener("pointermove", onPointerMove);
       document.documentElement.removeEventListener("pointerleave", onPointerLeave);
       document.removeEventListener("visibilitychange", onVisibility);

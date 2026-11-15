@@ -177,8 +177,10 @@ export default function App() {
 
       <MatrixRain
         theme={theme}
-        density={0.62}
-        intensity={0.85}
+        // Deliberately restrained: the rain is atmosphere behind the
+        // content, not competition for it.
+        density={0.26}
+        intensity={0.5}
         waveFrom={themeChoice ? "switcher" : scrollTheme.from}
       />
       <ScrollProgress theme={theme} />

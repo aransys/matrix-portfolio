@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { RAIN_FONT_STACK, RAIN_GLYPHS } from "../config/glyphs";
 import { RAIN_BEND_EVENT } from "../trail/eggBridge";
 import type { ThemeKey } from "../config/themes";
-import { THEMES } from "../config/themes";
+import { THEMES, THEME_ORDER } from "../config/themes";
 
 export interface MatrixRainProps {
   theme: ThemeKey;
@@ -10,11 +10,19 @@ export interface MatrixRainProps {
   density?: number;
   /** Overall brightness multiplier for the rain. */
   intensity?: number;
+  /**
+   * Where a theme change sweeps in from: the theme switcher (a deliberate
+   * choice), or the bottom / top edge when the page changed theme because
+   * the visitor scrolled down / up into a new chapter.
+   */
+  waveFrom?: WaveSource;
 }
+
+export type WaveSource = "switcher" | "below" | "above";
 
 /** A running renderer. `setTheme` recolours it without restarting. */
 interface RainHandle {
-  setTheme: (key: ThemeKey) => void;
+  setTheme: (key: ThemeKey, from: WaveSource) => void;
   cleanup: () => void;
 }
 
@@ -31,9 +39,15 @@ interface RainHandle {
  *   - pause when the tab is hidden
  *   - resize on viewport changes
  *   - recolour on theme change without re-mounting, so the streams keep
- *     falling while the palette blends
+ *     falling. In WebGL the new palette sweeps out from the theme switcher
+ *     as a wave, and now and then a stream falls in another theme's colour.
  */
-export function MatrixRain({ theme, density = 0.6, intensity = 0.7 }: MatrixRainProps) {
+export function MatrixRain({
+  theme,
+  density = 0.6,
+  intensity = 0.7,
+  waveFrom = "switcher",
+}: MatrixRainProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const handleRef = useRef<RainHandle | null>(null);
   const themeRef = useRef(theme);
@@ -69,7 +83,10 @@ export function MatrixRain({ theme, density = 0.6, intensity = 0.7 }: MatrixRain
 
   useEffect(() => {
     themeRef.current = theme;
-    handleRef.current?.setTheme(theme);
+    handleRef.current?.setTheme(theme, waveFrom);
+    // waveFrom only describes the change it arrives with; on its own it
+    // must not start a wave.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [theme]);
 
   return (
@@ -153,6 +170,9 @@ void main() {
  *     rest only every few seconds.
  *   - A second, larger and slower layer behind gives depth.
  *   - The rain brightens in a soft pool around the pointer.
+ *   - Two palettes are live at once: a theme change is a wavefront
+ *     spreading from a point, old colour ahead of it and new behind.
+ *   - A small share of streams fall in one of the other themes' colours.
  */
 const FRAGMENT_SHADER = `#version 300 es
 precision highp float;
@@ -168,13 +188,24 @@ uniform float u_intensity;
 uniform vec2 u_pointer;
 uniform float u_pointerRadius;
 uniform float u_bend;
-uniform vec3 u_bg;
-uniform vec3 u_head;
-uniform vec3 u_bright;
-uniform vec3 u_body;
-uniform vec3 u_dim;
+// Palettes are [bg, head, bright, body, dim]. u_from is ahead of the
+// wavefront, u_to behind it; u_wave runs 0 -> 1 as the front crosses.
+uniform vec3 u_from[5];
+uniform vec3 u_to[5];
+uniform float u_wave;
+uniform vec2 u_waveOrigin;
+// Distance from the origin to the screen: the front starts there, so a
+// wave that begins off-screen is visible from its first frame.
+uniform float u_waveNear;
+// The other two themes, [head, bright, body, dim] each, for stray streams.
+uniform vec3 u_stray[8];
 
 const float ATLAS_GRID = 8.0;
+/** Share of streams that fall in another theme's colour. */
+const float STRAY_SHARE = 0.035;
+
+/** 0 ahead of the theme wavefront, 1 behind it. Set once per pixel. */
+float g_wave;
 
 float hash11(float p) {
   p = fract(p * 0.1031);
@@ -223,16 +254,34 @@ vec3 layer(vec2 px, float depth) {
   float tick = floor(u_time * rate + cellSeed * 40.0);
   float g = glyph(cellUV, hash21(vec2(col + tick * 3.1, row + depth * 11.0 + tick)), cs);
 
+  // Which palette this stream falls in. Every cell of one pass down the
+  // screen shares a pass number, so a stray keeps its colour from the top
+  // of the screen to the bottom, then the column rolls again.
+  float pass = floor((u_time * speed - seed * 200.0 - row) / numRows);
+  vec3 head, bright, body, dimc;
+  if (hash21(vec2(col + depth * 31.0, pass)) > 1.0 - STRAY_SHARE) {
+    int k = hash21(vec2(pass, col + 7.0)) > 0.5 ? 4 : 0;
+    head = u_stray[k];
+    bright = u_stray[k + 1];
+    body = u_stray[k + 2];
+    dimc = u_stray[k + 3];
+  } else {
+    head = mix(u_from[1], u_to[1], g_wave);
+    bright = mix(u_from[2], u_to[2], g_wave);
+    body = mix(u_from[3], u_to[3], g_wave);
+    dimc = mix(u_from[4], u_to[4], g_wave);
+  }
+
   // Distance-to-head colour ramp
   vec3 c;
   if (dist < 1.0) {
-    c = u_head;
+    c = head;
   } else if (dist < 2.5) {
-    c = mix(u_bright, u_head, 1.0 - smoothstep(1.0, 2.5, dist));
+    c = mix(bright, head, 1.0 - smoothstep(1.0, 2.5, dist));
   } else if (dist < 8.0) {
-    c = mix(u_body, u_bright, exp(-(dist - 2.5) * 0.35));
+    c = mix(body, bright, exp(-(dist - 2.5) * 0.35));
   } else {
-    c = mix(u_dim, u_body, exp(-(dist - 8.0) * 0.18));
+    c = mix(dimc, body, exp(-(dist - 8.0) * 0.18));
   }
   // Tail dissolves instead of cutting off
   c *= 1.0 - smoothstep(trailLen * 0.55, trailLen, dist);
@@ -258,16 +307,28 @@ void main() {
   px -= toPointer * 0.55 * lens * exp(-lensDist * lensDist);
   px.x += waver * u_cell * 1.6 * sin(px.y / (u_cell * 9.0) + u_time * 1.3);
 
+  // Theme wave: a soft-edged front spreading from its origin until it has
+  // passed the farthest corner of the screen.
+  float reach = length(max(abs(u_waveOrigin), abs(u_resolution - u_waveOrigin)));
+  float band = u_resolution.y * 0.3;
+  float front = u_waveNear + u_wave * (reach + band - u_waveNear);
+  float fromOrigin = distance(screen, u_waveOrigin);
+  g_wave = 1.0 - smoothstep(front - band, front, fromOrigin);
+  // The front itself runs hot for a moment as it passes.
+  float crest = (fromOrigin - (front - band * 0.5)) / (band * 0.3);
+  float surge = exp(-crest * crest) * step(0.001, u_wave) * step(u_wave, 0.999);
+
   vec3 rain = layer(px + vec2(u_cell * 0.37, 0.0), 1.0) * 0.5; // back
   rain += layer(px, 0.0);                                        // front
 
   // Soft pool of brighter code around the pointer
   float d = distance(screen, u_pointer) / u_pointerRadius;
   rain *= 1.0 + 1.1 * exp(-d * d);
+  rain *= 1.0 + 0.6 * surge;
 
   // Cheap vignette
   float vig = smoothstep(1.2, 0.35, length(v_uv - 0.5));
-  frag = vec4((u_bg + rain) * mix(0.55, 1.0, vig), 1.0);
+  frag = vec4((mix(u_from[0], u_to[0], g_wave) + rain) * mix(0.55, 1.0, vig), 1.0);
 }
 `;
 
@@ -278,8 +339,8 @@ const BEND_RATE = 1.6;
 const CELL_CSS_PX = 18;
 /** Radius of the pointer highlight in CSS pixels. */
 const POINTER_RADIUS_CSS_PX = 170;
-/** Higher = faster palette blend on theme change (≈ 0.6s to settle). */
-const THEME_BLEND_RATE = 6;
+/** How long a theme change takes to sweep across the screen. */
+const THEME_WAVE_MS = 1500;
 
 const RAMP_KEYS = ["bg", "rainHead", "rainBright", "rainBody", "rainDim"] as const;
 
@@ -288,6 +349,31 @@ function themeRamp(key: ThemeKey): Float32Array<ArrayBuffer> {
   const out = new Float32Array(RAMP_KEYS.length * 3);
   RAMP_KEYS.forEach((k, i) => out.set(hexToRgb(t[k]), i * 3));
   return out;
+}
+
+/** [head, bright, body, dim] for each theme other than `key`. */
+function strayRamps(key: ThemeKey): Float32Array<ArrayBuffer> {
+  const out = new Float32Array(8 * 3);
+  THEME_ORDER.filter((k) => k !== key)
+    .slice(0, 2)
+    .forEach((other, i) => out.set(themeRamp(other).subarray(3), i * 12));
+  return out;
+}
+
+/** How far off-screen a scroll-driven wave starts, in screen heights. A
+ *  distant origin makes the front nearly flat, like a tide line. */
+const SCROLL_WAVE_DISTANCE = 1.4;
+
+/** Where a theme wave starts, and how far that is from the screen. */
+function waveOrigin(from: WaveSource, dpr: number): { x: number; y: number; near: number } {
+  const w = window.innerWidth * dpr;
+  const h = window.innerHeight * dpr;
+  if (from === "below") return { x: w / 2, y: h * (1 + SCROLL_WAVE_DISTANCE), near: h * SCROLL_WAVE_DISTANCE };
+  if (from === "above") return { x: w / 2, y: -h * SCROLL_WAVE_DISTANCE, near: h * SCROLL_WAVE_DISTANCE };
+  const el = document.querySelector('[role="radiogroup"][aria-label="Colour theme"]');
+  if (!el) return { x: w / 2, y: 0, near: 0 };
+  const r = el.getBoundingClientRect();
+  return { x: (r.left + r.width / 2) * dpr, y: (r.top + r.height / 2) * dpr, near: 0 };
 }
 
 function compileShader(
@@ -354,7 +440,12 @@ function startWebGL(
   const uTime = loc("u_time");
   const uPointer = loc("u_pointer");
   const uBend = loc("u_bend");
-  const rampLocs = ["u_bg", "u_head", "u_bright", "u_body", "u_dim"].map(loc);
+  const uFrom = loc("u_from");
+  const uTo = loc("u_to");
+  const uWave = loc("u_wave");
+  const uWaveOrigin = loc("u_waveOrigin");
+  const uWaveNear = loc("u_waveNear");
+  const uStray = loc("u_stray");
 
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
   gl.uniform1i(loc("u_atlas"), 0);
@@ -363,14 +454,22 @@ function startWebGL(
   gl.uniform1f(loc("u_density"), density);
   gl.uniform1f(loc("u_intensity"), intensity);
 
-  // Palette: `ramp` is what's on screen, `target` is where it's heading.
-  const ramp = themeRamp(themeKey);
-  let target = themeRamp(themeKey);
-  let blending = false;
-  function uploadRamp() {
-    rampLocs.forEach((l, i) => gl.uniform3fv(l, ramp.subarray(i * 3, i * 3 + 3)));
+  // Palette: `from` is ahead of the wavefront, `to` behind it. At rest
+  // the wave is complete and the whole screen shows `to`.
+  let from = themeRamp(themeKey);
+  let to = themeRamp(themeKey);
+  let current = themeKey;
+  let wave = 1;
+  let waveStart = 0;
+  function uploadPalette() {
+    gl.uniform3fv(uFrom, from);
+    gl.uniform3fv(uTo, to);
+    gl.uniform3fv(uStray, strayRamps(current));
   }
-  uploadRamp();
+  uploadPalette();
+  gl.uniform1f(uWave, wave);
+  gl.uniform2f(uWaveOrigin, 0, 0);
+  gl.uniform1f(uWaveNear, 0);
 
   const canvas = gl.canvas as HTMLCanvasElement;
   function resize() {
@@ -415,18 +514,12 @@ function startWebGL(
   let running = true;
 
   function draw(now: number) {
-    if (blending) {
-      const k = reducedMotion ? 1 : 1 - Math.exp(-((now - lastFrame) / 1000) * THEME_BLEND_RATE);
-      let remaining = 0;
-      for (let i = 0; i < ramp.length; i++) {
-        ramp[i] += (target[i] - ramp[i]) * k;
-        remaining = Math.max(remaining, Math.abs(target[i] - ramp[i]));
-      }
-      if (remaining < 0.002) {
-        ramp.set(target);
-        blending = false;
-      }
-      uploadRamp();
+    if (wave < 1) {
+      const t = reducedMotion ? 1 : Math.min(1, (now - waveStart) / THEME_WAVE_MS);
+      // Ease out: the front leaves the switcher fast and settles gently.
+      wave = 1 - Math.pow(1 - t, 1.8);
+      if (t >= 1) wave = 1;
+      gl.uniform1f(uWave, wave);
     }
     bend = reducedMotion
       ? bendTarget
@@ -470,12 +563,31 @@ function startWebGL(
   };
   window.addEventListener(RAIN_BEND_EVENT, onBend);
 
+  /** Start a wave towards `key`'s palette. */
+  function recolour(key: ThemeKey, source: WaveSource) {
+    if (key === current) return;
+    // Interrupted mid-wave: carry on from roughly what is on screen.
+    if (wave < 1) {
+      const mixed = new Float32Array(from.length);
+      for (let i = 0; i < mixed.length; i++) mixed[i] = from[i] + (to[i] - from[i]) * wave;
+      from = mixed;
+    } else {
+      from = to;
+    }
+    to = themeRamp(key);
+    current = key;
+    wave = 0;
+    waveStart = performance.now();
+    uploadPalette();
+    gl.uniform1f(uWave, 0);
+    const origin = waveOrigin(source, dpr);
+    gl.uniform2f(uWaveOrigin, origin.x, origin.y);
+    gl.uniform1f(uWaveNear, origin.near);
+    if (reducedMotion) draw(performance.now());
+  }
+
   return {
-    setTheme(key) {
-      target = themeRamp(key);
-      blending = true;
-      if (reducedMotion) draw(performance.now());
-    },
+    setTheme: recolour,
     cleanup() {
       running = false;
       if (rafId) cancelAnimationFrame(rafId);

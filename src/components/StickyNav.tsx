@@ -37,7 +37,7 @@ export function StickyNav({ theme: _theme, visible, onOpenPalette }: StickyNavPr
         borderBottom: "1px solid var(--c-border)",
         padding: "clamp(10px, 1.5vw + 6px, 12px) clamp(14px, 3vw, 24px)",
         // Room for the theme switcher, which docks into this corner
-        paddingRight: "calc(clamp(12px, 2vw, 20px) + 126px)",
+        paddingRight: "calc(clamp(12px, 2vw, 20px) + 156px)",
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",

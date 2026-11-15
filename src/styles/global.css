@@ -19,6 +19,85 @@
 }
 
 /* ------------------ Theme defaults (Matrix) ------------------ */
+/* Registering the theme colours as real colours lets the browser
+   interpolate them. A theme change then fades every themed element from
+   one place, whether or not that element has a transition of its own. */
+@property --c-primary {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #00ff66;
+}
+@property --c-accent {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #7fffaf;
+}
+@property --c-secondary {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #00cc55;
+}
+@property --c-dim {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #00aa3a;
+}
+@property --c-dark-dim {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #005a20;
+}
+@property --c-bg {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #020604;
+}
+@property --c-bg-deep {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #000200;
+}
+@property --c-surface {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(6, 18, 10, 0.84);
+}
+@property --c-surface-raised {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(10, 26, 14, 0.86);
+}
+@property --c-border {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(0, 255, 102, 0.18);
+}
+@property --c-border-strong {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(0, 255, 102, 0.35);
+}
+@property --c-glow {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(0, 255, 102, 0.45);
+}
+@property --c-glow-soft {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(0, 255, 102, 0.08);
+}
+@property --c-scanline {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(0, 255, 102, 0.05);
+}
+@property --c-pill-bg {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(0, 255, 102, 0.12);
+}
+
 :root {
   --c-primary: #00ff66;
   --c-accent: #7fffaf;
@@ -74,8 +153,24 @@
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
 
-  --transition-theme: background 0.6s var(--ease-out), color 0.6s var(--ease-out),
-    border-color 0.4s var(--ease-out);
+  /* Theme colours fade at the source (see the @property block below), so
+     elements must not run their own colour transitions on top: chasing a
+     value that is itself moving every frame is what makes a fade stutter. */
+  --transition-theme: background 0s, color 0s, border-color 0s;
+
+  /* One fade for every themed colour on the page, in step with each other. */
+  transition:
+    --c-primary 0.9s ease, --c-accent 0.9s ease, --c-secondary 0.9s ease,
+    --c-dim 0.9s ease, --c-dark-dim 0.9s ease, --c-bg 0.9s ease,
+    --c-bg-deep 0.9s ease, --c-surface 0.9s ease, --c-surface-raised 0.9s ease,
+    --c-border 0.9s ease, --c-border-strong 0.9s ease, --c-glow 0.9s ease,
+    --c-glow-soft 0.9s ease, --c-scanline 0.9s ease, --c-pill-bg 0.9s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    transition: none;
+  }
 }
 
 /* ------------------ Base ------------------ */

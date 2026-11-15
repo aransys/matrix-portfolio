@@ -18,21 +18,26 @@ import type { ThemeKey } from "./config/themes";
 import { THEMES, themeToCssVars } from "./config/themes";
 import { eggBridge } from "./trail/eggBridge";
 import { useScrolledPastHero } from "./hooks/useScrolledPastHero";
+import { useScrollTheme } from "./hooks/useScrollTheme";
 
-const THEME_STORAGE_KEY = "ransys.dev:theme";
+/**
+ * Only a theme the visitor picked themselves is stored. (A new key: the
+ * old one also recorded the default, which would wrongly count as a pick.)
+ */
+const THEME_CHOICE_KEY = "ransys.dev:theme-choice";
 
-/** Read persisted theme; default to "matrix". */
-function readInitialTheme(): ThemeKey {
-  if (typeof window === "undefined") return "matrix";
+/** The theme the visitor chose on an earlier visit, or null for none. */
+function readThemeChoice(): ThemeKey | null {
+  if (typeof window === "undefined") return null;
   try {
-    const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
+    const stored = window.localStorage.getItem(THEME_CHOICE_KEY);
     if (stored === "matrix" || stored === "reloaded" || stored === "revolutions") {
       return stored;
     }
   } catch {
     // ignore storage errors (privacy mode, etc.)
   }
-  return "matrix";
+  return null;
 }
 
 /** `?cv` in the URL opens the plain CV view directly — shareable. */
@@ -52,7 +57,10 @@ function isCvUrl(): boolean {
  *   - Owns the active theme; mirrors it into CSS variables on :root so the
  *     entire DOM repaints in a single tick rather than re-rendering every
  *     themed component.
- *   - Persists the user's theme choice across visits.
+ *   - Until the visitor picks a theme, the theme follows the scroll: the
+ *     page moves through the trilogy's three palettes from top to bottom.
+ *     A pick (from the switcher, palette, shell or a pill) locks it and is
+ *     remembered across visits; the switcher's "auto" swatch unlocks it.
  *   - Owns the "real world" switch: the red pill (or `?cv`) swaps the whole
  *     simulation for a plain printable CV, tracked in the URL so the
  *     browser's back button and shared links both work.
@@ -61,9 +69,14 @@ function isCvUrl(): boolean {
  *     `window.__matrixEggs` action surface.
  */
 export default function App() {
-  const [theme, setTheme] = useState<ThemeKey>(readInitialTheme);
+  const [themeChoice, setThemeChoice] = useState<ThemeKey | null>(readThemeChoice);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [realWorld, setRealWorld] = useState(isCvUrl);
+  const scrollTheme = useScrollTheme(themeChoice === null && !realWorld);
+  const theme = themeChoice ?? scrollTheme.theme;
+  /** Every explicit theme change in the app goes through here, and locks. */
+  const setTheme = useCallback((key: ThemeKey) => setThemeChoice(key), []);
+  const followScroll = useCallback(() => setThemeChoice(null), []);
   const showNav = useScrolledPastHero();
 
   const setCvView = useCallback((on: boolean) => {
@@ -103,12 +116,16 @@ export default function App() {
       root.setProperty(key, value);
     }
 
+  }, [theme]);
+
+  useEffect(() => {
     try {
-      window.localStorage.setItem(THEME_STORAGE_KEY, theme);
+      if (themeChoice) window.localStorage.setItem(THEME_CHOICE_KEY, themeChoice);
+      else window.localStorage.removeItem(THEME_CHOICE_KEY);
     } catch {
       // ignore
     }
-  }, [theme]);
+  }, [themeChoice]);
 
   // Global Cmd/Ctrl + K to open palette
   useEffect(() => {
@@ -142,13 +159,13 @@ export default function App() {
   const ctx = useCallback(() => {
     const eggs = eggBridge();
     return {
-      setTheme: (k: ThemeKey) => setTheme(k),
+      setTheme,
       triggerEgg: (k: EggKey) => eggs?.triggerEgg(k),
       toggleEgg: (k: EggKey) => eggs?.toggleEgg(k),
       showMessage: (m: string, ms?: number) => eggs?.showMessage(m, ms),
       showCv,
     };
-  }, [showCv]);
+  }, [showCv, setTheme]);
 
   if (realWorld) return <RealView onExit={hideCv} />;
 
@@ -158,9 +175,20 @@ export default function App() {
         Skip to content
       </a>
 
-      <MatrixRain theme={theme} density={0.62} intensity={0.85} />
+      <MatrixRain
+        theme={theme}
+        density={0.62}
+        intensity={0.85}
+        waveFrom={themeChoice ? "switcher" : scrollTheme.from}
+      />
       <ScrollProgress theme={theme} />
-      <ThemeSwitcher theme={theme} setTheme={setTheme} docked={showNav} />
+      <ThemeSwitcher
+        theme={theme}
+        setTheme={setTheme}
+        auto={themeChoice === null}
+        onAuto={followScroll}
+        docked={showNav}
+      />
       <StickyNav
         theme={theme}
         visible={showNav}

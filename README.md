@@ -20,6 +20,13 @@ to extend.
 - **Three themes** (Matrix / Reloaded / Revolutions) synced to the page via
   CSS custom properties, so switching palettes transitions colours
   everywhere in one paint.
+- **Colour follows the scroll** — until a visitor picks a theme, the page
+  moves through the trilogy as they read: green at the top, blue from the
+  missions, amber from the timeline. Each change sweeps through the rain
+  as a wave from the edge they are scrolling towards while every themed
+  colour on the page fades in step. Picking a theme locks it (and is
+  remembered); the switcher's "auto" swatch unlocks it. About one stream
+  in thirty always falls in another theme's colour.
 - **Active-section nav** — a sticky top nav appears once the hero scrolls
   out and highlights the section currently under the viewport's midpoint
   (IntersectionObserver, no scroll listener).
